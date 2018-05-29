@@ -4,6 +4,7 @@ import Router from "koa-router";
 import config from "@/config.js";
 import {validate} from "@/middlewares/index.js";
 import {ERR_UNATUH, ERR_OK, ERR_PARAMS} from "@/common/error.js";
+import util from "@/common/util.js";
 
 import files from "@/controllers/files.js";
 import siteFiles from "@/controllers/siteFiles.js";
