@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: storage-node
+  labels:
+    app: storage-node
+spec:
+  containers:
+  - name: storage-node
+    image: 10.28.18.13/xuntian/keepwork-storage:latest
+    imagePullPolicy: always
+    ports:
+      - containerPort: 8088
+    

@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: storage-mysql
+  labels:
+    app: storage-mysql
+spec:
+  containers:
+  - name: storage-mysql
+    image: mysql:8
+    ports:
+      - containerPort: 3306
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      value: "123456"
+    - name: MYSQL_USER
+      value: "keepwork"
+    - name: MYSQL_PASSWORD
+      value: "123456"
+    volumeMounts: 
+      - name: nfs-storage-mysql
+        mountPath: "/var/lib/mysql"
+  volumes: 
+    - name: nfs-storage-mysql
+      nfs: 
+        server: 10.28.18.13
+        path: "/mnt/storage_mysql"
