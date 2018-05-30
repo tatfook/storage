@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: storage-mysql
+spec: 
+  rules: 
+  - host: storage-mysql.default.svc.cluster.local
+    tcp: 
+      paths:
+      - path: 
+        backend:
+          serviceName: storage-mysql
+          servicePort: 3306

@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: storage-node
+spec: 
+  rules: 
+  - host: storage-node.default.svc.cluster.local
+    http: 
+      paths:
+      - path: 
+        backend:
+          serviceName: storage-node
+          servicePort: 8088
