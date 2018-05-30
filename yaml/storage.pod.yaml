@@ -8,7 +8,7 @@ spec:
   containers:
   - name: storage-node
     image: 10.28.18.13/xuntian/keepwork-storage:latest
-    imagePullPolicy: always
+    imagePullPolicy: Always
     ports:
       - containerPort: 8088
     
