@@ -5,7 +5,7 @@ metadata:
 spec: 
   rules: 
   - host: storage-node.default.svc.cluster.local
-    tcp: 
+    http: 
       paths:
       - path: 
         backend:
