@@ -232,7 +232,7 @@ Files.prototype.qiniu = async function(ctx) {
 	if (!data) {
 	}
 
-	return ERR_OK(data);
+	return ERR.ERR_OK(data);
 }
 
 Files.getRoutes = function() {

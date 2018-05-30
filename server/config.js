@@ -33,9 +33,13 @@ const defaultConfig = {
 }
 
 const productionConfig = {
+	bucketName: "keepwork",
+	bucketDomian: "http://ov62qege8.bkt.clouddn.com",
 }
 
 const developmentConfig = {
+	bucketName: "keepwork-dev",
+	bucketDomian: "http://oy41aju0m.bkt.clouddn.com",
 }
 
 
