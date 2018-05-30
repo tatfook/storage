@@ -53,7 +53,10 @@ Files.prototype.token = async function(ctx) {
 }
 
 Files.prototype.statistics = async function(ctx) {
-	let result = await sequelize.query("SELECT SUM(size) AS `sum`, COUNT(*) as `count` from `files`",  {type: sequelize.QueryTypes.SELECT });
+	const username = ctx.state.user.username;
+	let result = await sequelize.query("SELECT SUM(size) AS `used`, COUNT(*) as `count` from `files` where `username` = :username",  {type: sequelize.QueryTypes.SELECT, replacements: {
+		username: username,
+	}});
 	let data = result[0] || {};
 	
 	data.total = 2 * 1024 * 1024 * 1024;
