@@ -197,10 +197,10 @@ Files.prototype.rename = async function(ctx) {
 	data = data.get({plain:true});
 	
 	// 七牛改名
-	const srcKey = username + "_files/" + data.filename;
-	const dstKey = username + "_files/" + filename;
-	data = await storage.move(srcKey, dstKey);
-	if (data.isErr()) return data;
+	//const srcKey = username + "_files/" + data.filename;
+	//const dstKey = username + "_files/" + filename;
+	//data = await storage.move(srcKey, dstKey);
+	//if (data.isErr()) return data;
 	
 	data = await this.model.update({
 		filename: filename,
