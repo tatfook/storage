@@ -38,16 +38,20 @@ const productionConfig = {
 	qiniu: {
 		bucketName: "keepwork",
 		bucketDomian: "http://ov62qege8.bkt.clouddn.com",
-	}
+	},
+
+	keepworkBaseURL: "http://keepwork.com/api/wiki/models/",
 }
 
 const developmentConfig = {
+	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
 	database: {
 		database:"note-dev",
 	}
 }
 
 const testConfig = {
+	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
 	database: {
 		database:"note-dev",
 	}

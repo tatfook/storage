@@ -1,7 +1,8 @@
 import joi from "joi";
+import axios from "axios";
 
 import ERR from "@/common/error.js";
-
+import config from "@/config.js";
 import qiniu from "@/models/qiniu.js";
 import SiteFilesModel from "@/models/siteFiles.js";
 
@@ -56,6 +57,16 @@ SiteFiles.prototype.raw = async function(ctx) {
 	data = data.get({plain:true});
 
 	if (username != data.username) {
+		let result = await axios.get(config.keepworkBaseURL + "site_user/getSiteLevelByMemberName", {
+			username:data.username,
+			sitename:data.sitename,
+			memberName: username,
+		}).then(res => res.data);
+		if (!result || result.data < 40) {
+			ctx.status(400);
+			ctx.body = "没有权限访问";
+			return ;
+		}
 		// 权限判断
 	}
 
