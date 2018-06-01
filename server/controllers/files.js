@@ -7,10 +7,10 @@ import sequelize from "@/models/database.js";
 import ERR from "@/common/error.js";
 import util from "@/common/util.js";
 
-import qiniu from "@/models/qiniu.js";
+import storage from "./storage.js";
+
 import filesModel from "@/models/files.js";
 
-const storage = qiniu;
 
 const {like, gt, lte, ne, in: opIn} = Sequelize.Op;
 
@@ -30,7 +30,7 @@ Files.prototype.raw = function(ctx) {
 	ctx.redirect(url || 'http://git.keepwork.com/gitlab_rls_lixizhi/keepworkdatasource/raw/master/lixizhi_images/img_1520938234618.jpeg');
 }
 
-Files.prototype.token = function(ctx) {
+Files.prototype.token = async function(ctx) {
 	const key = decodeURIComponent(ctx.params.id);
 	const username = ctx.state.user.username;
 
@@ -44,6 +44,10 @@ Files.prototype.token = function(ctx) {
 		return ERR.ERR_PARAMS();
 	}
 
+	if (await storage.isFull(username)) {
+		return ERR.ERR().setMessage("存贮空间不足");
+	}
+
 	const result =  storage.getUploadToken(key);
 	if (result.isErr()) return result;
 
@@ -52,25 +56,13 @@ Files.prototype.token = function(ctx) {
 	return ERR.ERR_OK({token});
 }
 
+
 Files.prototype.statistics = async function(ctx) {
 	const username = ctx.state.user.username;
-	let result = await sequelize.query("SELECT SUM(size) AS `used`, COUNT(*) as `count` from `files` where `username` = :username",  {type: sequelize.QueryTypes.SELECT, replacements: {
-		username: username,
-	}});
-	let data = result[0] || {};
-	
-	data.total = 2 * 1024 * 1024 * 1024;
-	//console.log(result);
+
+	let data = await storage.getStatistics({username: username});
 
 	return ERR.ERR_OK(data);
-}
-
-Files.prototype.url = async function(ctx) {
-	const key = decodeURIComponent(ctx.params.id);
-	const username = ctx.state.user.username;
-	const params = ctx.state.params;
-
-	return 
 }
 
 Files.prototype.upsert = async function(ctx) {
@@ -96,6 +88,8 @@ Files.prototype.upsert = async function(ctx) {
 
 	let data = await this.model.upsert(params);
 
+	await storage.updateStatistics(username);
+
 	return ERR.ERR_OK(data);
 }
 
@@ -112,6 +106,8 @@ Files.prototype.delete = async function(ctx) {
 			username: username,
 		}
 	});
+
+	await storage.updateStatistics(username);
 
 	return ERR.ERR_OK(data);
 }

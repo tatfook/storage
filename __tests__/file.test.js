@@ -54,7 +54,8 @@ test("files", async () => {
 
 	ctx.params.id = encodeURIComponent(key);
 
-	let result = files.token(ctx);
+	let result = await files.token(ctx);
+	//console.log(result);
 	expect(result.isOk()).toBeTruthy();
 	let data = result.getData();
 	expect(data).toHaveProperty("token");

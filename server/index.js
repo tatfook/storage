@@ -6,8 +6,10 @@ import wurl from "wurl";
 import _ from "lodash";
 import axios from "axios";
 
+import "@/models";
 import router from "@/router.js";
 import config from "@/config.js";
+
 
 function start () {
 	const app = new Koa();

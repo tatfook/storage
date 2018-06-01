@@ -42,17 +42,21 @@ const productionConfig = {
 }
 
 const developmentConfig = {
+	database: {
+		database:"note-dev",
+	}
 }
 
 const testConfig = {
-
+	database: {
+		database:"note-dev",
+	}
 }
 
 const configs = {
 	"production": _.merge({}, defaultConfig, productionConfig, secretConfig),
 	"development": _.merge({}, defaultConfig, developmentConfig, secretConfig),
 	"test": _.merge({}, defaultConfig, testConfig, secretConfig),
-
 }
 
 export default configs[process.env.NODE_ENV];
