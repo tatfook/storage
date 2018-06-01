@@ -83,7 +83,7 @@ Qiniu.delete = async function(key) {
 	
 	const result = await new Promise((resolve, reject) => {
 		bucketManager.delete(bucketName, key, function(respErr, respBody, respInfo){
-			if (respErr || respInfo.statusCode != 200) {
+			if (respInfo.statusCode != 200 && respInfo.statusCode != 612) {
 				//console.log(respErr, respInfo.statusCode, respBody);
 				//return resolve(false);
 				return resolve(ERR().setMessage(respErr).setData({statusCode: respInfo.statusCode, body:respBody}));

@@ -9,8 +9,24 @@
     "build": "nuxt build && backpack build",
     "serve_build": "backpack build",
     "start": "cross-env NODE_ENV=production node build/main.js",
+    "test": "jest",
     "precommit": "npm run lint",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    },
+    "testRegex": "__tests__/.*\\.test\\.jsx?$",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/server/$1",
+      "^@@/(.*)$": "<rootDir>/$1"
+    }
   },
   "dependencies": {
     "@koa/cors": "^2.2.1",
@@ -28,6 +44,7 @@
     "pg": "^7.4.3",
     "pg-hstore": "^2.3.2",
     "qiniu": "^7.1.7",
+    "qiniu-js": "^2.2.2",
     "sequelize": "^4.37.10",
     "source-map-support": "^0.4.15",
     "sqlite3": "^4.0.0",
@@ -35,7 +52,10 @@
     "wurl": "^2.5.3"
   },
   "devDependencies": {
+    "babel-core": "^6.26.3",
     "babel-eslint": "^7.1.1",
+    "babel-jest": "^23.0.1",
+    "babel-preset-env": "^1.7.0",
     "backpack-core": "^0.3.0",
     "eslint": "^3.13.1",
     "eslint-config-standard": "^10.2.1",
@@ -45,8 +65,10 @@
     "eslint-plugin-node": "^4.2.2",
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^3.0.1",
+    "jest": "^23.1.0",
     "nodemon": "^1.11.0",
     "prettier": "^1.12.0",
+    "regenerator-runtime": "^0.11.1",
     "scmp": "^2.0.0"
   }
 }

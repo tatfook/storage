@@ -19,7 +19,7 @@ export const Files = function(){
 }
 
 
-Files.prototype.raw = async function(ctx) {
+Files.prototype.raw = function(ctx) {
 	const params = ctx.state.params;
 	const filename = params.filename;
 	const key = util.getKeyByPath(filename);
@@ -30,7 +30,7 @@ Files.prototype.raw = async function(ctx) {
 	ctx.redirect(url || 'http://git.keepwork.com/gitlab_rls_lixizhi/keepworkdatasource/raw/master/lixizhi_images/img_1520938234618.jpeg');
 }
 
-Files.prototype.token = async function(ctx) {
+Files.prototype.token = function(ctx) {
 	const key = decodeURIComponent(ctx.params.id);
 	const username = ctx.state.user.username;
 

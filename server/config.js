@@ -29,23 +29,30 @@ const defaultConfig = {
 	qiniu: {
 		accessKey:"",
 		secretKey:"",
+		bucketName: "keepwork-dev",
+		bucketDomian: "http://oy41aju0m.bkt.clouddn.com",
 	},
 }
 
 const productionConfig = {
-	bucketName: "keepwork",
-	bucketDomian: "http://ov62qege8.bkt.clouddn.com",
+	qiniu: {
+		bucketName: "keepwork",
+		bucketDomian: "http://ov62qege8.bkt.clouddn.com",
+	}
 }
 
 const developmentConfig = {
-	bucketName: "keepwork-dev",
-	bucketDomian: "http://oy41aju0m.bkt.clouddn.com",
 }
 
+const testConfig = {
+
+}
 
 const configs = {
 	"production": _.merge({}, defaultConfig, productionConfig, secretConfig),
 	"development": _.merge({}, defaultConfig, developmentConfig, secretConfig),
+	"test": _.merge({}, defaultConfig, testConfig, secretConfig),
+
 }
 
 export default configs[process.env.NODE_ENV];
