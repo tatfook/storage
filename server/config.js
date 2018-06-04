@@ -11,7 +11,7 @@ const defaultConfig = {
 	host: "0.0.0.0",
 	port: 3000,
 	protocol: "http",
-	origin: "http://0.0.0.0:3000",
+	origin: "http://storage-node.keepwork.com",
 
 	database: {
 		//port:3306,

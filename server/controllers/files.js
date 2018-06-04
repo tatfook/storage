@@ -27,7 +27,7 @@ Files.prototype.raw = function(ctx) {
 	const url = storage.getDownloadUrl(key).getData();
 	console.log(url);
 
-	ctx.redirect(url || 'http://git.keepwork.com/gitlab_rls_lixizhi/keepworkdatasource/raw/master/lixizhi_images/img_1520938234618.jpeg');
+	ctx.redirect(url);
 }
 
 Files.prototype.token = async function(ctx) {
