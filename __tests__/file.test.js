@@ -64,8 +64,8 @@ test("files", async () => {
 
 	const token = data.token;
 
-	//var file = new File(["First Line Text","Second Line Text"],"test.txt");
-	//const ok = await qiniuUpload(key, file, token);
+	//const blob = new Blob(["First Line Text","Second Line Text"], {type: "text/plain"});
+	//const ok = await qiniuUpload(key, blob, token);
 
 	//expect(ok).toBeTruthy();
 	//console.log("upload file success");

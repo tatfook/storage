@@ -17,7 +17,7 @@ const defaultConfig = {
 		//port:3306,
 		host: '39.106.11.114',
 		type: "mysql",
-		database: "keepwork", // 数据库名
+		database: "keepwork-dev", // 数据库名
 		username: "wuxiangan",
 		password: "", 
 	},
@@ -46,14 +46,14 @@ const productionConfig = {
 const developmentConfig = {
 	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
 	database: {
-		database:"note-dev",
+		database:"keepwork-dev",
 	}
 }
 
 const testConfig = {
 	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
 	database: {
-		database:"note-dev",
+		database:"keepwork-dev",
 	}
 }
 

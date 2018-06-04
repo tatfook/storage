@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "root",
+    "password": 123456,
+    "database": "keepwork",
+    "host": "10.28.18.16",
+	"port": 23306,
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": 123456,
+    "database": "keepwork",
+    "host": "10.28.18.16",
+	"port": 23306,
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": 123456,
+    "database": "keepwork",
+    "host": "10.28.18.16",
+	"port": 23306,
+    "dialect": "mysql"
+  }
+}

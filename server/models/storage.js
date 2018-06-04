@@ -1,7 +1,7 @@
 import Sequelize from "sequelize";
 import sequelize from "./database.js";
 
-const Storages = sequelize.define("Storages", {
+const Storages = sequelize.define("storages", {
 	id: {
 		type: Sequelize.BIGINT,
 		autoIncrement: true,
