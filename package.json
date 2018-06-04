@@ -41,14 +41,14 @@
     "lodash": "^4.17.10",
     "mysql2": "^1.5.3",
     "nuxt": "latest",
-    "pg": "^7.4.3",
+    "pg": "^7.4.1",
     "pg-hstore": "^2.3.2",
     "qiniu": "^7.1.7",
     "qiniu-js": "^2.2.2",
-    "sequelize": "^4.37.10",
+    "sequelize": "^4.37.6",
     "source-map-support": "^0.4.15",
     "sqlite3": "^4.0.0",
-    "tedious": "^2.6.1",
+    "tedious": "^2.3.1",
     "wurl": "^2.5.3"
   },
   "devDependencies": {
