@@ -17,7 +17,7 @@ module.exports = {
 	"port": developmentConfig.port,
 	"database": "keepwork-dev",
     "dialect": "mysql",
-	"operatorsAliases":Sequelize.Op
+	"operatorsAliases":Sequelize.Op,
   },
   "test": {
     "username": testConfig.username,
@@ -25,8 +25,8 @@ module.exports = {
     "host": testConfig.host,
 	"port": testConfig.port,
     "database": "keepwork-test",
-    "dialect": "mysql"
-	"operatorsAliases":Sequelize.Op
+    "dialect": "mysql",
+	"operatorsAliases":Sequelize.Op,
   },
   "production": {
     "username": productionConfig.username,
@@ -34,7 +34,7 @@ module.exports = {
     "host": productionConfig.host,
 	"port": productionConfig.port || 3306,
     "database": "keepwork",
-    "dialect": "mysql"
-	"operatorsAliases":Sequelize.Op
+    "dialect": "mysql",
+	"operatorsAliases":Sequelize.Op,
   }
 };

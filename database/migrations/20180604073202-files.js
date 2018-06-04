@@ -44,6 +44,16 @@ module.exports = {
 			hash: {     // 七牛哈希  文件存于谁就用谁的hash   如 git sha
 				type: Sequelize.STRING(64),
 			},
+
+			createdAt: {
+				allowNull: false,
+				type: Sequelize.DATE
+			},
+
+			updatedAt: {
+				allowNull: false,
+				type: Sequelize.DATE
+			},
 		}, {
 			charset: "utf8mb4",
 			collate: 'utf8mb4_bin',
@@ -51,6 +61,7 @@ module.exports = {
 	},
 
 	down: (queryInterface, Sequelize) => {
+		return queryInterface.dropTable('files');
 	}
 };
 
