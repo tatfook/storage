@@ -231,7 +231,7 @@ Qiniu.prototype.callback = async function(ctx) {
 
 	let data = await filesModel.upsert({
 		username: username,
-		key:params.key,
+		key: params.key,
 		hash: params.hash,
 		size: params.size,
 		type: params.type,
@@ -242,7 +242,7 @@ Qiniu.prototype.callback = async function(ctx) {
 		where: {
 			key:key,
 		},
-	})
+	});
 	
 	// 添加记录失败 应删除文件
 	if (!data) {

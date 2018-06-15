@@ -8,7 +8,7 @@ const Files = sequelize.define("files", {
 		primaryKey: true,
 	},
 	
-	key: {  // 存储服务的文件名  推荐使用全路径  可以使用UUID 唯一即可
+	key: {      // 存储服务的文件名  推荐使用全路径  可以使用UUID 唯一即可
 		type: Sequelize.STRING(256),
 		unique: true,
 	},
@@ -26,9 +26,10 @@ const Files = sequelize.define("files", {
 		type: Sequelize.STRING(64),
 	},
 
-	public: {   // 是否公开
-		type: Sequelize.BOOLEAN,
-		defaultValue: false, 
+	// 是否审核 1 -- 审核通过  2 -- 审核不通过  0 -- 未审核 
+	checked: {
+		type: Sequelize.INTEGER,
+		defaultValue: 0,
 	},
 
 	type: {     // 文件类型

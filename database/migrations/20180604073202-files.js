@@ -27,9 +27,10 @@ module.exports = {
 				type: Sequelize.STRING(64),
 			},
 
-			public: {   // 是否公开
-				type: Sequelize.BOOLEAN,
-				defaultValue: false, 
+			// 是否审核 1 -- 审核通过  2 -- 审核不通过  0 -- 未审核 
+			checked: {
+				type: Sequelize.INTEGER,
+				defaultValue: 0,
 			},
 
 			type: {     // 文件类型

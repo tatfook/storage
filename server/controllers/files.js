@@ -1,11 +1,16 @@
 import _ from "lodash";
 import joi from "joi";
 import Sequelize from "sequelize";
-
 import sequelize from "@/models/database.js";
 
 import ERR from "@/common/error.js";
 import util from "@/common/util.js";
+import {
+	QINIU_AUDIT_STATE_NO_AUDIT,
+	QINIU_AUDIT_STATE_PASS,
+	QINIU_AUDIT_STATE_NOPASS,
+	QINIU_AUDIT_STATE_FAILED,
+} from "@/common/consts.js";
 
 import storage from "./storage.js";
 
@@ -215,16 +220,23 @@ Files.prototype.qiniu = async function(ctx) {
 	const username = key.split("/")[0].split("_")[0];
 
 	const value = (val) => val == "null" ? undefined : val;
+	const type = util.getTypeByPath(key);
+	let checked = QINIU_AUDIT_STATE_NO_AUDIT;
+	if (type == "images"){
+		checked = await storage.imageAudit(key);
+	} else if (type == "vedios") {
+
+	}
 
 	let data = await this.model.upsert({
 		username: username,
-		sitename: value(params.sitename),
+		type: type,
+		checked: checked,
 		key:params.key,
 		hash: params.hash,
 		size: params.size,
-		type: params.type,
+		sitename: value(params.sitename),
 		filename: value(params.filename),
-		public: value(params.public),
 	});
 	
 	// 添加记录失败 应删除文件
@@ -234,10 +246,24 @@ Files.prototype.qiniu = async function(ctx) {
 	return ERR.ERR_OK(data);
 }
 
+Files.prototype.test = async function(ctx) {
+	const params = ctx.state.params;
+	//await storage.getSigned(params.key);
+	//const result = await storage.imageAudit(params.key);
+	await storage.vedioAudit();
+
+	return {key:"test"};
+}
+
 Files.getRoutes = function() {
 	const self = this;
 	self.pathPrefix = "files";
 	const routes = [
+	{
+		path: "test",
+		method: "get",
+		action: "test",
+	},
 	{
 		path: "qiniu",
 		method: "post",
