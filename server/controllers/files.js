@@ -1,5 +1,6 @@
 import _ from "lodash";
 import joi from "joi";
+import axios from "axios";
 import Sequelize from "sequelize";
 import sequelize from "@/models/database.js";
 
@@ -327,6 +328,36 @@ Files.prototype.imageAudit = async function(ctx) {
 	return ERR.ERR_OK(result);
 }
 
+Files.prototype.importOldData = async function(ctx) {
+	const params = ctx.state.params;
+	const self = this;
+
+	const apiUrl = params.apiUrl || (config.keepworkBaseURL + 'tabledb/query');
+	const data = {
+		tableName: "qiniu_files",
+		query: {},
+		pageSize: 1000000,
+	}
+
+	const result = await axios.post(apiUrl, data, {headers:	{"Authorization":"Bearer eyJhbGciOiJNRDUiLCJ0eXAiOiJKV1QifQ.eyJyb2xlSWQiOjEwLCJleHAiOjE1Mjk3NTY2MTgsImlzQWRtaW4iOnRydWUsInVzZXJJZCI6MTIsInVzZXJuYW1lIjoieGlhb3lhbyJ9.TkRobVlUTmhNV1ZqTkRFd1ltUTJOamM1T0RneE9XTXlaRE0yTVRoall6az0"}}).then(res => res.data);
+	
+	const list = result.data.data || [];
+	for (let i = 0; i < list.length; i++){
+		let item = list[i];
+		await self.model.upsert({
+			id: item._id,
+			key: item.key,
+		    username: item.username,
+			filename: item.filename,
+			checked: item.checked,
+			type: util.getTypeByPath(item.key),
+			size: item.size,
+		});
+	}
+	console.log(result);
+	return result;
+}
+
 Files.prototype.test = async function(ctx) {
 	const params = ctx.state.params;
 	//await storage.getSigned(params.key);
@@ -350,6 +381,11 @@ Files.getRoutes = function() {
 		path: "test",
 		method: "get",
 		action: "test",
+	},
+	{
+		path: "importOldData",
+		method: "get",
+		action: "importOldData",
 	},
 	{
 		path: "imageAudit",

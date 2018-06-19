@@ -3,7 +3,7 @@ import config from "../config.js";
 
 const dbconfig = config.database;
 
-//console.log(dbconfig);
+console.log(dbconfig);
 
 const sequelize = new Sequelize(dbconfig.database, dbconfig.username, dbconfig.password, {
 	port: dbconfig.port,
