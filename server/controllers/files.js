@@ -300,6 +300,33 @@ Files.prototype.audit = async function(ctx) {
 	//console.log(result.politician.result);
 }
 
+Files.prototype.videoAudit = async function(ctx) {
+	const params = ctx.state.params;
+	const result = await storage.videoAudit(params.id || 0, params.key, false);
+	const pulpLabels = result.pulp.labels;
+	const terrorLabels = result.terror.labels;
+	const politicianLabels = result.politician.labels;
+	let auditResult = QINIU_AUDIT_STATE_NO_AUDIT;
+	let index = _.findIndex(pulpLabels, label => label.label != '2');
+	index = index == -1 && _.findIndex(terrorLabels, label => label.label != '0');
+
+	if (index != -1 || politicianLabels) {
+		auditResult = QINIU_AUDIT_STATE_NOPASS;
+	} else {
+		auditResult = QINIU_AUDIT_STATE_PASS;
+	}
+
+	return ERR.ERR_OK(auditResult);
+}
+
+Files.prototype.imageAudit = async function(ctx) {
+	const params = ctx.state.params;
+
+	const result = await storage.imageAudit(params.key);
+
+	return ERR.ERR_OK(result);
+}
+
 Files.prototype.test = async function(ctx) {
 	const params = ctx.state.params;
 	//await storage.getSigned(params.key);
@@ -309,7 +336,7 @@ Files.prototype.test = async function(ctx) {
 	const ciphertext = util.aesEncode(data, config.secret);
 	const decryptData = util.aesDecode(ciphertext, config.secret);
 	console.log(decryptData);
-	await storage.videoAudit(ciphertext, "test");
+	await storage.videoAudit(ciphertext, "test", false);
 
 
 	return {key:"test"};
@@ -323,6 +350,26 @@ Files.getRoutes = function() {
 		path: "test",
 		method: "get",
 		action: "test",
+	},
+	{
+		path: "imageAudit",
+		method: "get",
+		action: "imageAudit",
+		validate: {
+			query: {
+				key: joi.string().required(),
+			},
+		},
+	},
+	{
+		path: "videoAudit",
+		method: "get",
+		action: "videoAudit",
+		validate: {
+			query: {
+				key: joi.string().required(),
+			},
+		},
 	},
 	{
 		path: "qiniu",
