@@ -17,6 +17,7 @@ const secretKey = config.qiniu.secretKey;
 const bucketName = config.qiniu.bucketName;
 const bucketDomian = config.qiniu.bucketDomian;
 const mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
+const apiUrlPrefix = config.origin + config.apiUrlPrefix;
 
 
 const Qiniu = {
@@ -200,11 +201,20 @@ Qiniu.imageAudit = async function(key) {
 	//return QINIU_AUDIT_STATE_PASS;
 }
 
-Qiniu.vedioAudit = async function(key) {
-	const uri = "http://argus.atlab.ai/v1/video/1";
-	//const vedioUrl = this.getDownloadUrl(key);
-	const vedioUrl = "http://oy41jt2uj.bkt.clouddn.com/97eb5420-708a-11e8-aaf9-f9dea1bb2117.mp4?e=2129423642&token=LYZsjH0681n9sWZqCM4E2KmU6DsJOE7CAM4O3eJq:cny8ZH-tZl4PPMp_sUAn-chowHc=";
-	const data = {data: {uri:vedioUrl}, ops:[{op:"pulp"}]};
+Qiniu.videoAudit = async function(id, key) {
+	if (!id || !key) return;
+
+	const uri = "http://argus.atlab.ai/v1/video/" + id;
+	//const videoUrl = this.getDownloadUrl(key);
+	const videoUrl = "http://oy41jt2uj.bkt.clouddn.com/97eb5420-708a-11e8-aaf9-f9dea1bb2117.mp4?e=2129423642&token=LYZsjH0681n9sWZqCM4E2KmU6DsJOE7CAM4O3eJq:cny8ZH-tZl4PPMp_sUAn-chowHc=";
+	const data = {
+		data: {uri:videoUrl}, 
+		params: {
+			async: true,
+			hookURL: apiUrlPrefix + "files/audit",
+		},
+		ops:[{op:"pulp"}, {op:"terror"}, {op:"politician"}]
+	};
 	const signed = qiniu.util.generateAccessTokenV2(mac, uri, "POST", "application/json", JSON.stringify(data));
 	const result = await axios.request({
 		url:uri, 
@@ -217,18 +227,6 @@ Qiniu.vedioAudit = async function(key) {
 	}).then(res => res.data);
 	
 	console.log(result);
-}
-//Qiniu.image
-Qiniu.getSigned = async function(key) {
-	//const uri = "http://argus.atlab.ai/v1/image/censor";
-	//const data = {data: {uri:"http://oayjpradp.bkt.clouddn.com/Audrey_Hepburn.jpg"}, params: {async:false}, ops: [{op:"pulp"}]};
-	//const imgUrl = this.getDownloadUrl(key).getData();
-	//const data = {data: {uri:"http://oayjpradp.bkt.clouddn.com/Audrey_Hepburn.jpg"}};
-
-	//console.log(result);
-	//console.log(result.result.details);
-	//console.log("---------");
-	//return signed;
 }
 
 export default Qiniu;

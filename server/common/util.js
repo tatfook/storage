@@ -1,4 +1,6 @@
 import jwt from "jwt-simple";
+import CryptoJS from "crypto-js";
+import {Base64} from "js-base64";
 
 const filetype = {
 	md: "pages",
@@ -65,6 +67,20 @@ util.getPathByKey = function(key) {
 	//paths.splice(1.1);
 
 	//return paths.join("/"); 
+}
+
+util.aesEncode = function(data, key) {
+	return Base64.encode(CryptoJS.AES.encrypt(JSON.stringify(data), key).toString());
+}
+
+util.aesDecode = function(data, key) {
+	data = Base64.decode(data);
+	const bytes = CryptoJS.AES.decrypt(data, key);
+	try {
+		return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+	} catch(e) {
+		return {};
+	}
 }
 
 export default util;

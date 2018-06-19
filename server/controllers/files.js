@@ -3,6 +3,7 @@ import joi from "joi";
 import Sequelize from "sequelize";
 import sequelize from "@/models/database.js";
 
+import config from "@/config.js";
 import ERR from "@/common/error.js";
 import util from "@/common/util.js";
 import {
@@ -222,10 +223,8 @@ Files.prototype.qiniu = async function(ctx) {
 	const value = (val) => val == "null" ? undefined : val;
 	const type = util.getTypeByPath(key);
 	let checked = QINIU_AUDIT_STATE_NO_AUDIT;
-	if (type == "images"){
+	if (type == "images") {
 		checked = await storage.imageAudit(key);
-	} else if (type == "vedios") {
-
 	}
 
 	let data = await this.model.upsert({
@@ -240,17 +239,78 @@ Files.prototype.qiniu = async function(ctx) {
 	});
 	
 	// 添加记录失败 应删除文件
-	if (!data) {
+	if (type == "videos") {
+		data = await this.model.findOne({where: {key:key}});
+		if (!data) return ERR.ERR();
+		data = data.get({plain:true});
+		storage.videoAudit(util.aesEncode({id:data.id}), key);
 	}
 
 	return ERR.ERR_OK(data);
+}
+
+Files.prototype.audit = async function(ctx) {
+	const params = ctx.state.params;
+	console.log(params);
+	// id 需加密解密
+	const data = util.aesDecode(params.id, config.secret);
+	const result = params.result;
+	const pulp = result.pulp;
+	const terror = result.terror;
+	const politician = result.politician;
+	let auditResult = QINIU_AUDIT_STATE_NO_AUDIT;
+	
+	if (!data || !data.id) {
+		console.log("数据错误");
+		return;
+	}
+	const id = data.id;
+	//console.log(data);
+
+	if (pulp.code != 0 || terror.code != 0 || politician.code != 0) {
+		auditResult = QINIU_AUDIT_STATE_FAILED;
+	} else {
+		const pulpLabels = pulp.result.labels;
+		const terrorLabels = terror.result.labels;
+		const politicianLabels = politician.result.labels;
+
+		let index = _.findIndex(pulpLabels, label => label.label != '2');
+		index = index == -1 && _.findIndex(terrorLabels, label => label.label != '0');
+
+		if (index != -1 || politicianLabels) {
+			auditResult = QINIU_AUDIT_STATE_NOPASS;
+		} else {
+			auditResult = QINIU_AUDIT_STATE_PASS;
+		}
+	}
+
+	console.log(id, auditResult);
+
+	let ok = await this.model.update({
+		checked: auditResult,
+	}, {
+		where: {
+			id: id,
+		}
+	});
+
+	//console.log(ok);
+	//console.log(result.pulp.result);
+	//console.log(result.terror.result);
+	//console.log(result.politician.result);
 }
 
 Files.prototype.test = async function(ctx) {
 	const params = ctx.state.params;
 	//await storage.getSigned(params.key);
 	//const result = await storage.imageAudit(params.key);
-	await storage.vedioAudit();
+	
+	const data = {id:1, username:"xiaoyao"};
+	const ciphertext = util.aesEncode(data, config.secret);
+	const decryptData = util.aesDecode(ciphertext, config.secret);
+	console.log(decryptData);
+	await storage.videoAudit(ciphertext, "test");
+
 
 	return {key:"test"};
 }
@@ -268,6 +328,11 @@ Files.getRoutes = function() {
 		path: "qiniu",
 		method: "post",
 		action: "qiniu",
+	},
+	{
+		path: "audit",
+		method: "post",
+		action: "audit",
 	},
 	{
 		path: "statistics",
