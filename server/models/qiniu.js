@@ -164,7 +164,7 @@ Qiniu.list = async function(prefix = "", limit = 200, marker) {
 Qiniu.imageAudit = async function(key) {
 	const uri = "http://argus.atlab.ai/v1/image/censor";
 	//const imgUrl = "http://7xlv47.com1.z0.glb.clouddn.com/pulpsexy.jpg";
-	const imgUrl = this.getDownloadUrl(key);
+	const imgUrl = (key.indexOf("http://") == 0 || key.indexOf("https://") == 0) ? key : this.getDownloadUrl(key).getData();
 	const data = {data: {uri:imgUrl}};
 	const signed = qiniu.util.generateAccessTokenV2(mac, uri, "POST", "application/json", JSON.stringify(data));
 	const result = await axios.request({
@@ -202,11 +202,9 @@ Qiniu.imageAudit = async function(key) {
 	//return QINIU_AUDIT_STATE_PASS;
 }
 
-Qiniu.videoAudit = async function(id, key, async = true) {
-	if (!id || !key) return;
-
-	const uri = "http://argus.atlab.ai/v1/video/" + id;
-	const videoUrl = this.getDownloadUrl(key);
+Qiniu.videoAudit = async function(id, key = "", async = true) {
+	const uri = "http://argus.atlab.ai/v1/video/" + (id || 0);
+	const videoUrl = (key.indexOf("http://") == 0 || key.indexOf("https://") == 0) ? key : this.getDownloadUrl(key).getData();
 	//const videoUrl = "http://oy41jt2uj.bkt.clouddn.com/97eb5420-708a-11e8-aaf9-f9dea1bb2117.mp4?e=2129423642&token=LYZsjH0681n9sWZqCM4E2KmU6DsJOE7CAM4O3eJq:cny8ZH-tZl4PPMp_sUAn-chowHc=";
 	const data = {
 		data: {uri:videoUrl}, 
@@ -227,7 +225,7 @@ Qiniu.videoAudit = async function(id, key, async = true) {
 		data:JSON.stringify(data),
 	}).then(res => res.data);
 	
-	//console.log(result);
+	console.log(result);
 	return result;
 }
 
