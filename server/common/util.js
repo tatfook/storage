@@ -21,15 +21,15 @@ const filetype = {
 }
 export const util = {};
 
-util.jwt_encode = function(payload, key, expire) {
+util.jwt_encode = function(payload, key, expire, alg="HS256") {
 	payload = payload || {};
 	payload.exp = Date.now() / 1000 + (expire || 3600 * 24);
 
-	return jwt.encode(payload, key);
+	return jwt.encode(payload, key, alg);
 }
 
-util.jwt_decode = function(token, key, noVerify) {
-	return jwt.decode(token, key, noVerify);
+util.jwt_decode = function(token, key, noVerify, alg="HS256") {
+	return jwt.decode(token, key, noVerify, alg);
 }
 
 util.getTypeByPath = function(path) {

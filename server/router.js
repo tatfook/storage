@@ -3,13 +3,15 @@ import Router from "koa-router";
 
 import config from "@/config.js";
 import {validate} from "@/middlewares/index.js";
-import {ERR_UNATUH, ERR_OK, ERR_PARAMS} from "@/common/error.js";
+import {ERR_UNATUH, ERR_OK, ERR_PARAMS, ERR_NO_PERMISSION} from "@/common/error.js";
 import util from "@/common/util.js";
 
+import admin from "@/controllers/admin.js";
 import files from "@/controllers/files.js";
 import siteFiles from "@/controllers/siteFiles.js";
 
 const controllers = {
+	admin,
 	files,
 	siteFiles,
 }
@@ -45,8 +47,12 @@ _.each(controllers, Ctrl => {
 			//console.log(path, method);
 			router[method](path, validate(route.validate), async (ctx, next) => {
 				// 认证中间件
-				if (route.authentated && !ctx.state.user) {
+				if ((route.authentated || route.admin) && !ctx.state.user) {
 					ctx.body = ERR_UNATUH();
+					return;
+				}
+				if (route.admin && ctx.state.user.roleId != 10 && ctx.state.user.username != "xiaoyao") {
+					ctx.body = ERR_NO_PERMISSION();
 					return;
 				}
 
