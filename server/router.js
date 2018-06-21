@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Router from "koa-router";
+import axios from "axios";
 
 import config from "@/config.js";
 import {validate} from "@/middlewares/index.js";
@@ -46,6 +47,11 @@ _.each(controllers, Ctrl => {
 			
 			//console.log(path, method);
 			router[method](path, validate(route.validate), async (ctx, next) => {
+				const headers = {
+					"Authorization": ctx.request.header["authorization"],
+				};
+				ctx.state.user = await axios.get(config.keepworkBaseURL + "user/tokeninfo", {headers}).then(res => res.data).catch(e => {console.log(e); return undefined;});
+				//ctx.state.user = await axios.get("http://localhost:8900/api/wiki/models/user/tokeninfo", {headers}).then(res => res.data).catch(e => {console.log(e); return undefined;});
 				// 认证中间件
 				if ((route.authentated || route.admin) && !ctx.state.user) {
 					ctx.body = ERR_UNATUH();
