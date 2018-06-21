@@ -4,15 +4,15 @@ import qiniu from "@/models/qiniu.js";
 
 const storage = qiniu;
 
-storage.updateStatistics = async function(username) {
-	let result = await sequelize.query("SELECT SUM(size) AS `used`, COUNT(*) as `count` from `files` where `username` = :username",  {type: sequelize.QueryTypes.SELECT, replacements: {
-		username: username,
+storage.updateStatistics = async function(userId) {
+	let result = await sequelize.query("SELECT SUM(size) AS `used`, COUNT(*) as `count` from `files` where `userId` = :userId",  {type: sequelize.QueryTypes.SELECT, replacements: {
+		userId: userId,
 	}});
 
 	let data = result[0] || {};
 	
 	result = await storageModel.upsert({
-		username: username,
+		userId: userId,
 		used: data.used || 0,
 		fileCount: data.count || 0,
 	});
@@ -20,16 +20,16 @@ storage.updateStatistics = async function(username) {
 	return result;
 }
 
-storage.getStatistics = async function(username) {
+storage.getStatistics = async function(userId) {
 	let data = await storageModel.findOne({
 		where:{
-			username:username
+			userId:userId
 		}
 	});
 
 	if (!data) {
 		data = await storageModel.create({
-			username: username
+			userId: userId
 		});
 	}
 
@@ -40,8 +40,8 @@ storage.getStatistics = async function(username) {
 	return data;
 }
 
-storage.isFull = async function(username) {
-	let data = await this.getStatistics(username);
+storage.isFull = async function(userId) {
+	let data = await this.getStatistics(userId);
 
 	if (data.used < data.total) {
 		return false;

@@ -40,7 +40,7 @@ Qiniu.getUploadToken = function(key) {
 		expires: 3600 * 24, // 一天
 		callbackUrl: config.origin + config.apiUrlPrefix + "files/qiniu",
 		//callbackBody: '{"hash":"$(etag)","size":$(fsize),"bucket":"$(bucket)"}',
-		callbackBody: '{"key":"$(key)","hash":"$(etag)","size":$(fsize),"bucket":"$(bucket)","public":$(x:public),"filename":"$(x:filename)","sitename":"$(x:sitename)"}',
+		callbackBody: '{"key":"$(key)","hash":"$(etag)","size":$(fsize),"bucket":"$(bucket)","filename":"$(x:filename)","siteId":$(x:siteId)}',
 		callbackBodyType: 'application/json',
 		//returnBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)"}',
 	}

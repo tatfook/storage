@@ -5,6 +5,7 @@ import ERR from "@/common/error.js";
 import config from "@/config.js";
 import qiniu from "@/models/qiniu.js";
 import SiteFilesModel from "@/models/siteFiles.js";
+import FilesModel from "@/models/files.js";
 
 const storage = qiniu;
 
@@ -14,21 +15,17 @@ export const SiteFiles = function() {
 
 SiteFiles.prototype.url = async function(ctx) {
 	const params = ctx.state.params;
-	const key = params.key;
-	const username = ctx.state.user.username;
+	const fileId = params.fileId;
+	const userId = ctx.state.user.userId;
 
-	if (key.indexOf(key, username + "_") != 0 && key.indexOf(key, username + "/") != 0) {
-		return ERR.ERR_NO_PERMISSION();
-	}
-
-	if (username != params.username) {
+	if (userId != params.userId) {
 		// 验证访问权限
 	}
 	
 	const where = {
-		username: params.username,
-		sitename: params.sitename,
-		key: params.key,
+		userId: params.userId,
+		siteId: params.siteId,
+		fileId: params.fileId,
 	};
 
 	let data = await this.model.findOne({where});
@@ -44,7 +41,7 @@ SiteFiles.prototype.url = async function(ctx) {
 
 SiteFiles.prototype.raw = async function(ctx) {
 	const id = ctx.params.id;
-	const username = ctx.state.user.username;
+	const userId = ctx.state.user.userId;
 
 	let data = await this.model.findOne({where: {id:id}});
 
@@ -53,14 +50,22 @@ SiteFiles.prototype.raw = async function(ctx) {
 		ctx.body = "Not Found";
 		return;
 	}
-	
+
 	data = data.get({plain:true});
 
-	if (username != data.username) {
+	let file = await FilesModel.findOne({where:{id:data.fileId}});
+	if (!file) {
+		ctx.status(404);
+		ctx.body = "Not Found";
+		return;
+	}
+	file = file.get({plain:true});
+
+	if (userId != data.userId) {
 		let result = await axios.get(config.keepworkBaseURL + "site_user/getSiteLevelByMemberName", {
-			username:data.username,
-			sitename:data.sitename,
-			memberName: username,
+			userId:data.userId,
+			siteId:data.siteId,
+			memberId: userId,
 		}).then(res => res.data);
 		if (!result || result.data < 40) {
 			ctx.status(400);
@@ -70,7 +75,9 @@ SiteFiles.prototype.raw = async function(ctx) {
 		// 权限判断
 	}
 
-	const url = storage.getDownloadUrl(data.key).getData();
+	const url = storage.getDownloadUrl(file.key).getData();
+
+	console.log(url);
 
 	ctx.redirect(url);
 }
@@ -83,14 +90,14 @@ SiteFiles.getRoutes = function() {
 	const routes = [
 	{
 		path: "url",
-		method: "GET",
+		method: "POST",
 		action: "url",
 		authentated: true,
 		validate: {
-			query: {
-				key: joi.string().required(),
-				username: joi.string().required(),
-				sitename: joi.string().required(),
+			body: {
+				fileId: joi.number().required(),
+				userId: joi.number().required(),
+				siteId: joi.number().required(),
 			},
 		},
 	},

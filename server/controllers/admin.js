@@ -59,9 +59,9 @@ Admin.prototype.findOne = function() {
 }
 
 Admin.prototype.delete = async function(ctx) {
-	const params = ctx.state.params;
+	const id = ctx.params.id;
 	const options = {};
-	options.where = params || params;
+	options.where = {id:id};
 
 	let data = await filesModel.findOne(options);
 	if (!data) return;
@@ -73,10 +73,21 @@ Admin.prototype.delete = async function(ctx) {
 	return ERR.ERR_OK(result);
 }
 
-Admin.prototype.upsert = async function(ctx) {
+Admin.prototype.create = async function(ctx) {
 	const params = ctx.state.params;
 
-	const result = await filesModel.upsert(params);
+	const result = await filesModel.create(params);
+
+	return ERR.ERR_OK(result);
+}
+
+Admin.prototype.update = async function(ctx) {
+	const id = ctx.params.id;
+	const params = ctx.state.params;
+
+	const result = await filesModel.update(params, {
+		where:{id:id},
+	});
 
 	return ERR.ERR_OK(result);
 }
@@ -105,7 +116,7 @@ Admin.getRoutes = function() {
 	{
 		path: "",
 		method: "POST",
-		action: "upsert",
+		action: "create",
 		admin: true,
 		validate: {
 			body: {
@@ -116,12 +127,12 @@ Admin.getRoutes = function() {
 	{
 		path: ":id",
 		method: "PUT",
-		action: "upsert",
+		action: "update",
 		admin: true,
 		validate: {
-			body: {
-				key: joi.string().required(),
-			},
+			params: {
+				id: joi.string().required(),
+			}
 		},
 	},
 	{

@@ -8,8 +8,8 @@ const Storages = sequelize.define("storages", {
 		primaryKey: true,
 	},
 	
-	username: {  // 文件所属者
-		type: Sequelize.STRING(48),
+	userId: {  // 文件所属者
+		type: Sequelize.BIGINT,
 		unique: true,
 		allowNull: false,
 	},
