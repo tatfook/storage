@@ -7,7 +7,7 @@ metadata:
 spec:
   containers:
   - name: storage-node-stage
-    image: 10.28.18.13/xuntian/keepwork-storage-stage:latest
+    image: 10.28.18.13/xuntian/keepwork-storage-stage:1
     imagePullPolicy: Always
     ports:
       - containerPort: 8088
