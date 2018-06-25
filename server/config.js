@@ -9,9 +9,10 @@ const defaultConfig = {
 
 	baseURL: "/api/v0/",
 	host: "0.0.0.0",
-	port: 3000,
+	port: 8088,
 	protocol: "http",
 	origin: "http://storage-node.keepwork.com",
+	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
 
 	database: {
 		//port:3306,
@@ -59,10 +60,17 @@ const developmentConfig = {
 const testConfig = {
 }
 
+const localConfig = {
+	
+}
+
 const configs = {
 	"production": _.merge({}, defaultConfig, productionConfig, secretConfig),
 	"development": _.merge({}, defaultConfig, developmentConfig, secretConfig),
 	"test": _.merge({}, defaultConfig, testConfig, secretConfig),
+	"local": _.merge({}, defaultConfig, localConfig, secretConfig),
 }
+
+console.log(secretConfig.NODE_ENV || process.env.NODE_ENV);
 
 export default configs[secretConfig.NODE_ENV || process.env.NODE_ENV];

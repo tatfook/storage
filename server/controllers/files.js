@@ -165,6 +165,8 @@ Files.prototype.qiniu = async function(ctx) {
 		checked = await storage.imageAudit(key);
 	}
 
+	console.log(params);
+
 	let data = await this.model.upsert({
 		type: type,
 		checked: checked,

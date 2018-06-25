@@ -63,14 +63,15 @@ Qiniu.getDownloadUrl = function(key, expires = 3600 * 24) {
 	return ERR_OK(privateDownloadUrl);
 }
 
-Qiniu.upload = async function(key, content) {
+Qiniu.upload = async function(key, content, token, params) {
 	const mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
 	const putPolicy = new qiniu.rs.PutPolicy({scope: bucketName + ":" + key});
-	const token = putPolicy.uploadToken(mac);
+	token = token || putPolicy.uploadToken(mac);
 
 	const putExtra = new qiniu.form_up.PutExtra();
 	const config = new qiniu.conf.Config();
 	config.zone = qiniu.zone.Zone_z2; // 华南
+	putExtra.params = params;
 
 	const result = await new Promise((resolve, reject) => {
 		const formUploader = new qiniu.form_up.FormUploader(config);
