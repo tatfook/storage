@@ -1,13 +1,13 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: storage-node
+  name: storage-node-stage
 spec: 
   rules: 
-  - host: storage.keepwork.com
+  - host: storage-stage.keepwork.com
     http: 
       paths:
       - path: 
         backend:
-          serviceName: storage-node
+          serviceName: storage-node-stage
           servicePort: 8088
