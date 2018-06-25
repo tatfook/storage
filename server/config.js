@@ -65,4 +65,4 @@ const configs = {
 	"test": _.merge({}, defaultConfig, testConfig, secretConfig),
 }
 
-export default configs[process.env.NODE_ENV];
+export default configs[secretConfig.NODE_ENV || process.env.NODE_ENV];
