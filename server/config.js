@@ -11,7 +11,7 @@ const defaultConfig = {
 	host: "0.0.0.0",
 	port: 8088,
 	protocol: "http",
-	origin: "http://storage-node.keepwork.com",
+	origin: "http://storage.keepwork.com",
 	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
 
 	database: {

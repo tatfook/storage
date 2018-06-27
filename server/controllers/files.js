@@ -183,6 +183,7 @@ Files.prototype.qiniu = async function(ctx) {
 		storage.videoAudit(util.aesEncode({id:data.id}), key);
 	}
 
+	console.log("-----------qiniu callback finish-------------");
 	return ERR.ERR_OK(data);
 }
 
