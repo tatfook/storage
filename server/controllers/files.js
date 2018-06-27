@@ -81,7 +81,7 @@ Files.prototype.upsert = async function(ctx) {
 
 	let data = await this.model.upsert(params);
 
-	await storage.updateStatistics(userId);
+	//await storage.updateStatistics(userId);
 
 	return ERR.ERR_OK(data);
 }
@@ -101,7 +101,7 @@ Files.prototype.delete = async function(ctx) {
 	if (data.isErr()) return data;
 
 	data = await this.model.destroy({where});
-	await storage.updateStatistics(userId);
+	//await storage.updateStatistics(userId);
 
 	return ERR.ERR_OK(data);
 }
