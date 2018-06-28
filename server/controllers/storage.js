@@ -5,7 +5,7 @@ import qiniu from "@/models/qiniu.js";
 const storage = qiniu;
 
 storage.updateStatistics = async function(userId) {
-	let result = await sequelize.query("SELECT SUM(size) AS `used`, COUNT(*) as `fileCount` from `files` where `userId` = :userId",  {type: sequelize.QueryTypes.SELECT, replacements: {
+	let result = await sequelize.query("SELECT SUM(size) AS `used`, COUNT(*) as `fileCount` from `files` where `userId` = :userId and size > 0",  {type: sequelize.QueryTypes.SELECT, replacements: {
 		userId: userId,
 	}});
 

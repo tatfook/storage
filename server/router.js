@@ -47,8 +47,9 @@ _.each(controllers, Ctrl => {
 			
 			//console.log(path, method);
 			router[method](path, validate(route.validate), async (ctx, next) => {
+				console.log(ctx.cookies.get("token"));
 				const headers = {
-					"Authorization": ctx.request.header["authorization"],
+					"Authorization": ctx.request.header["authorization"] || ("Bearer " + ctx.cookies.get("token")),
 				};
 				ctx.state.user = await axios.get(config.keepworkBaseURL + "user/tokeninfo", {headers}).then(res => res.data).catch(e => {console.log(e); return undefined;});
 				//ctx.state.user = await axios.get("http://localhost:8900/api/wiki/models/user/tokeninfo", {headers}).then(res => res.data).catch(e => {console.log(e); return undefined;});
