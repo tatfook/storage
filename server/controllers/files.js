@@ -173,6 +173,7 @@ Files.prototype.qiniu = async function(ctx) {
 		key: key,
 		hash: params.hash,
 		size: params.size,
+		filename: params.filename,
 	});
 	
 	// 添加记录失败 应删除文件
