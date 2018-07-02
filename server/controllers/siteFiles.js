@@ -1,4 +1,5 @@
 import joi from "joi";
+import _ from "lodash";
 import axios from "axios";
 
 import ERR from "@/common/error.js";
@@ -82,12 +83,33 @@ SiteFiles.prototype.raw = async function(ctx) {
 	ctx.redirect(url);
 }
 
+SiteFiles.prototype.find = async function(ctx) {
+	const params = ctx.state.params;
+	params.userId = ctx.state.user.userId;
+
+	const result = await this.model.findAndCount({where: params});
+	const rows = [];
+	_.each(result.rows, item => {
+		item = item.get({plain:true});
+		item.url = "/api/v0/siteFiles/" + item.id + "/raw";
+		rows.push(item);
+	});
+
+	return ERR.ERR_OK({count:result.count, rows:rows});
+}
+
 SiteFiles.getRoutes = function() {
 	const self = this;
 
 	self.pathPrefix = "siteFiles";
 
 	const routes = [
+	{
+		path: "",
+		method: ["GET", "POST"],
+		action: "find",
+		authentated: true,
+	},
 	{
 		path: "url",
 		method: "POST",

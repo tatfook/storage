@@ -17,6 +17,7 @@ import {
 import storage from "./storage.js";
 
 import filesModel from "@/models/files.js";
+import siteFilesModel from "@/models/siteFiles.js";
 
 
 const {like, gt, lte, ne, in: opIn} = Sequelize.Op;
@@ -119,9 +120,46 @@ Files.prototype.find = async function(ctx) {
 		where: where,
 		limit: params.limit,
 		offset: params.offset,
-	})
+	});
+
+	_.each(data, item => {
+		item.downloadUrl = storage.getDownloadUrl(item.key).getData();
+	});
 
 	return ERR.ERR_OK(data);
+}
+
+Files.prototype.list = async function(ctx) {
+	const self = this;
+	const userId = ctx.state.user.userId;
+	const params = ctx.state.params;
+	const siteId = params.siteId && parseInt(params.siteId);
+
+	const where = {
+		size: {[gt]:0},
+		userId: userId,
+	};
+
+	if (params.type) where.type = params.type;
+	const result = await this.model.findAll({
+		where,
+		limit: params.limit,
+		offset: params.offset,
+	});
+
+	const list = [];
+	for (let i = 0; i < result.length; i++) {
+		let item = result[i].get({plain:true});
+		item.downloadUrl = storage.getDownloadUrl(item.key).getData();
+		if (siteId) {
+			let siteFile = await siteFilesModel.findOne({where: {fileId: item.id, siteId}});
+			if (siteFile) {
+				item.url = "/api/v0/siteFiles/" + siteFile.id + "/raw";
+			}
+		}
+		list.push(item);
+	}
+	return ERR.ERR_OK(list);
 }
 
 Files.prototype.findOne = async function(ctx) {
@@ -375,6 +413,12 @@ Files.getRoutes = function() {
 		path: "raw",
 		method: "get",
 		action: "raw",
+	},
+	{
+		path: "list",
+		method: ["GET", "POST"],
+		action: "list",
+		authentated: true,
 	},
 	{
 		path: ":id/url",
