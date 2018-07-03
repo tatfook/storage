@@ -17,7 +17,7 @@ function start () {
 	const port = config.port || 8088;
 
 	app
-	.use(cors())
+	//.use(cors({origin:"*"}))
 	.use(KoaBody())
 	.use(jwt({secret:config.secret, passthrough:true, cookie:"token"}))
 	.use(router.routes())

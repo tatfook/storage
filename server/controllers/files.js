@@ -122,10 +122,6 @@ Files.prototype.find = async function(ctx) {
 		offset: params.offset,
 	});
 
-	_.each(data, item => {
-		item.downloadUrl = storage.getDownloadUrl(item.key).getData();
-	});
-
 	return ERR.ERR_OK(data);
 }
 
