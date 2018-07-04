@@ -10,6 +10,8 @@ import FilesModel from "@/models/files.js";
 
 const storage = qiniu;
 
+const baseURL = config.baseURL + "siteFiles/";
+
 export const SiteFiles = function() {
 	this.model = SiteFilesModel;
 }
@@ -35,7 +37,7 @@ SiteFiles.prototype.url = async function(ctx) {
 
 	data = data.get({plain: true});
 
-	const url = "/api/v0/siteFiles/" + data.id + "/raw";
+	const url = baseURL + data.id + "/raw";
 
 	return ERR.ERR_OK(url);
 }
@@ -91,7 +93,7 @@ SiteFiles.prototype.find = async function(ctx) {
 	const rows = [];
 	_.each(result.rows, item => {
 		item = item.get({plain:true});
-		item.url = "/api/v0/siteFiles/" + item.id + "/raw";
+		item.url = baseURL + item.id + "/raw";
 		rows.push(item);
 	});
 

@@ -17,7 +17,7 @@ const secretKey = config.qiniu.secretKey;
 const bucketName = config.qiniu.bucketName;
 const bucketDomian = config.qiniu.bucketDomian;
 const mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
-const apiUrlPrefix = config.origin + config.apiUrlPrefix;
+const baseURL = config.origin + config.baseURL;
 
 
 const Qiniu = {
@@ -38,7 +38,7 @@ Qiniu.getUploadToken = function(key) {
 	const options = {
 		scope: scope,
 		expires: 3600 * 24, // 一天
-		callbackUrl: config.origin + config.apiUrlPrefix + "files/qiniu",
+		callbackUrl: config.origin + config.baseURL + "files/qiniu",
 		//callbackBody: '{"hash":"$(etag)","size":$(fsize),"bucket":"$(bucket)"}',
 		callbackBody: '{"key":"$(key)","hash":"$(etag)","size":$(fsize),"bucket":"$(bucket)","filename":"$(x:filename)","siteId":$(x:siteId)}',
 		callbackBodyType: 'application/json',
@@ -211,7 +211,7 @@ Qiniu.videoAudit = async function(id, key = "", async = true) {
 		data: {uri:videoUrl}, 
 		params: {
 			async: async,
-			hookURL: apiUrlPrefix + "files/audit",
+			hookURL: baseURL + "files/audit",
 		},
 		ops:[{op:"pulp"}, {op:"terror"}, {op:"politician"}]
 	};

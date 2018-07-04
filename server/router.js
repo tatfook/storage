@@ -18,7 +18,7 @@ const controllers = {
 }
 
 const router = new Router({
-	prefix: config.apiUrlPrefix,
+	prefix: config.baseURL,
 });
 
 const getParams = (ctx) => {

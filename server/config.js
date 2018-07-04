@@ -5,13 +5,11 @@ import secretConfig from "./.config.js";
 const defaultConfig = {
 	secret: "keepwork",
 
-	apiUrlPrefix: "/api/v0/",
-
-	baseURL: "/api/v0/",
+	baseURL: "/storage/v0/",
 	host: "0.0.0.0",
 	port: 8088,
 	protocol: "http",
-	origin: "http://storage.keepwork.com",
+	origin: "http://api-stage.keepwork.com",
 	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
 
 	database: {
@@ -37,6 +35,7 @@ const defaultConfig = {
 
 const productionConfig = {
 	keepworkBaseURL: "http://keepwork.com/api/wiki/models/",
+	origin: "http://api.keepwork.com",
 	qiniu: {
 		bucketName: "keepwork",
 		bucketDomian: "http://ov62qege8.bkt.clouddn.com",
@@ -47,6 +46,7 @@ const productionConfig = {
 }
 
 const developmentConfig = {
+	origin: "http://api-stage.keepwork.com",
 	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
 	qiniu: {
 		bucketName: "keepwork-dev",
