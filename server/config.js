@@ -5,7 +5,8 @@ import secretConfig from "./.config.js";
 const defaultConfig = {
 	secret: "keepwork",
 
-	baseURL: "/v0/",
+	apiUrlPrefix: "/v0/",
+	baseURL: "/storage/v0/",
 	host: "0.0.0.0",
 	port: 8088,
 	protocol: "http",
