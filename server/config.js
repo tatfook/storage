@@ -19,6 +19,7 @@ const defaultConfig = {
 		type: "mysql",
 		username: "root",
 		password: "", 
+		database:"keepwork-dev",
 	},
 
 	elasticsearch: {

@@ -13,6 +13,7 @@ storage.updateStatistics = async function(userId) {
 	const data = result[0];
 
 	await storageModel.update({
+		userId,
 		used: data.used,
 		fileCount: data.fileCount,
 	}, {where:{userId}});
@@ -26,6 +27,7 @@ storage.getStatistics = async function(userId) {
 
 	if (!data) {
 		data = {
+			userId,
 			total: 2 * 1024 * 1024 * 1024,
 			used: 0,
 			fileCount: 0,

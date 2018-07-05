@@ -17,8 +17,11 @@ const controllers = {
 	siteFiles,
 }
 
+//console.log(config);
+
 const router = new Router({
-	prefix: config.apiUrlPrefix,
+	//prefix: config.apiUrlPrefix,
+	prefix: config.baseURL,
 });
 
 const getParams = (ctx) => {
