@@ -20,8 +20,8 @@ const controllers = {
 //console.log(config);
 
 const router = new Router({
-	//prefix: config.apiUrlPrefix,
-	prefix: config.baseURL,
+	prefix: config.apiUrlPrefix,
+	//prefix: config.baseURL,
 });
 
 const getParams = (ctx) => {
