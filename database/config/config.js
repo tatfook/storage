@@ -1,9 +1,10 @@
 const Sequelize = require("sequelize");
 const config = require("../../server/.config.js");
 
-const developmentConfig = config.development.database;
-const productionConfig = config.production.database;
-const testConfig = config.test.database;
+const configs = config.configs;
+const developmentConfig = configs.development.database;
+const productionConfig = configs.production.database;
+const testConfig = configs.test.database;
 
 module.exports = {
   "development": {

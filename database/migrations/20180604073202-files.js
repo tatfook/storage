@@ -14,13 +14,12 @@ module.exports = {
 				unique: true,
 			},
 
-			username: {  // 文件所属者
-				type: Sequelize.STRING(48),
-				allowNull: false,
+			userId: {  // 文件所属者
+				type: Sequelize.BIGINT,
 			},
 
-			sitename: { // 存在 归于站点  不存在归于 用户  用于多人编辑引用站点资源
-				type: Sequelize.STRING(64),
+			siteId: { // 存在 归于站点  不存在归于 用户  用于多人编辑引用站点资源
+				type: Sequelize.BIGINT,
 			},
 
 			filename: { // 文件名  方便用户识别文件

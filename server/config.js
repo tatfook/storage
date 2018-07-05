@@ -14,11 +14,10 @@ const defaultConfig = {
 	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
 
 	database: {
-		//port:3306,
-		host: '39.106.11.114',
+		port: 23306,
+		host: '10.28.18.16',
 		type: "mysql",
-		database: "keepwork-dev", // 数据库名
-		username: "wuxiangan",
+		username: "root",
 		password: "", 
 	},
 

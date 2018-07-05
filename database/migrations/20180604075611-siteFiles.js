@@ -9,18 +9,18 @@ module.exports = {
 				primaryKey: true,
 			},
 			
-			key: {       // 文件ID
-				type: Sequelize.STRING(256),
+			fileId: {       // 文件ID
+				type: Sequelize.BIGINT,
 				allowNull: false,
 			},
 
-			username: {  // 文件使用位置的的用户名
-				type: Sequelize.STRING(48),
+			userId: {  // 文件使用位置的的用户名
+				type: Sequelize.BIGINT,
 				allowNull: false,
 			},
 
-			sitename: {  // 文件使用位置的站点名
-				type: Sequelize.STRING(64),
+			siteId: {  // 文件使用位置的站点名
+				type: Sequelize.BIGINT,
 				allowNull: false,
 			},
 
@@ -40,7 +40,7 @@ module.exports = {
 			indexes: [
 			{
 				unique: true,
-				fields: ["key", "username", "sitename"],
+				fields: ["key", "userId", "siteId"],
 			},
 			],
 		});
