@@ -5,7 +5,6 @@ import Sequelize from "sequelize";
 import sequelize from "../models/database.js";
 
 import ERR from "../../common/error.js";
-import gitlab from "../../common/api/gitlab.js";
 import util from "../../common/util.js";
 import {
 	QINIU_AUDIT_STATE_NO_AUDIT,

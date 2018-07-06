@@ -7,32 +7,11 @@ import models from "@/models";
 import consts from "@@/common/consts.js";
 import ERR from "@@/common/error.js";
 import qiniu from "@/models/qiniu.js";
-import gitlab from "@@/common/api/gitlab.js";
 import util from "@@/common/util.js";
 
 const storage = qiniu;
 
 const sitesModel = models["sites"];
-
-function writeGitFile(params) {
-	const path = params.key;
-	const options = {
-		content: params.content,
-		commit_message: "note site create or update",
-	}
-
-	gitlab.upsertFile(params.key, {content:params.content});
-}
-
-function writeGitFile(params) {
-	const path = params.key;
-	const options = {
-		content: params.content,
-		commit_message: "note site create or update",
-	}
-
-	gitlab.upsertFile(params.key, {content:params.content});
-}
 
 export const Pages = class extends Controller {
 	constructor() {
@@ -86,7 +65,6 @@ export const Pages = class extends Controller {
 		if (!params.key) return ERR.ERR_PARAMS();
 		if (!await this.isEditable(userId, params.key)) return ERR.ERR_NO_PERMISSION();
 
-		writeGitFile(params);
 		storage.upload(params.key, params.content);
 
 		const result = await this.model.upsert(params);
