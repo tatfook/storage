@@ -14,6 +14,7 @@ import {sendEmail} from "@@/common/email.js";
 import config from "@/config.js";
 
 const userModel = models["users"];
+const rolesModel = models["roles"];
 
 export const Users = class extends Controller {
 	constructor() {
@@ -26,6 +27,7 @@ export const Users = class extends Controller {
 		const params = ctx.state.params;
 
 		delete params.password;
+		delete params.username;
 
 		if (id != userId) return ERR.ERR_NO_PERMISSION();
 
@@ -78,18 +80,21 @@ export const Users = class extends Controller {
 
 		user = await this.model.create({
 			username: params.username,
-			password: params.password,
+			password: md5(params.password),
 		});
 
 		if (!user) return ERR.ERR();
 		user = user.get({plain:true});
 
+		const roleId = rolesModel.getRoleIdByUserId(user.id);
 		const token = util.jwt_encode({
 			userId: user.id, 
-			username: user.username
+			username: user.username,
+			roleId: roleId,
 		}, config.secret, config.tokenExpire);
 
 		user.token = token;
+		user.roleId = roleId;
 		ctx.cookies.set("token", token, {
 			maxAge: config.tokenExpire * 1000,
 			overwrite: true,
@@ -114,12 +119,17 @@ export const Users = class extends Controller {
 
 		user = user.get({plain:true});
 
+		const roleId = rolesModel.getRoleIdByUserId(user.id);
+		if (rolesModel.isExceptionUser(roleId)) {
+			return ERR.ERR_USER_EXCEPTION();
+		}
 		const token = util.jwt_encode({
 			userId: user.id, 
 			username: user.username
 		}, config.secret, config.tokenExpire);
 
 		user.token = token;
+		user.roleId = roleId;
 		ctx.cookies.set("token", token, {
 			maxAge: config.tokenExpire * 1000,
 			overwrite: true,
@@ -144,7 +154,7 @@ export const Users = class extends Controller {
 		const userId = ctx.state.user.userId;
 
 		const result = await this.model.update({
-			password: params.newpassword,
+			password: md5(params.newpassword),
 		}, {
 			where: {
 				userId: userId,

@@ -1,6 +1,7 @@
 import joi from "joi";
 import _ from "lodash";
 
+import models from "@/models/index.js";
 import Controller from "@/controllers/controller.js";
 import ERR from "@@/common/error.js";
 import {
@@ -15,6 +16,26 @@ import {
 export const Sites = class extends Controller {
 	constructor() {
 		super();
+	}
+
+	async addNotification(userId, siteId, oper) {
+		const usersModel = models["users"];
+		const sitesModel = models["sites"];
+		const notificationsModel = models["notifications"];
+
+		let user = await usersModel.getByUserId(userId);
+		user = user.getData();
+
+		let site = await sitesModel.getBySiteId(siteId);
+		site = site.getData();
+
+		if (oper == "create") oper = "创建";
+		if (oper == "update") oper = "更新";
+		if (oper == "delete") oper = "删除";
+		const description = `${user.nickname || user.username}[${user.username}]${oper}站点${site.sitename}`;
+		//console.log(description);
+		const result = await notificationsModel.addNotification(userId, description);
+		console.log(result);
 	}
 
 	async create(ctx) {
@@ -37,6 +58,8 @@ export const Sites = class extends Controller {
 
 		data = data.get({plain:true});
 
+		this.addNotification(userId, data.id, "create");
+
 		return ERR.ERR_OK().setData(data);
 	}
 
@@ -49,6 +72,24 @@ export const Sites = class extends Controller {
 
 		const result = await this.model.update(params, {where:{id, userId}});
 		
+		this.addNotification(userId, id, "update");
+
+		return ERR.ERR_OK(result);
+	}
+
+	async delete(ctx) {
+		const id = ctx.params.id;
+		const userId = ctx.state.user.userId;
+
+		let result = await this.model.destroy({
+			where: {
+				userId,
+				id,
+			}
+		});
+
+		this.addNotification(userId, id, "delete");
+
 		return ERR.ERR_OK(result);
 	}
 
@@ -58,7 +99,9 @@ export const Sites = class extends Controller {
 		const params = ctx.state.params;
 		const memberId = params.memberId;
 
-		return this.model.getMemberLevel({siteId:id, memberId:memberId});
+		const level = await this.model.getMemberLevel({siteId:id, memberId:memberId});
+
+		return ERR.ERR_OK(level);
 	}
 
 	async getJoinSites(ctx) {
@@ -101,10 +144,38 @@ export const Sites = class extends Controller {
 		return ERR.ERR_OK(list);
 	}
 
+	async getByName(ctx) {
+		const usersModel = models["users"];
+		const sitesModel = models["sites"];
+		const params = ctx.state.params;
+		
+		let user = await usersModel.findOne({where:{username: params.username}});
+		if (!user) return ERR.ERR_PARAMS();
+
+		let site = await sitesModel.findOne({where: {
+			userId: user.id,
+			sitename: params.sitename,
+		}});
+		if (!site) return ERR.ERR_PARAMS();
+
+		if (!await this.model.isReadableByMemberId(site.id, ctx.state.user.userId)) return ERR.ERR_PARAMS();
+
+		return ERR.ERR_OK({user, site});
+	}
+
 	static getRoutes() {
 		this.pathPrefix = "sites";
 		const baseRoutes = super.getRoutes();
 		const routes = [
+		{
+			path:"getByName",
+			method: "GET",
+			action:"getByName",
+			validated: {
+				username: joi.string().required(),
+				sitename: joi.string().required(),
+			},
+		},
 		{
 			path:"search",
 			method:"GET",

@@ -1,7 +1,7 @@
 import _ from "lodash";
 import middlewares from "@/middlewares/index.js";
 
-import {ERR_UNATUH, ERR_OK, ERR_PARAMS} from "@@/common/error.js";
+import ERR from "@@/common/error.js";
 
 import tests from "./tests.js";
 import code from "./code.js";
@@ -20,10 +20,16 @@ import domains from "./domains.js";
 import pages from "./pages.js";
 import oauthUsers from "./oauthUsers.js";
 import favorites from "./favorites.js";
+import roles from "./roles.js";
+import datas from "./datas.js";
+import convert from "./convert.js";
+
+import models from "@/models/index.js";
 
 const {validate, validated, pagination} = middlewares;
 
 export const controllers = {
+	convert,
 	tests,
 	code,
 	oauth,
@@ -41,7 +47,11 @@ export const controllers = {
 	pages,
 	oauthUsers,
 	favorites,
+	roles,
+	datas,
 }
+
+const rolesModel = models["roles"];
 
 const getParams = (ctx) => {
 	const method = ctx.request.method.toLowerCase();
@@ -76,12 +86,19 @@ export const registerControllerRouter = function(router) {
 						async (ctx, next) => {
 					// 认证中间件
 					if (route.authenticated && !ctx.state.user) {
-						ctx.body = ERR_UNATUH();
+						ctx.body = ERR.ERR_UNATUH();
 						return;
 					}
 
 					ctx.state.user = ctx.state.user || {};
+					//console.log(ctx.request.header);
+					//console.log(ctx.state.user);
 					ctx.state.params = getParams(ctx);
+
+					if (rolesModel.isExceptionUser(ctx.state.user.roleId)) {
+						return ERR.ERR_USER_EXCEPTION();
+					}
+
 					try {
 						const ctrl = new Ctrl();
 						const body = await ctrl[route.action](ctx);	

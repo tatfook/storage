@@ -6,6 +6,16 @@ export const Pages = class extends Model {
 		super();
 	}
 
+	async getByPageId(pageId) {
+		let data = await this.findOne({where:{id:pageId}});
+		
+		if (!data) return ERR.ERR_NOT_FOUND();
+
+		data = data.get({plain:true});
+
+		return ERR.ERR_OK(data);
+	}
+
 	async getByKey(key) {
 		let data = await this.findOne({where:{key}});
 		

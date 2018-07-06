@@ -52,7 +52,6 @@ export const Visitors = class extends Model {
 			data = data.get({plain:true});
 		}
 
-
 		data.userId = userId || data.userId;
 		data.count = data.count + 1;
 		data.visitors = this.updateVisitors(data.visitors, visitorId);

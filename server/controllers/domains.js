@@ -11,30 +11,27 @@ export const Domains = class extends Controller {
 		super();
 	}
 
-	async search(ctx) {
+	async getByDomain(ctx) {
 		const params = ctx.state.params;
-		const options = {
-			limit: params.limit && parseInt(params.limit),
-			offset: params.offset && parseInt(params.offset),
-			where:{},
-		}
+		const data = await this.model.getByDomain(params.domain);
 
-		if (params.domain) options.where.domain = params.domain;
-
-		const result = await this.model.findAndCount(options);
-
-		return ERR.ERR_OK(result);
+		return ERR.ERR_OK(data);
 	}
 
 	static getRoutes() {
 		this.pathPrefix = "domains";
 		const baseRoutes = super.getRoutes();
 
-		const routes = [{
-			path:"search",
+		const routes = [
+		{
+			path:"getByDomain",
 			method:"GET",
-			action:"search",
-		}];
+			action:"getByDomain",
+			validated: {
+				domain: joi.string().required(),
+			},
+		},
+		];
 
 		return routes.concat(baseRoutes);
 	}

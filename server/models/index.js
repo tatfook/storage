@@ -13,6 +13,9 @@ import domains from "./domains.js";
 import favorites from "./favorites.js";
 import oauthUsers from "./oauthUsers.js";
 import visitors from "./visitors.js";
+import roles from "./roles.js";
+import notifications from "./notifications.js";
+import datas from "./datas.js";
 
 export default {
 	models,
@@ -29,4 +32,7 @@ export default {
 	favorites,
 	oauthUsers,
 	visitors,
+	roles,
+	notifications,
+	datas,
 }

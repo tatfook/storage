@@ -9,12 +9,18 @@ const commonConfig = commonConfigs[ENV];
 
 const defaultConfig = {
 	tokenExpire: 3600 * 24 * 100,
+
+	host: "0.0.0.0",
+	port: 7654,
+	domain: "api.keepwork.com",
+	origin: "http://api.keepwork.com",
+	baseUrl: "/core/v0/",
+
 	database: {
-		//port:3306,
-		host: '39.106.11.114',
+		port: 23306,
+		host: '10.28.18.16',
 		type: "mysql",
-		database: "note", // 数据库名
-		username: "wuxiangan",
+		username: "root",
 		password: "", 
 	},
 
@@ -25,11 +31,8 @@ const defaultConfig = {
 	qiniu: {
 		accessKey:"",
 		secretKey:"",
-		bucketName: "note",
-		bucketDomian: "http://qiniu.wxaxiaoyao.cn",
-		// keepwork-dev
-		//bucketName: "keepwork-dev",
-		//bucketDomian: "http://oy41aju0m.bkt.clouddn.com",
+		bucketName: "keepwork-dev",
+		bucketDomian: "http://oy41aju0m.bkt.clouddn.com",
 	},
 
 	email: {
@@ -52,13 +55,39 @@ const defaultConfig = {
 }
 
 const productionConfig = {
+	keepworkBaseURL: "http://keepwork.com/api/wiki/models/",
+	origin: "http://api.keepwork.com",
+	qiniu: {
+		bucketName: "keepwork",
+		bucketDomian: "http://ov62qege8.bkt.clouddn.com",
+	},
+	database: {
+		database:"keepwork",
+	}
 }
 
 const developmentConfig = {
+	origin: "http://api-stage.keepwork.com",
+	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
+	qiniu: {
+		bucketName: "keepwork-dev",
+		bucketDomian: "http://oy41aju0m.bkt.clouddn.com",
+	},
+	database: {
+		database:"keepwork-dev",
+	}
 }
 
 const localConfig = {
-	
+	origin: "http://localhost:7654",
+	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
+	qiniu: {
+		bucketName: "keepwork-dev",
+		bucketDomian: "http://oy41aju0m.bkt.clouddn.com",
+	},
+	database: {
+		database:"keepwork-dev",
+	}
 }
 
 const testConfig = {

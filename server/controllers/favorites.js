@@ -1,5 +1,6 @@
 import joi from "joi";
 
+import models from "@/models/index.js";
 import Controller from "@/controllers/controller.js";
 import {
 	ENTITY_TYPE_USER,
@@ -7,6 +8,8 @@ import {
 	ENTITY_TYPE_PAGE,
 } from "@@/common/consts.js";
 import ERR from "@@/common/error.js";
+
+const notificationsModel = models["notifications"];
 
 export const Favorites = class extends Controller {
 	constructor() {
@@ -56,6 +59,7 @@ export const Favorites = class extends Controller {
 
 		const result = await this.model.destroy({where:params});
 
+		notificationsModel.following(params.userId, params.favoriteId, "unfavorite");
 		return ERR.ERR_OK(result);
 	}
 
@@ -67,10 +71,9 @@ export const Favorites = class extends Controller {
 		params.userId = userId;
 		params.type = ENTITY_TYPE_USER;
 
-		console.log(params, ctx.state.user);
-
 		const result = await this.model.create(params);
 
+		notificationsModel.following(params.userId, params.favoriteId, "favorite");
 		return ERR.ERR_OK(result);
 	}
 
@@ -83,6 +86,7 @@ export const Favorites = class extends Controller {
 
 		const result = await this.model.create(params);
 
+		notificationsModel.favoriteSite(params.userId, params.favoriteId, "favorite");
 		return ERR.ERR_OK(result);
 	}
 
@@ -95,6 +99,7 @@ export const Favorites = class extends Controller {
 
 		const result = await this.model.destroy({where:params});
 
+		notificationsModel.favoriteSite(params.userId, params.favoriteId, "unfavorite");
 		return ERR.ERR_OK(result);
 	}
 
@@ -107,6 +112,7 @@ export const Favorites = class extends Controller {
 
 		const result = await this.model.create(params);
 
+		notificationsModel.favoritePage(params.userId, params.favoriteId, "favorite");
 		return ERR.ERR_OK(result);
 	}
 
@@ -119,6 +125,7 @@ export const Favorites = class extends Controller {
 
 		const result = await this.model.destroy({where:params});
 
+		notificationsModel.favoritePage(params.userId, params.favoriteId, "unfavorite");
 		return ERR.ERR_OK(result);
 	}
 

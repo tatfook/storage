@@ -188,20 +188,29 @@ export const OauthUsers = class extends Controller {
 
 		// params.state == "login"  登录
 		let user = undefined;
-		if (oauthUser.userId) {
-			const usersModel = models["users"];
-			user = await usersModel.findOne({where:{id:oauthUser.userId}});
-			if (user) user = user.get({plain: true});
+		if (!oauthUser.userId) return ERR.ERR().setMessage("账号未绑定");
+
+		const usersModel = models["users"];
+		user = await usersModel.findOne({where:{id:oauthUser.userId}});
+		if (!user) return ERR.ERR();
+
+		user = user.get({plain: true});
+
+		const rolesModel = models["roles"];
+		const roleId = await rolesModel.getRoleIdByUserId(user.id);
+		if (rolesModel.isExceptionUser(roleId)) {
+			return ERR.ERR_USER_EXCEPTION();
 		}
 		
-		user = user || {};	
 		const token = util.jwt_encode({
-			userId: user.id || oauthUser.userId,
+			roleId: roleId,
+			userId: user.id,
 			username: user.username,
 			oauthUserId: oauthUser.id,
 		}, config.secret, config.tokenExpire);
 
 		user.token = token;
+		user.roleId = roleId;
 		ctx.cookies.set("token", user.token, {
 			maxAge: config.tokenExpire * 1000,
 			overwrite: true,

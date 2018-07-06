@@ -20,9 +20,9 @@ const users = sequelize.define('users', {
 
 	password: {
 		type: Sequelize.STRING(48),
-		set(val) {
-			this.setDataValue("password", md5(val));
-		},
+		//set(val) {
+			//this.setDataValue("password", md5(val));
+		//},
 	},
 
 	email: {
@@ -40,7 +40,7 @@ const users = sequelize.define('users', {
 	},
 
 	portrait: {
-		type: Sequelize.STRING,
+		type: Sequelize.STRING(128),
 	},
 
 	sex: {
@@ -385,12 +385,10 @@ export const pages = sequelize.define("pages", {
 
 	//userId: {
 		//type: Sequelize.BIGINT,
-		//allowNull: false,
 	//},
 
 	//siteId: {
 		//type: Sequelize.BIGINT,
-		////allowNull: false,
 	//},
 
 	key: {
@@ -671,6 +669,107 @@ export const oauthUsers = sequelize.define("oauthUsers", {
 //});
 
 
+export const roles = sequelize.define("roles", {
+	id: {
+		type: Sequelize.BIGINT,
+		autoIncrement: true,
+		primaryKey: true,
+	},
+	
+	userId: {  // 文件所属者
+		type: Sequelize.BIGINT,
+		allowNull:  false,
+	},
+
+	roleId: {
+		type: Sequelize.INTEGER,
+	},
+
+	description: {
+		type: Sequelize.STRING(128),
+	},
+
+	startTime: {
+		type: Sequelize.DATE,
+	},
+
+	endTime: {
+		type: Sequelize.DATE,
+	},
+}, {
+	charset: "utf8mb4",
+	collate: 'utf8mb4_bin',
+	indexes: [
+	{
+		unique: true,
+		fields: ["userId", "roleId"],
+	},
+	],
+});
+
+//roles.sync({force:true}).then(() => {
+	//console.log("create files table successfully");
+//});
+
+
+export const notifications = sequelize.define("notifications", {
+	id: {
+		type: Sequelize.BIGINT,
+		autoIncrement: true,
+		primaryKey: true,
+	},
+	
+	userId: {  // 文件所属者
+		type: Sequelize.BIGINT,
+		allowNull:  false,
+	},
+
+	type: {
+		type: Sequelize.INTEGER,
+	},
+
+	state: {
+		type: Sequelize.INTEGER,
+	},
+
+	description: {
+		type: Sequelize.TEXT,
+	},
+}, {
+	charset: "utf8mb4",
+	collate: 'utf8mb4_bin',
+});
+
+//notifications.sync({force:true}).then(() => {
+	//console.log("create files table successfully");
+//});
+
+
+export const datas = sequelize.define("datas", {
+	id: {
+		type: Sequelize.BIGINT,
+		autoIncrement: true,
+		primaryKey: true,
+	},
+	
+	userId: {  // 文件所属者
+		type: Sequelize.BIGINT,
+		allowNull:  false,
+		unique: true,
+	},
+	
+	data: {
+		type: Sequelize.JSON,
+	},
+}, {
+	charset: "utf8mb4",
+	collate: 'utf8mb4_bin',
+});
+
+//datas.sync({force:true}).then(() => {
+	//console.log("create files table successfully");
+//});
+
 export default {
 	users,
 	sites,
@@ -688,4 +787,7 @@ export default {
 	files,
 	storages,
 	oauthUsers,
+	roles,
+	notifications,
+	datas,
 };

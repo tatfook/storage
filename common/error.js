@@ -50,6 +50,7 @@ export const ERR_PARAMS = (data) => new Err(1, "参数错误", data);
 export const ERR_UNATUH = (data) => new Err(2, "未认证", data);
 export const ERR_NOT_FOUND = (data) => new Err(3, "未找到记录", data);
 export const ERR_NO_PERMISSION = (data) => new Err(4, "没有权限", data);
+export const ERR_USER_EXCEPTION = (data) => new Err(5, "账号被封", data)
 
 export default {
 	ERR,

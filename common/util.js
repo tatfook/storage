@@ -106,6 +106,7 @@ util.parseKey = function(key) {
 	const obj = {key};
 	obj.path = this.getPathByKey(key);
 	obj.type = this.getTypeByKey(key);
+	obj.url = key.substring(0, key.lastIndexOf("."));
 
 	const paths = obj.path.split("/");
 	obj.username = paths[0];
