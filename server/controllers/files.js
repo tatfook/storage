@@ -193,8 +193,10 @@ Files.prototype.findOne = async function(ctx) {
 Files.prototype.qiniu = async function(ctx) {
 	const params = ctx.request.body;
 	const key = params.key;
-	const type = util.getTypeByPath(key);
+	const mimeType = params.mimeType;
+	let type = mimeType ? util.getTypeByMimeType(mimeType) : util.getTypeByPath(key);
 	let checked = QINIU_AUDIT_STATE_NO_AUDIT;
+
 	if (type == "images") {
 		checked = await storage.imageAudit(key);
 	}

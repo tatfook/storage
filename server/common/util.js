@@ -5,6 +5,8 @@ import {Base64} from "js-base64";
 const filetype = {
 	md: "pages",
 
+	gif: "images",
+	bmp: "images",
 	jpg: "images",
 	jpeg: "images",
 	png: "images",
@@ -32,10 +34,17 @@ util.jwt_decode = function(token, key, noVerify, alg="HS256") {
 	return jwt.decode(token, key, noVerify, alg);
 }
 
+util.getTypeByMimeType = function(mimeType) {
+	const type = mimeType.split("/")[0];
+	if (type == "image" || type == "audio" || type == "video") return type + "s";
+
+	return "files";
+}
+
 util.getTypeByPath = function(path) {
 	const ext = path.substring(path.lastIndexOf(".") + 1);
 
-	return filetype[ext] || "files";
+	return filetype[ext.toLowerCase()] || "files";
 }
 
 util.getKeyByPath = function(path) {
