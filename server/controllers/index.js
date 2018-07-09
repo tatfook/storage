@@ -2,6 +2,8 @@ import _ from "lodash";
 import middlewares from "@/middlewares/index.js";
 
 import ERR from "@@/common/error.js";
+import util from "@@/common/util.js";
+import config from "@/config.js";
 
 import tests from "./tests.js";
 import code from "./code.js";
@@ -69,6 +71,13 @@ const getParams = (ctx) => {
 	//return _.merge(params, ctx.params);
 }
 
+const test = (ctx) => {
+	//const token = ctx.cookies.get("token");
+	//console.log(token);
+	//console.log(util.jwt_decode(token, config.secret, false));
+}
+
+
 export const registerControllerRouter = function(router) {
 	_.each(controllers, Ctrl => {
 		_.each(Ctrl.getRoutes(), (route) => {
@@ -84,6 +93,7 @@ export const registerControllerRouter = function(router) {
 						validated(route.validated), 
 						validate(route.validate), 
 						async (ctx, next) => {
+
 					// 认证中间件
 					if (route.authenticated && !ctx.state.user) {
 						ctx.body = ERR.ERR_UNATUH();

@@ -96,6 +96,7 @@ export const Users = class extends Controller {
 		user.token = token;
 		user.roleId = roleId;
 		ctx.cookies.set("token", token, {
+			httpOnly: false,
 			maxAge: config.tokenExpire * 1000,
 			overwrite: true,
 			domain: "." + config.domain,
@@ -131,6 +132,7 @@ export const Users = class extends Controller {
 		user.token = token;
 		user.roleId = roleId;
 		ctx.cookies.set("token", token, {
+			httpOnly: false,
 			maxAge: config.tokenExpire * 1000,
 			overwrite: true,
 			domain: "." + config.domain,

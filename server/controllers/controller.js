@@ -116,6 +116,7 @@ export const Controller = class {
 			path:"upsert",
 			method:["PUT", "POST"],
 			action:"upsert",
+			authenticated: true,
 		},
 		{
 			path:"search",
@@ -126,7 +127,7 @@ export const Controller = class {
 			path: "",
 			method: "GET",
 			action: "find",
-			authentated: true,
+			authenticated: true,
 		},
 		{
 			path: ":id",
@@ -143,13 +144,13 @@ export const Controller = class {
 			path: "",
 			method: "POST",
 			action: "create",
-			authentated: true,
+			authenticated: true,
 		},
 		{
 			path: ":id",
 			method: "PUT",
 			action: "update",
-			authentated: true,
+			authenticated: true,
 			validate: {
 				params: {
 					id: joi.number().required(),
@@ -160,7 +161,7 @@ export const Controller = class {
 			path: ":id",
 			method: "DELETE",
 			action: "delete",
-			authentated: true,
+			authenticated: true,
 			validate: {
 				params: {
 					id: joi.number().required(),

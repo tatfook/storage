@@ -212,6 +212,7 @@ export const OauthUsers = class extends Controller {
 		user.token = token;
 		user.roleId = roleId;
 		ctx.cookies.set("token", user.token, {
+			httpOnly: false,
 			maxAge: config.tokenExpire * 1000,
 			overwrite: true,
 			domain: "." + config.domain,
