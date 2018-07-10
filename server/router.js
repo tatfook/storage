@@ -58,7 +58,7 @@ _.each(controllers, Ctrl => {
 				if (!user) {
 					user = await axios.get(config.keepworkBaseURL + "user/tokeninfo", {headers}).then(res => res.data).catch(e => {console.log(e); return undefined;});
 					if (user && user.userId) {
-						memoryCache.put(Authorization, user, 1000 * 60);
+						memoryCache.put(Authorization, user, 1000 * 60 * 60);
 					}
 				}
 				ctx.state.user = user;
