@@ -1,6 +1,7 @@
 import _ from "lodash";
 import Router from "koa-router";
 import axios from "axios";
+import memoryCache from "memory-cache";
 
 import config from "@/config.js";
 import {validate} from "@/middlewares/index.js";
@@ -51,10 +52,17 @@ _.each(controllers, Ctrl => {
 			//console.log(path, method);
 			router[method](path, validate(route.validate), async (ctx, next) => {
 				console.log(ctx.cookies.get("token"));
-				const headers = {
-					"Authorization": ctx.request.header["authorization"] || ("Bearer " + ctx.cookies.get("token")),
-				};
-				ctx.state.user = await axios.get(config.keepworkBaseURL + "user/tokeninfo", {headers}).then(res => res.data).catch(e => {console.log(e); return undefined;});
+				const Authorization =  ctx.request.header["authorization"] || ("Bearer " + ctx.cookies.get("token"));
+				const headers = {"Authorization": Authorization,};
+				let user = memoryCache.get(Authorization);
+				if (!user) {
+					user = await axios.get(config.keepworkBaseURL + "user/tokeninfo", {headers}).then(res => res.data).catch(e => {console.log(e); return undefined;});
+					if (user && user.userId) {
+						memoryCache.put(Authorization, user, 1000 * 60);
+					}
+				}
+				ctx.state.user = user;
+				
 				//ctx.state.user = await axios.get("http://localhost:8900/api/wiki/models/user/tokeninfo", {headers}).then(res => res.data).catch(e => {console.log(e); return undefined;});
 				// 认证中间件
 				if ((route.authentated || route.admin) && !ctx.state.user) {
