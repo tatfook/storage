@@ -11,7 +11,8 @@ const defaultConfig = {
 	port: 8088,
 	protocol: "http",
 	origin: "http://api-stage.keepwork.com",
-	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
+	//keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
+	keepworkBaseURL: "http://10.28.18.2:8900/api/wiki/models/",
 
 	database: {
 		port: 23306,
@@ -35,7 +36,8 @@ const defaultConfig = {
 }
 
 const productionConfig = {
-	keepworkBaseURL: "http://keepwork.com/api/wiki/models/",
+	//keepworkBaseURL: "http://keepwork.com/api/wiki/models/",
+	keepworkBaseURL: "http://10.28.18.6:8000/api/wiki/models/",
 	origin: "http://api.keepwork.com",
 	qiniu: {
 		bucketName: "keepwork",
@@ -48,7 +50,8 @@ const productionConfig = {
 
 const developmentConfig = {
 	origin: "http://api-stage.keepwork.com",
-	keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
+	//keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
+	keepworkBaseURL: "http://10.28.18.2:8900/api/wiki/models/",
 	qiniu: {
 		bucketName: "keepwork-dev",
 		bucketDomian: "http://oy41aju0m.bkt.clouddn.com",
