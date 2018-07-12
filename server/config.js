@@ -48,6 +48,19 @@ const productionConfig = {
 	}
 }
 
+const releaseConfig = {
+	origin: "http://api-release.keepwork.com",
+	//keepworkBaseURL: "http://release.keepwork.com/api/wiki/models/",
+	keepworkBaseURL: "http://10.28.18.2:8088/api/wiki/models/",
+	qiniu: {
+		bucketName: "keepwork-dev",
+		bucketDomian: "http://oy41aju0m.bkt.clouddn.com",
+	},
+	database: {
+		database:"keepwork-rls",
+	}
+}
+
 const developmentConfig = {
 	origin: "http://api-stage.keepwork.com",
 	//keepworkBaseURL: "http://stage.keepwork.com/api/wiki/models/",
@@ -70,6 +83,7 @@ const localConfig = {
 
 const configs = {
 	"production": _.merge({}, defaultConfig, productionConfig, secretConfig),
+	"release": _.merge({}, defaultConfig, releaseConfig, secretConfig),
 	"development": _.merge({}, defaultConfig, developmentConfig, secretConfig),
 	"test": _.merge({}, defaultConfig, testConfig, secretConfig),
 	"local": _.merge({}, defaultConfig, localConfig, secretConfig),
