@@ -3,6 +3,7 @@ const config = require("../../server/.config.js");
 
 const configs = config.configs;
 const developmentConfig = configs.development.database;
+const releaseConfig = configs.release.database;
 const productionConfig = configs.production.database;
 const testConfig = configs.test.database;
 
@@ -26,6 +27,15 @@ module.exports = {
     "host": testConfig.host,
 	"port": testConfig.port,
     "database": "keepwork-test",
+    "dialect": "mysql",
+	"operatorsAliases":Sequelize.Op,
+  },
+  "release": {
+    "username": releaseConfig.username,
+    "password": releaseConfig.password,
+    "host": releaseConfig.host,
+	"port": releaseConfig.port,
+    "database": "keepwork-rls",
     "dialect": "mysql",
 	"operatorsAliases":Sequelize.Op,
   },

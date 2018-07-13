@@ -78,7 +78,6 @@ const testConfig = {
 }
 
 const localConfig = {
-	apiUrlPrefix: "/storage/v0/",
 }
 
 const configs = {

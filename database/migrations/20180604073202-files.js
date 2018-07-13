@@ -23,7 +23,7 @@ module.exports = {
 			},
 
 			filename: { // 文件名  方便用户识别文件
-				type: Sequelize.STRING(64),
+				type: Sequelize.STRING(128),
 			},
 
 			// 是否审核 1 -- 审核通过  2 -- 审核不通过  0 -- 未审核 
