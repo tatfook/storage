@@ -195,11 +195,11 @@ Files.prototype.qiniu = async function(ctx) {
 	const key = params.key;
 	const mimeType = params.mimeType;
 	let type = mimeType ? util.getTypeByMimeType(mimeType) : util.getTypeByPath(key);
-	let checked = QINIU_AUDIT_STATE_NO_AUDIT;
+	let checked = QINIU_AUDIT_STATE_PASS;
 
-	if (type == "images") {
-		checked = await storage.imageAudit(key);
-	}
+	//if (type == "images") {
+		//checked = await storage.imageAudit(key);
+	//}
 
 	console.log(params);
 
@@ -213,12 +213,12 @@ Files.prototype.qiniu = async function(ctx) {
 	});
 	
 	// 添加记录失败 应删除文件
-	if (type == "videos") {
-		data = await this.model.findOne({where: {key:key}});
-		if (!data) return ERR.ERR();
-		data = data.get({plain:true});
-		storage.videoAudit(util.aesEncode({id:data.id}), key);
-	}
+	//if (type == "videos") {
+		//data = await this.model.findOne({where: {key:key}});
+		//if (!data) return ERR.ERR();
+		//data = data.get({plain:true});
+		//storage.videoAudit(util.aesEncode({id:data.id}), key);
+	//}
 
 	console.log("-----------qiniu callback finish-------------");
 	return ERR.ERR_OK(data);
