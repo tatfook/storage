@@ -26,7 +26,7 @@ function start () {
 	.use(cors({origin:"*"}))
 	.use(KoaBody())
 	.use(jwt({secret:config.secret, passthrough:true, cookie:"token"}))
-	.use(route.routes()),
+	.use(route.routes())
 	.use(router.routes())
 	.use(router.allowedMethods());
 	
