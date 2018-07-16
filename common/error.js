@@ -44,13 +44,13 @@ Err.prototype.getCode = function() {
 Err.prototype.clone = function(err) {
 	return _.cloneDeep(err || this);
 }
-export const ERR = (data) => new Err(-1, "unknown error", data);
-export const ERR_OK = (data) => new Err(0, null, data);
-export const ERR_PARAMS = (data) => new Err(1, "参数错误", data);
-export const ERR_UNATUH = (data) => new Err(2, "未认证", data);
-export const ERR_NOT_FOUND = (data) => new Err(3, "未找到记录", data);
-export const ERR_NO_PERMISSION = (data) => new Err(4, "没有权限", data);
-export const ERR_USER_EXCEPTION = (data) => new Err(5, "账号被封", data)
+export const ERR = (data, message) => new Err(-1, message || "内部错误", data);
+export const ERR_OK = (data, message) => new Err(0, message || "OK", data);
+export const ERR_PARAMS = (data, message) => new Err(1, message || "参数错误", data);
+export const ERR_UNATUH = (data, message) => new Err(2, message || "未认证", data);
+export const ERR_NOT_FOUND = (data, message) => new Err(3, message || "未找到记录", data);
+export const ERR_NO_PERMISSION = (data, message) => new Err(4, message || "没有权限", data);
+export const ERR_USER_EXCEPTION = (data, message) => new Err(5, message || "账号被封", data)
 
 export default {
 	ERR,

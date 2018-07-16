@@ -21,10 +21,14 @@ import groupMembers from "./groupMembers.js";
 import domains from "./domains.js";
 import pages from "./pages.js";
 import oauthUsers from "./oauthUsers.js";
+import oauthApps from "./oauthApp.js";
 import favorites from "./favorites.js";
 import roles from "./roles.js";
 import datas from "./datas.js";
 import convert from "./convert.js";
+import trades from "./trades.js";
+import wallets from "./wallets.js";
+import goods from "./goods.js";
 
 import models from "@/models/index.js";
 
@@ -48,9 +52,13 @@ export const controllers = {
 	domains,
 	pages,
 	oauthUsers,
+	oauthApps,
 	favorites,
 	roles,
 	datas,
+	trades,
+	wallets,
+	goods,
 }
 
 const rolesModel = models["roles"];
@@ -101,6 +109,7 @@ export const registerControllerRouter = function(router) {
 					}
 
 					ctx.state.user = ctx.state.user || {};
+					ctx.state.user.token = ctx.state.token;
 					//console.log(ctx.request.header);
 					//console.log(ctx.state.user);
 					ctx.state.params = getParams(ctx);

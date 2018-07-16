@@ -16,6 +16,9 @@ import visitors from "./visitors.js";
 import roles from "./roles.js";
 import notifications from "./notifications.js";
 import datas from "./datas.js";
+import trades from "./trades.js";
+import wallets from "./wallets.js";
+import goods from "./goods.js";
 
 export default {
 	models,
@@ -35,4 +38,7 @@ export default {
 	roles,
 	notifications,
 	datas,
+	trades,
+	wallets,
+	goods,
 }

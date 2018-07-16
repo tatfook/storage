@@ -11,6 +11,9 @@ const defaultConfig = {
 	baseUrl: "/api/v0/",
 
 	oauths: {
+		note: {
+			clientId: "100000",
+		},
 		github: {
 			clientId: "5cc0cf681e677a56771b",
 		},
@@ -41,13 +44,18 @@ const productionConfig = {
 }
 
 const developmentConfig = {
+	host: "0.0.0.0",
+	port: 3000,
+	domain: "xiaoyao.com",
+	origin: "http://xiaoyao.com:3000",
+	baseUrl: "/api/v0/",
 }
 
 const localConfig = {
 	host: "0.0.0.0",
 	port: 3000,
-	domain: "localhost",
-	origin: "http://localhost:3000",
+	domain: "xiaoyao.com",
+	origin: "http://xiaoyao.com:3000",
 	baseUrl: "/api/v0/",
 }
 

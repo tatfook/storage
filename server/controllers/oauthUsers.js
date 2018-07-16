@@ -49,7 +49,7 @@ export const OauthUsers = class extends Controller {
 			access_token,
 		   	oauth_consumer_key:params.client_id, 
 			openid:externalId}}).then(res => res.data);
-		console.log(result);
+		//console.log(result);
 		// 更新DB
 		const externalUsername = result.nickname;
 		const type = OAUTH_SERVICE_TYPE_QQ;
@@ -171,14 +171,35 @@ export const OauthUsers = class extends Controller {
 		return ERR.ERR_OK();
 	}
 
+	async note(ctx) {
+		const params = ctx.state.params;
+		const userId = ctx.state.user.userId;
+		const accessTokenApiUrl = config.origin + config.baseUrl + "oauthApps/token";
+		const userApiUrl = config.origin + config.baseUrl + "users/" + userId;
+		params.grant_type = "authorization_code";
+		params.client_id = params.client_id || config.oauths.note.clientId;
+		params.client_secret = params.client_secret || config.oauths.note.clientSecret;
+		params.redirect_uri = params.redirect_uri || (baseUrl + "note");
+		console.log(params);
+		// 获取token
+		const data = await axios.post(accessTokenApiUrl, params).then(res => res.data);
+		console.log(data);
+		const access_token = data.access_token;
+		const userinfo = await axios.get(userApiUrl).then(res => res.data);
+		const externalId = userinfo.id;
+		const externalUsername = userinfo.username;
+
+		const key = params.code + params.client_id;
+		memoryCache.put(key, {userId,externalId, externalUsername}, 1000 * 60 * 10); // 10 分钟
+		
+		return ERR.ERR_OK();
+	}
 	// 解绑删除记录即可
 	
 	async token(ctx) {
 		const params = ctx.state.params;
 		const key = params.code + params.clientId;
 		const oauthUser = memoryCache.get(key);
-		const userId = ctx.state.user.userId;
-
 		if (!oauthUser) return ERR.ERR();
 		
 		if (params.state == "bind") {
@@ -187,11 +208,10 @@ export const OauthUsers = class extends Controller {
 		}
 
 		// params.state == "login"  登录
-		let user = undefined;
-		if (!oauthUser.userId) return ERR.ERR().setMessage("账号未绑定");
+		if (!oauthUser.userId) return ERR.ERR().setMessage("账号未绑定"); // 完善账号信息
 
 		const usersModel = models["users"];
-		user = await usersModel.findOne({where:{id:oauthUser.userId}});
+		let user = await usersModel.findOne({where:{id:oauthUser.userId}});
 		if (!user) return ERR.ERR();
 
 		user = user.get({plain: true});
@@ -235,6 +255,12 @@ export const OauthUsers = class extends Controller {
 					clientId: joi.string().required(),
 				},
 			},
+		},
+		{
+			path:"note",
+			method: "ALL",
+			action: "note",
+			authenticated: true,
 		},
 		{
 			path:"xinlang",

@@ -2,10 +2,10 @@ import _ from "lodash";
 import joi from "joi";
 import axios from "axios";
 import Sequelize from "sequelize";
-import sequelize from "../models/database.js";
+import sequelize from "@/models/database.js";
 
-import ERR from "../../common/error.js";
-import util from "../../common/util.js";
+import ERR from "@@/common/error.js";
+import util from "@@/common/util.js";
 import {
 	QINIU_AUDIT_STATE_NO_AUDIT,
 	QINIU_AUDIT_STATE_PASS,
@@ -13,8 +13,8 @@ import {
 	QINIU_AUDIT_STATE_FAILED,
 } from "@@/common/consts.js";
 
-import qiniu from "../models/qiniu.js";
-import filesModel from "../models/files.js";
+import qiniu from "@/services/qiniu.js";
+import filesModel from "@/models/files.js";
 
 const storage = qiniu;
 
@@ -22,16 +22,6 @@ const {like, gt, lte, ne, in: opIn} = Sequelize.Op;
 
 export const Files = function(){
 	this.model = filesModel;
-}
-
-function writeGitFile(params) {
-	const path = params.key;
-	const options = {
-		content: params.content,
-		commit_message: "note site create or update",
-	}
-
-	gitlab.upsertFile(params.key, {content:params.content});
 }
 
 Files.prototype.isAuth = function (username, key)  {
