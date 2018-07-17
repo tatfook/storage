@@ -4,8 +4,55 @@ import sequelize from "./database.js";
 
 import md5 from "blueimp-md5";
 
+export const logs = sequelize.define("logs", {
+	id: {
+		type: Sequelize.BIGINT,
+		autoIncrement: true,
+		primaryKey: true,
+	},
+
+	module: {
+		type: Sequelize.STRING(32),
+	},
+
+	// uid 日志归类
+	logId: {  
+		type: Sequelize.STRING(64),
+	},
+
+	url: {
+		type: Sequelize.STRING(128),
+	},
+
+	// 类型
+	type: {
+		type: Sequelize.INTEGER,
+	},
+
+	// 日志级别
+	level: {
+		type: Sequelize.INTEGER,
+	},
+
+	// 文件位置
+	filepos: {
+		type: Sequelize.STRING(128),
+	},
+
+	// 日志信息
+	message: {
+		type: Sequelize.TEXT,
+	},
+}, {
+	charset: "utf8mb4",
+	collate: 'utf8mb4_bin',
+});
+//logs.sync({force:true}).then(() => {
+	//console.log("create user table successfully");
+//});
+
 // 用户表定义
-const users = sequelize.define('users', {
+export const users = sequelize.define('users', {
 	id: {
 		type: Sequelize.BIGINT,
 		autoIncrement: true,
@@ -60,7 +107,7 @@ const users = sequelize.define('users', {
 //});
 
 
-const sites = sequelize.define('sites', {
+export const sites = sequelize.define('sites', {
 	id: {
 		type: Sequelize.BIGINT,
 		autoIncrement: true,
@@ -175,7 +222,7 @@ export const states = sequelize.define("states", {
 
 
 // 组定义
-const groups = sequelize.define("groups", {
+export const groups = sequelize.define("groups", {
 	id: {
 		type: Sequelize.BIGINT,
 		autoIncrement: true,
@@ -211,7 +258,7 @@ const groups = sequelize.define("groups", {
 //});
 
 // 组成员表定义
-const groupMembers = sequelize.define("groupMembers", {
+export const groupMembers = sequelize.define("groupMembers", {
 	id: {
 		type: Sequelize.BIGINT,
 		autoIncrement: true,
@@ -296,7 +343,7 @@ export const siteGroups = sequelize.define("siteGroups", {
 
 
 // 站点成员
-const siteMembers = sequelize.define("siteMembers", {
+export const siteMembers = sequelize.define("siteMembers", {
 	id: {
 		type: Sequelize.BIGINT,
 		autoIncrement: true,
@@ -956,6 +1003,7 @@ export const goods = sequelize.define("goods", {
 //});
 
 export default {
+	logs,
 	users,
 	sites,
 	states,

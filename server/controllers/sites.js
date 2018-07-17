@@ -99,7 +99,7 @@ export const Sites = class extends Controller {
 		const params = ctx.state.params;
 		const memberId = params.memberId;
 
-		const level = await this.model.getMemberLevel({siteId:id, memberId:memberId});
+		const level = await this.model.getMemberLevel(id, memberId);
 
 		return ERR.ERR_OK(level);
 	}

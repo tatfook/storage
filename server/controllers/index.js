@@ -32,7 +32,7 @@ import goods from "./goods.js";
 
 import models from "@/models/index.js";
 
-const {validate, validated, pagination} = middlewares;
+const {log, validate, validated, pagination} = middlewares;
 
 export const controllers = {
 	convert,
@@ -97,6 +97,7 @@ export const registerControllerRouter = function(router) {
 				
 				//console.log(path, method);
 				router[method](path, 
+						log({module: config.module, level: config.level}),
 						pagination, 
 						validated(route.validated), 
 						validate(route.validate), 

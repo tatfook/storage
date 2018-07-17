@@ -12,7 +12,7 @@ import {
 } from "@@/common/consts.js";
 import ERR from "@@/common/error.js";
 
-const keepworkApiUrlPrefix = config.keepworkApiUrlPrefix;
+const keepworkApiUrlPrefix = config.keepworkBaseURL;
 
 export const Convert = class extends Controller {
 	constructor() {
@@ -112,12 +112,12 @@ export const Convert = class extends Controller {
 
 		let user = await usersModel.findOne({where:{username: data.username}});
 		let member = await usersModel.findOne({where:{username: data.memberName}});
-		if (!user || !member) return;
+		if (!user || !member) return console.log("用户丢失", data);
 		let group = await groupsModel.findOne({where: {
 			userId: user.id,
 			groupname: data.groupname,
 		}});
-		if (!group) return ;
+		if (!group) return console.log("组不存在", data);
 		let groupMember = {
 			id: data._id,
 			userId: user.id,
