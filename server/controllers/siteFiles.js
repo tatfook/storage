@@ -49,7 +49,7 @@ SiteFiles.prototype.raw = async function(ctx) {
 	let data = await this.model.findOne({where: {id:id}});
 
 	if (!data) {
-		ctx.status(404);
+		ctx.status = 404;
 		ctx.body = "Not Found";
 		return;
 	}
@@ -58,7 +58,7 @@ SiteFiles.prototype.raw = async function(ctx) {
 
 	let file = await FilesModel.findOne({where:{id:data.fileId}});
 	if (!file) {
-		ctx.status(404);
+		ctx.status = 404;
 		ctx.body = "Not Found";
 		return;
 	}
@@ -71,7 +71,7 @@ SiteFiles.prototype.raw = async function(ctx) {
 			memberId: userId,
 		}).then(res => res.data);
 		if (!result || result.data < 40) {
-			ctx.status(400);
+			ctx.status = 400;
 			ctx.body = "没有权限访问";
 			return ;
 		}
