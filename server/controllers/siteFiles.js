@@ -42,25 +42,21 @@ SiteFiles.prototype.url = async function(ctx) {
 	return ERR.ERR_OK(url);
 }
 
-SiteFiles.prototype.raw = async function(ctx) {
+SiteFiles.prototype.rawurl = async function(ctx) {
 	const id = ctx.params.id;
 	const userId = ctx.state.user.userId;
 
 	let data = await this.model.findOne({where: {id:id}});
 
 	if (!data) {
-		ctx.status = 404;
-		ctx.body = "Not Found";
-		return;
+		return ERR.ERR_NOT_FOUND();
 	}
 
 	data = data.get({plain:true});
 
 	let file = await FilesModel.findOne({where:{id:data.fileId}});
 	if (!file) {
-		ctx.status = 404;
-		ctx.body = "Not Found";
-		return;
+		return ERR.ERR_NOT_FOUND();
 	}
 	file = file.get({plain:true});
 
@@ -79,6 +75,20 @@ SiteFiles.prototype.raw = async function(ctx) {
 	}
 
 	const url = storage.getDownloadUrl(file.key).getData();
+
+	return ERR.ERR_OK(url);
+}
+
+SiteFiles.prototype.raw = async function(ctx) {
+	const result = await this.rawUrl(ctx);
+
+	if (result.isErr()) {
+		ctx.status = 404;
+		ctx.body = "Not Found";
+		return;
+	}
+
+	const url = result.getData();
 
 	console.log(url);
 
@@ -123,6 +133,16 @@ SiteFiles.getRoutes = function() {
 				userId: joi.number().required(),
 				siteId: joi.number().required(),
 			},
+		},
+	},
+	{
+		path: ":id/rawurl",
+		method: "GET",
+		action: "rawurl",
+		validate: {
+			params: {
+				id: joi.number().required(),
+			}
 		},
 	},
 	{
