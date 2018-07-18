@@ -9,10 +9,6 @@ const testConfig = configs.test.database;
 
 module.exports = {
   "development": {
-    //"username": "wuxiangan",
-    //"password": "wuxiangan",
-    //"database": "keepwork",
-    //"host": "39.106.11.114",
     "username": developmentConfig.username,
     "password": developmentConfig.password,
     "host": developmentConfig.host,

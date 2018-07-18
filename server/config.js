@@ -3,8 +3,6 @@ import _ from "lodash";
 import secretConfig from "./.config.js";
 
 const defaultConfig = {
-	secret: "keepwork",
-
 	apiUrlPrefix: "/v0/",
 	baseURL: "/storage/v0/",
 	host: "0.0.0.0",
