@@ -80,7 +80,7 @@ SiteFiles.prototype.rawurl = async function(ctx) {
 }
 
 SiteFiles.prototype.raw = async function(ctx) {
-	const result = await this.rawUrl(ctx);
+	const result = await this.rawurl(ctx);
 
 	if (result.isErr()) {
 		ctx.status = 404;
