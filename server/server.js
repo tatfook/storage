@@ -17,7 +17,7 @@ import models from "./models/index.js";
 import util from "../common/util.js";
 
 const apiRouter = new Router({
-	prefix: config.baseUrl,
+	prefix: config.apiBaseUrl,
 });
 
 registerControllerRouter(apiRouter);

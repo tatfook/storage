@@ -14,7 +14,8 @@ const defaultConfig = {
 	port: 8081,
 	domain: "api.keepwork.com",
 	origin: "http://api.keepwork.com",
-	baseUrl: "/core/v0/",
+	baseUrl: "/core/v0/",  // 前端baseurl
+	apiBaseUrl: "/v0/",    // 后端baseurl
 
 	database: {
 		port: 23306,
