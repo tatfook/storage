@@ -38,8 +38,8 @@ const productionConfig = {
 	keepworkBaseURL: "http://10.28.18.6:8000/api/wiki/models/",
 	origin: "http://api.keepwork.com",
 	qiniu: {
-		bucketName: "keepwork",
-		bucketDomian: "http://ov62qege8.bkt.clouddn.com",
+		bucketName: "keepwork-release",
+		bucketDomian: "http://oy41jt2uj.bkt.clouddn.com",
 	},
 	database: {
 		database:"keepwork",
@@ -51,8 +51,8 @@ const productionEnConfig = {
 	keepworkBaseURL: "http://10.28.18.6:8000/api/wiki/models/",
 	origin: "http://api-en.keepwork.com",
 	qiniu: {
-		bucketName: "keepwork",
-		bucketDomian: "http://ov62qege8.bkt.clouddn.com",
+		bucketName: "keepwork-release",
+		bucketDomian: "http://oy41jt2uj.bkt.clouddn.com",
 	},
 	database: {
 		database:"keepwork-en",
