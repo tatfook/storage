@@ -43,6 +43,11 @@ export const logs = sequelize.define("logs", {
 	message: {
 		type: Sequelize.TEXT,
 	},
+
+	// data 
+	data: {
+		type: Sequelize.JSON,
+	},
 }, {
 	charset: "utf8mb4",
 	collate: 'utf8mb4_bin',

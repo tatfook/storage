@@ -5,6 +5,13 @@ import ERR from "@@/common/error.js";
 import util from "@@/common/util.js";
 import config from "@/config.js";
 
+import {
+	LOG_TYPE_REQUEST_ELAPSED,
+	LOG_TYPE_SYSTEM,
+	LOG_TYPE_APPLICATION,
+	LOG_TYPE_FRAME,
+} from "@@/common/consts.js";
+
 import tests from "./tests.js";
 import code from "./code.js";
 import oauth from "./oauth.js";
@@ -32,7 +39,7 @@ import goods from "./goods.js";
 
 import models from "@/models/index.js";
 
-const {log, validate, validated, pagination} = middlewares;
+const {error, log, validate, validated, pagination} = middlewares;
 
 export const controllers = {
 	convert,
@@ -86,6 +93,35 @@ const test = (ctx) => {
 }
 
 
+const errorHandle = async (ctx, e) => {
+	const log = ctx.state.log;
+	ctx.status = 500;
+
+	if (e.name == "SequelizeUniqueConstraintError") {
+		ctx.body = "记录已存在";
+	}else if (e.name == "SequelizeValidationError") {
+		ctx.body = "参数错误";
+	}else {
+		ctx.body = "请求无法处理";
+	}
+
+	const message = e.stack || e.message || e.toString();
+	if (e.name == "BadRequestError" || e.name == "InternalServerError") {
+		// koa http-errors应用错误
+		await log.info(message, null, LOG_TYPE_APPLICATION);
+	} else if (e.name.indexOf("Sequelize") == 0) {
+		// DB 错误
+		await log.warn(message, null, LOG_TYPE_FRAME);
+	} else if (e.name == "ReferenceError" || e.name == "TypeError" || e.name == "URIError" ||
+			e.name == "RangeError" || e.name == "SyntaxError" || e.name == "EvalError") {
+		// node js 错误
+		await log.error(message, null, LOG_TYPE_SYSTEM);
+	} else {
+		// 其它
+		await log.debug(message);
+	}
+}
+
 export const registerControllerRouter = function(router) {
 	_.each(controllers, Ctrl => {
 		_.each(Ctrl.getRoutes(), (route) => {
@@ -97,7 +133,7 @@ export const registerControllerRouter = function(router) {
 				
 				//console.log(path, method);
 				router[method](path, 
-						log({module: config.module, level: config.level}),
+						log(config.log),
 						pagination, 
 						validated(route.validated), 
 						validate(route.validate), 
@@ -116,7 +152,8 @@ export const registerControllerRouter = function(router) {
 					ctx.state.params = getParams(ctx);
 
 					if (rolesModel.isExceptionUser(ctx.state.user.roleId)) {
-						return ERR.ERR_USER_EXCEPTION();
+						ctx.body = ERR.ERR_USER_EXCEPTION();
+						return;
 					}
 
 					try {
@@ -124,19 +161,8 @@ export const registerControllerRouter = function(router) {
 						const body = await ctrl[route.action](ctx);	
 						ctx.body = body || ctx.body;
 					} catch(e) {
-						console.log(e);
-						console.log(e.name);
-						ctx.status = 500;
-
-						if (e.name == "SequelizeUniqueConstraintError") {
-							ctx.body = "记录已存在";
-						} else if(e.name == "SequelizeValidationError") {
-							ctx.body = "参数错误";
-						}else {
-							ctx.body = "请求无法处理";
-						}
+						errorHandle(ctx, e);
 					}
-					//console.log(ctx.body);
 				});
 			})
 			

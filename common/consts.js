@@ -1,3 +1,18 @@
+
+// LOG_TYPE
+export const LOG_TYPE_REQUEST_ELAPSED = 1; // 请求耗时统计日志
+export const LOG_TYPE_SYSTEM = 2;      // 系统错误日志
+export const LOG_TYPE_FRAME = 3;       // 框架错误日志
+export const LOG_TYPE_APPLICATION = 4; // 应用错误日志
+export const LOG_TYPE_DEFAULT = 100;   // 默认类型
+export const LOG_TYPE = {
+	LOG_TYPE_REQUEST_ELAPSED,
+	LOG_TYPE_SYSTEM,
+	LOG_TYPE_APPLICATION,
+	LOG_TYPE_FRAME,
+	LOG_TYPE_DEFAULT,
+};
+
 // 模块类型
 export const BASE_MOD_TYPE_TEXT = 1;
 export const BASE_MOD_TYPE_LINK = 2;

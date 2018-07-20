@@ -42,6 +42,11 @@ module.exports = {
 				type: Sequelize.TEXT,
 			},
 
+			// data 
+			data: {
+				type: Sequelize.JSON,
+			},
+
 			createdAt: {
 				type: Sequelize.DATE
 			},
