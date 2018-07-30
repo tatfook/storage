@@ -29,7 +29,7 @@ const defaultConfig = {
 		accessKey:"",
 		secretKey:"",
 		bucketName: "keepwork-dev",
-		bucketDomian: "http://oy41aju0m.bkt.clouddn.com",
+		bucketDomain: "http://oy41aju0m.bkt.clouddn.com",
 	},
 }
 
@@ -39,7 +39,7 @@ const productionConfig = {
 	origin: "http://api.keepwork.com",
 	qiniu: {
 		bucketName: "keepwork-release",
-		bucketDomian: "http://oy41jt2uj.bkt.clouddn.com",
+		bucketDomain: "http://oy41jt2uj.bkt.clouddn.com",
 	},
 	database: {
 		database:"keepwork",
@@ -52,7 +52,7 @@ const productionEnConfig = {
 	origin: "http://api-en.keepwork.com",
 	qiniu: {
 		bucketName: "keepwork-release",
-		bucketDomian: "http://oy41jt2uj.bkt.clouddn.com",
+		bucketDomain: "http://oy41jt2uj.bkt.clouddn.com",
 	},
 	database: {
 		database:"keepwork-en",

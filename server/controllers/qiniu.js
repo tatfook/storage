@@ -9,7 +9,7 @@ import filesModel from "../models/files.js";
 const accessKey = config.qiniu.accessKey;
 const secretKey = config.qiniu.secretKey;
 const bucketName = config.qiniu.bucketName;
-const bucketDomian = config.qiniu.bucketDomian;
+const bucketDomain = config.qiniu.bucketDomain;
 
 export const Qiniu = function() {
 }
@@ -199,7 +199,7 @@ Qiniu.prototype.getDownloadUrl = function(key, expires = 3600 * 24) {
 	const mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
 	const config = new qiniu.conf.Config();
 	const bucketManager = new qiniu.rs.BucketManager(mac, config);
-	const privateBucketDomain = bucketDomian;
+	const privateBucketDomain = bucketDomain;
 	const deadline = parseInt(Date.now() / 1000) + expires; 
 	const privateDownloadUrl = bucketManager.privateDownloadUrl(privateBucketDomain, key, deadline);
 
@@ -216,7 +216,7 @@ Qiniu.prototype.api_getDownloadUrl = function(ctx) {
 	const mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
 	const config = new qiniu.conf.Config();
 	const bucketManager = new qiniu.rs.BucketManager(mac, config);
-	const privateBucketDomain = bucketDomian;
+	const privateBucketDomain = bucketDomain;
 	const deadline = parseInt(Date.now() / 1000) + (parseInt(params.expires || "") || (3600 * 24 * 365)); 
 	const privateDownloadUrl = bucketManager.privateDownloadUrl(privateBucketDomain, key, deadline);
 	//console.log(privateDownloadUrl);
