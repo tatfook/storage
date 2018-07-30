@@ -11,6 +11,7 @@ import "@/models";
 import router from "@/router.js";
 import config from "@/config.js";
 
+console.log(config);
 
 function start () {
 	const app = new Koa();

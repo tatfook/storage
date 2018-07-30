@@ -19,7 +19,6 @@ const bucketDomian = config.qiniu.bucketDomian;
 const mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
 const baseURL = config.origin + config.baseURL;
 
-
 const Qiniu = {
 }
 
