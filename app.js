@@ -1,8 +1,10 @@
+const _ = require("lodash");
 const cache = require("memory-cache");
 const consts = require("./app/core/consts.js");
 const util = require("./app/core/util.js");
 const sms = require("./app/core/sms.js");
 const email = require("./app/core/email.js");
+const axios = require("./app/core/axios.js");
 
 module.exports = app => {
 	app.cache = cache;
@@ -11,4 +13,7 @@ module.exports = app => {
 
 	sms(app);
 	email(app);
+	axios(app);
+
+	//console.log(app.config.env);
 }

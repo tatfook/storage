@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const consts = require("../core/consts.js");
 
 module.exports = app => {
@@ -124,6 +125,7 @@ module.exports = app => {
 			from siteMembers
 			where siteId = :siteId and memberId = :memberId`;
 		let list = await app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
 			replacements: {
 				siteId,
 				memberId,
@@ -138,6 +140,7 @@ module.exports = app => {
 			and sites.id = :siteId and groupMembers.memberId = :memberId`;
 
 		list = await app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
 			replacements: {
 				siteId: siteId,
 				memberId: memberId,

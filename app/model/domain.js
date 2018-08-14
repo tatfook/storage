@@ -37,14 +37,36 @@ module.exports = app => {
 		collate: 'utf8mb4_bin',
 	});
 
-	model.getById = async function(id, userId) {
-		const where = {id};
+	model.getById = async function(id) {
+		const sql = `select domains.*, users.username, sites.sitename 
+			from domains, users, sites
+			where domains.userId = users.id and domains.siteId = sites.id 
+			and domains.id = :id`;
 
-		if (userId) where.userId = userId;
+		const list = await app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
+			replacements:{id},
+		});
 
-		const data = await app.model.domains.findOne({where: where});
+		if (list.length == 1) return list[0];
 
-		return data && data.get({plain:true});
+		return ;
+	}
+
+	model.getByDomain = async function(domain) {
+		const sql = `select domains.*, users.username, sites.sitename 
+			from domains, users, sites
+			where domains.userId = users.id and domains.siteId = sites.id 
+			and domains.domain = :domain`;
+
+		const list = await app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
+			replacements:{domain},
+		});
+
+		if (list.length == 1) return list[0];
+
+		return ;
 	}
 
 	app.model.domains = model;

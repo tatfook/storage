@@ -113,5 +113,8 @@ describe("/sites", () => {
 		//console.log(sites);
 		assert.equal(sites.length, 1);
 		assert.equal(sites[0].sitename, "site2");
+
+		const level = await app.httpRequest().get("/sites/" + site.id + "/privilege").expect(200).then(res => res.body);
+		assert.equal(level, 64);
 	});
 });

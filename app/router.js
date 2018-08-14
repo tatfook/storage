@@ -14,14 +14,15 @@ module.exports = app => {
 	router.post(`${prefix}users/register`, user.register);
 	router.post(`${prefix}users/login`, user.login);
 	router.post(`${prefix}users/logout`, user.logout);
-	router.post(`${prefix}users/changepwd`, user.changepwd);
-	router.post(`${prefix}users/emailVerifyOne`, user.emailVerifyOne);
-	router.post(`${prefix}users/emailVerifyTwo`, user.emailVerifyTwo);
-	router.post(`${prefix}users/cellphoneVerifyOne`, user.cellphoneVerifyOne);
-	router.post(`${prefix}users/cellphoneVerifyTwo`, user.cellphoneVerifyTwo);
+	router.put(`${prefix}users/pwd`, user.changepwd);
+	router.get(`${prefix}users/email_captcha`, user.emailVerifyOne);
+	router.post(`${prefix}users/email_captcha`, user.emailVerifyTwo);
+	router.get(`${prefix}users/cellphone_captcha`, user.cellphoneVerifyOne);
+	router.post(`${prefix}users/cellphone_captcha`, user.cellphoneVerifyTwo);
 	router.resources(`${prefix}users`, user);
 
 	const site = controller.site;
+	router.get(`${prefix}sites/:id/privilege`, site.privilege);
 	router.post(`${prefix}sites/:id/groups`, site.postGroups);
 	router.put(`${prefix}sites/:id/groups`, site.putGroups);
 	router.delete(`${prefix}sites/:id/groups`, site.deleteGroups);
@@ -45,8 +46,9 @@ module.exports = app => {
 	const siteGroup = controller.siteGroup;
 	router.resources(`${prefix}siteGroups`, siteGroup);
 
-	//const domain = controller.domain;
-	//router.resources(`${prefix}domains`, domain);
+	const domain = controller.domain;
+	router.get(`${prefix}domains/exist`, domain.exist);
+	router.resources(`${prefix}domains`, domain);
 
 	//const file = controller.file;
 	//router.post(`${prefix}files/upsert`, file.upsert);
@@ -56,5 +58,12 @@ module.exports = app => {
 	//const favorite = controller.favorite;
 	//router.get(`${prefix}favorites/exist`, favorite.exist);
 	//router.resources(`${prefix}favorites`, favorite);
+
+	const oauthUser = controller.oauthUser;
+	router.post(`${prefix}oauth_users/qq`, oauthUser.qq);
+	router.post(`${prefix}oauth_users/weixin`, oauthUser.weixin);
+	router.post(`${prefix}oauth_users/github`, oauthUser.github);
+	router.post(`${prefix}oauth_users/xinlang`, oauthUser.xinlang);
+	router.get(`${prefix}oauth_users/token`, oauthUser.token);
 
 }

@@ -135,6 +135,15 @@ const Site = class extends Controller {
 
 		return this.success(list);
 	}
+
+	async privilege() {
+		const userId = this.getUser().userId;
+		const siteId = this.validate({id: "int"}).id;
+
+		const level = await this.model.sites.getMemberLevel(siteId, userId);
+
+		return this.success(level);
+	}
 }
 
 module.exports = Site;
