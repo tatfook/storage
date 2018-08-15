@@ -25,6 +25,10 @@ module.exports = {
 				type: Sequelize.INTEGER,
 			},
 
+			token: {
+				type: STRING(64),
+			},
+
 			createdAt: {
 				type: Sequelize.DATE
 			},

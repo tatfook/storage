@@ -1,13 +1,15 @@
 
+const _ = require("lodash");
 const Controller = require("../core/controller.js");
 
+
 class Index extends Controller {
-	index() {
+	async index() {
 		const {ctx} = this;
+		const model = ctx.model.files;
 
 		ctx.status = 200;
 		ctx.body = "hello world";
-		console.log(this.super);
 	}
 }
 

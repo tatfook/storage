@@ -26,6 +26,10 @@ class BaseController extends Controller {
 		//return this.app.config.self;
 	//}
 
+	get axios() {
+		return this.app.axios;
+	}
+
 	get util() {
 		return this.app.util;
 	}

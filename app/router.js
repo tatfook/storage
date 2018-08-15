@@ -64,6 +64,7 @@ module.exports = app => {
 	router.post(`${prefix}oauth_users/weixin`, oauthUser.weixin);
 	router.post(`${prefix}oauth_users/github`, oauthUser.github);
 	router.post(`${prefix}oauth_users/xinlang`, oauthUser.xinlang);
-	router.get(`${prefix}oauth_users/token`, oauthUser.token);
 
+	const comment = controller.comment;
+	router.resources(`${prefix}comments`, comment);
 }

@@ -1,4 +1,3 @@
-const axios = require("axios");
 const _ = require("lodash");
 const wurl = require("wurl");
 const joi = require("joi");
@@ -11,28 +10,37 @@ const {
 	OAUTH_SERVICE_TYPE_XINLANG,
 } = require("../core/consts.js");
 
-//const baseUrl = config.origin + config.baseUrl + "oauthUsers/";
-
 const OauthUsers = class extends Controller {
 
 	get modelName() {
 		return "oauthUsers";
 	}
 
+	getConfig() {
+		return this.app.config.self;
+	}
+
+	getRedirectUrl(serverName) {
+		return this.getConfig().apiUrlPrefix + "oauth_users/" + serverName;
+	}
+
 	async qq() {
-		const {ctx, model, app} = this;
-		const config = app.config.self;
-		const memoryCache = app.cache;
+		const {ctx, model, app, axios} = this;
+		const config = this.getConfig();
 		const accessTokenApiUrl = 'https://graph.qq.com/oauth2.0/token';
 		const openidApiUrl = "https://graph.qq.com/oauth2.0/me";
 		const userApiUrl = 'https://graph.qq.com/user/get_user_info';
-		const baseUrl = config.origin + config.baseUrl + "oauthUsers/";
-		const params = this.getParams();
+		const params = this.validate({
+			clientId:"string",
+			code:"string",
+			redirectUri:"string",
+			state:"string",
+		});
 		const userId = this.getUser().userId;
 		params.grant_type = "authorization_code";
-		params.client_id = params.client_id || config.oauths.qq.clientId;
-		params.client_secret = params.client_secret || config.oauths.qq.clientSecret;
-		params.redirect_uri = params.redirect_uri || (baseUrl + "qq");
+		params.client_id = params.clientId || config.oauths.qq.clientId;
+		params.client_secret = config.oauths.qq.clientSecret;
+		params.redirect_uri = params.redirectUri || this.getRedirectUrl("qq");
 		//console.log(params);
 		// 获取token
 		const queryStr = await axios.get(accessTokenApiUrl, {params}).then(res => res.data);
@@ -55,32 +63,33 @@ const OauthUsers = class extends Controller {
 		const externalUsername = result.nickname;
 		const type = OAUTH_SERVICE_TYPE_QQ;
 		//console.log(externalUsername);
-		await model.oauthUsers.upsert({externalId, externalUsername, type, userId});
+		const token = externalId + type + access_token;
+		await model.oauthUsers.upsert({externalId, externalUsername, type, userId, token});
 		let oauthUser = await model.oauthUsers.findOne({where: {externalId, type}});
-		if (!oauthUser) return ERR.ERR();
+		if (!oauthUser) return this.throw(500);
 		oauthUser = oauthUser.get({plain:true});
 		//console.log(oauthUser);
 
-		const key = params.code + params.client_id;
-		memoryCache.put(key, oauthUser, 1000 * 60 * 10); // 10 分钟
-
-		return this.success("OK");
+		return this.token(params.state, oauthUser);
 	}
 
 	async weixin() {
-		const {ctx, model, app} = this;
-		const config = app.config.self;
-		const memoryCache = app.cache;
+		const {ctx, model, app, axios} = this;
+		const config = this.getConfig();
 		const accessTokenApiUrl = 'https://api.weixin.qq.com/sns/oauth2/access_token';
 		const userApiUrl = 'https://api.weixin.qq.com/sns/userinfo';
-		const baseUrl = config.origin + config.baseUrl + "oauthUsers/";
-		const params = this.getParams();
+		const params = this.validate({
+			clientId:"string",
+			code:"string",
+			redirectUri:"string",
+			state:"string",
+		});
 		const userId = this.getUser().userId;
 		params.grant_type = "authorization_code";
-		params.client_id = params.client_id || config.oauths.weixin.clientId;
+		params.client_id = params.clientId || config.oauths.weixin.clientId;
 		params.appid = params.appid || config.oauths.weixin.appid || config.oauths.weixin.clientId;
-		params.secret = params.client_secret || config.oauths.weixin.clientSecret;
-		params.redirect_uri = params.redirect_uri || (baseUrl + "weixin");
+		params.secret = config.oauths.weixin.clientSecret;
+		params.redirect_uri = params.redirectUri || this.getRedirectUrl("weixin");
 		//console.log(params);
 		// 获取token
 		const data = await axios.get(accessTokenApiUrl, {params}).then(res => res.data);
@@ -94,71 +103,76 @@ const OauthUsers = class extends Controller {
 		const externalUsername = result.nickname;
 		const type = OAUTH_SERVICE_TYPE_WEIXIN;
 		//console.log(externalUsername);
-		await model.oauthUsers.upsert({externalId, externalUsername, type, userId});
+		const token = externalId + type + access_token;
+		await model.oauthUsers.upsert({externalId, externalUsername, type, userId, token});
 		let oauthUser = await model.oauthUsers.findOne({where: {externalId, type}});
 		if (!oauthUser) return this.throw(500);
 		oauthUser = oauthUser.get({plain:true});
-		//console.log(oauthUser);
 
-		const key = params.code + params.client_id;
-		memoryCache.put(key, oauthUser, 1000 * 60 * 10); // 10 分钟
-
-		return this.success("OK");
+		return this.token(params.state, oauthUser);
 	}
 
 	async github() {
-		const {ctx, model, app} = this;
-		const config = app.config.self;
-		const memoryCache = app.cache;
+		const {ctx, model, app, axios} = this;
+		const config = this.getConfig();
 		const accessTokenApiUrl = 'https://github.com/login/oauth/access_token';
 		const userApiUrl = 'https://api.github.com/user';
-		const baseUrl = config.origin + config.baseUrl + "oauthUsers/";
-		const params = this.getParams();
+		const params = this.validate({
+			clientId:"string",
+			code:"string",
+			redirectUri:"string",
+			state:"string",
+		});
 		const userId = this.getUser().userId;
 		//console.log("==================userId=============", userId);
-		params.client_id = params.client_id || config.oauths.github.clientId;
-		params.client_secret = params.client_secret || config.oauths.github.clientSecret;
-		params.redirect_uri = params.redirect_uri || (baseUrl + "github");
+		params.client_id = params.clientId || config.oauths.github.clientId;
+		params.client_secret = config.oauths.github.clientSecret;
+		params.redirect_uri = params.redirectUri || this.getRedirectUrl("github");
 		console.log(params);
 		
-		const queryStr = await axios.get(accessTokenApiUrl, {params}).then(res => res.data);
+		let queryStr = "access_token=aa035971e9864642500a7aaad8783c59c8111228&scope=user%3Aemail&token_type=bearer";
+		if (!app.unittest) queryStr = await axios.get(accessTokenApiUrl, {params}).then(res => res.data);
+
 		console.log(queryStr);
 		const data = wurl("?", "http://localhost/index?" + queryStr);
 		if (!data.access_token) return this.throw(500, "获取token失败");
 		const access_token = data.access_token;
 		console.log(data);
 
-		const userinfo = await axios.get(userApiUrl, {params:{access_token}}).then(res => res.data);
+		let userinfo = {id: "11922085", login:"wxaxiaoyao"};
+		if (!app.unittest) userinfo = await axios.get(userApiUrl, {params:{access_token}}).then(res => res.data);
+
 		const externalId = userinfo.id;
 		const externalUsername = userinfo.login;
 		const type = OAUTH_SERVICE_TYPE_GITHUB;
 
-		await model.oauthUsers.upsert({externalId, externalUsername, type, userId});
+		const token = externalId + type + access_token;
+		await model.oauthUsers.upsert({externalId, externalUsername, type, userId, token});
 
 		let oauthUser = await model.oauthUsers.findOne({where: {externalId, type}});
-		if (!oauthUser) return ERR.ERR("记录不存在");
+		if (!oauthUser) return this.throw(500);
 		oauthUser = oauthUser.get({plain:true});
 
-		const key = params.code + params.client_id;
-		memoryCache.put(key, oauthUser, 1000 * 60 * 10); // 10 分钟
-
-		return this.success("OK");
+		return this.token(params.state, oauthUser);
 	}
 
 	async xinlang() {
-		const {ctx, model, app} = this;
-		const config = app.config.self;
-		const memoryCache = app.cache;
+		const {ctx, model, app, axios} = this;
+		const config = this.getConfig();
 		const accessTokenApiUrl = 'https://api.weibo.com/oauth2/access_token';
 		const userApiUrl = 'https://api.weibo.com/2/users/show.json';
-		const baseUrl = config.origin + config.baseUrl + "oauthUsers/";
-		const params = this.getParams();
+		const params = this.validate({
+			clientId:"string",
+			code:"string",
+			redirectUri:"string",
+			state:"string",
+		});
 		const userId = this.getUser().userId;
 		//console.log(params);
 		params.grant_type = "authorization_code";
-		params.client_id = params.client_id || config.oauths.xinlang.clientId;
-		params.client_secret = params.client_secret || config.oauths.xinlang.clientSecret;
-		params.redirect_uri = params.redirect_uri || (baseUrl + "xinlang");
+		params.client_id = params.clientId || config.oauths.xinlang.clientId;
+		params.client_secret = config.oauths.xinlang.clientSecret;
+		params.redirect_uri = params.redirectUri || this.getRedirectUrl("xinlang");
 		
 		//const data = await axios.get(accessTokenApiUrl, {params}).then(res => res.data);
 		const data = await axios.post(`${accessTokenApiUrl}?client_id=${params.client_id}&client_secret=${params.client_secret}&grant_type=authorization_code&code=${params.code}&redirect_uri=${params.redirect_uri}`, params).then(res => res.data);
@@ -172,30 +186,27 @@ const OauthUsers = class extends Controller {
 		const type = OAUTH_SERVICE_TYPE_XINLANG;
 		//console.log(userinfo);
 
-		await model.oauthUsers.upsert({externalId, externalUsername, type, userId});
-
+		const token = externalId + type + access_token;
+		await model.oauthUsers.upsert({externalId, externalUsername, type, userId, token});
 		let oauthUser = await model.oauthUsers.findOne({where: {externalId, type}});
 		if (!oauthUser) return this.throw(500);
 		oauthUser = oauthUser.get({plain:true});
 
-		const key = params.code + params.client_id;
-		memoryCache.put(key, oauthUser, 1000 * 60 * 10); // 10 分钟
-
-		return this.success("OK");
+		return this.token(params.state, oauthUser);
 	}
 
 	async note() {
-		const {ctx, model, app} = this;
-		const config = app.config.self;
+		const {ctx, model, app, axios} = this;
+		const config = this.getConfig();
 		const memoryCache = app.cache;
 		const params = this.getParams();
 		const userId = this.getUser().userId;
 		const accessTokenApiUrl = config.origin + config.baseUrl + "oauthApps/token";
-		const userApiUrl = config.origin + config.baseUrl + "users/" + userId;
+		const userApiUrl = config.apiUrlPrefix + "users/" + userId;
 		params.grant_type = "authorization_code";
 		params.client_id = params.client_id || config.oauths.note.clientId;
 		params.client_secret = params.client_secret || config.oauths.note.clientSecret;
-		params.redirect_uri = params.redirect_uri || (baseUrl + "note");
+		params.redirect_uri = params.redirect_uri || this.getRedirectUrl("note");
 		console.log(params);
 		// 获取token
 		const data = await axios.post(accessTokenApiUrl, params).then(res => res.data);
@@ -212,28 +223,15 @@ const OauthUsers = class extends Controller {
 	}
 	// 解绑删除记录即可
 	
-	async token() {
-		const {ctx, model, app} = this;
-		const config = app.config.self;
-		const memoryCache = app.cache;
-		const params = this.validate({code: "string", clientId:"string", state:"string"});
-		const key = params.code + params.clientId;
-		const oauthUser = memoryCache.get(key);
-		if (!oauthUser) return this.throw(400, "参数错误");
-		
-		if (params.state == "bind") {
-			oauthUser.token = "oauth user token";
-			return  this.success(oauthUser);
-		}
+	async token(state, oauthUser) {
+		// 绑定直接返回
+		const config = this.getConfig();
 
-		// params.state == "login"  登录
-		if (!oauthUser.userId) return this.throw(400, "账号未绑定"); // 完善账号信息
-
-		const usersModel = model["users"];
-		let user = await usersModel.findOne({where:{id:oauthUser.userId}});
-		if (!user) return this.throw(500);
-
-		user = user.get({plain: true});
+		if (state != "login") return this.success({token: oauthUser.token});
+		if (!oauthUser.userId) return this.success({token: oauthUser.token});
+		let user = await this.model.users.findOne({where:{id:oauthUser.userId}});
+		if (!user) return this.success({token: oauthUser.token});
+		user = user.get({plain:true});
 
 		//const rolesModel = model["roles"];
 		//const roleId = await rolesModel.getRoleIdByUserId(user.id);
@@ -250,7 +248,7 @@ const OauthUsers = class extends Controller {
 
 		user.token = token;
 		//user.roleId = roleId;
-		ctx.cookies.set("token", user.token, {
+		this.ctx.cookies.set("token", user.token, {
 			httpOnly: false,
 			maxAge: config.tokenExpire * 1000,
 			overwrite: true,

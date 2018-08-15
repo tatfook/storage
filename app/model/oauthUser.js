@@ -30,6 +30,11 @@ module.exports = app => {
 		type: {
 			type: INTEGER,
 		},
+
+		token: {
+			type: STRING(64),
+		},
+
 	}, {
 		underscored: false,
 		charset: "utf8mb4",
@@ -42,6 +47,10 @@ module.exports = app => {
 		],
 	});
 
+	//model.sync({force:true}).then(() => {
+		//console.log("create table successfully");
+	//});
+	
 	app.model.oauthUsers = model;
 
 	return model;

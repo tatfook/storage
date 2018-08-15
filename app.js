@@ -10,6 +10,7 @@ module.exports = app => {
 	app.cache = cache;
 	app.consts = consts;
 	app.util = util;
+	app.unittest = app.config.env == "unittest";
 
 	sms(app);
 	email(app);
