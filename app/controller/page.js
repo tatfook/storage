@@ -3,26 +3,43 @@ const _ = require("lodash");
 
 const Controller = require("../core/controller.js");
 
-//import {
-	//ENTITY_VISIBILITY_PUBLIC,
-	//ENTITY_VISIBILITY_PRIVATE,
+const {
+	ENTITY_VISIBILITY_PUBLIC,
+	ENTITY_VISIBILITY_PRIVATE,
 
-	//USER_ACCESS_LEVEL_NONE,
-	//USER_ACCESS_LEVEL_READ,
-	//USER_ACCESS_LEVEL_WRITE,
-//} from "@/core/consts.js";
+	USER_ACCESS_LEVEL_NONE,
+	USER_ACCESS_LEVEL_READ,
+	USER_ACCESS_LEVEL_WRITE,
+} = require("../core/consts.js");
 
 const Page = class extends Controller {
 	get modelName() {
 		return "pages";
 	}
 
-	async isEditable(userId, key, username) {
-		const keyObj = this.util.parseKey(key);
-		if (!userId) return false;
-		if (_.startsWith(key, username+"/")) return true;
+	getKeyByUrl(url) {
+		return this.util.getKeyByPath(url + ".md");
+	}
 
-		let site = await this.model.sites.getByName(keyObj.username, keyObj.sitename);
+	getFolderByPath(path) {
+		return path.substring(0, path.lastIndexOf("/", path.length-2) + 1);
+	}
+
+	parseUrl(url) {
+		const obj = {};
+		const paths = url.split("/");
+		obj.username = paths[0];
+		obj.sitename = paths[1];
+
+		return obj;
+	}
+
+	async isEditable(userId, url, username) {
+		const urlObj = this.parseUrl(url);
+		if (!userId) return false;
+		if (_.startsWith(url, username+"/")) return true;
+
+		let site = await this.model.sites.getByName(urlObj.username, urlObj.sitename);
 		if (!site) return false;
 
 		if (site.userId == userId) return true;
@@ -30,12 +47,12 @@ const Page = class extends Controller {
 		return await this.model.sites.isEditableByMemberId(site.id, userId);
 	}
 
-	async isReadable(userId, key, username) {
-		const keyObj = this.util.parseKey(key);
+	async isReadable(userId, url, username) {
+		const urlObj = this.parseUrl(url);
 
-		if (_.startsWith(key, username+"/")) return true;
+		if (_.startsWith(url, username+"/")) return true;
 
-		let site = await this.model.sites.getByName(keyObj.username, keyObj.sitename);
+		let site = await this.model.sites.getByName(urlObj.username, urlObj.sitename);
 		if (!site) return false;
 
 		if (site.userId == userId) return true;
@@ -52,10 +69,10 @@ const Page = class extends Controller {
 		const page = await pages.getById(params.id);
 		if (!page) ctx.throw(404);
 
-		const isReadable = await this.isReadable(user.userId, page.key, user.username);
+		const isReadable = await this.isReadable(user.userId, page.url, user.username);
 		if (!isReadable) ctx.throw(401);
 
-		return page;
+		return this.success(page);
 	}
 
 	async create() {
@@ -63,28 +80,27 @@ const Page = class extends Controller {
 		const pages = model.pages;
 		const user = this.authenticated();
 		const params = this.validate({
-			"key":"string",
+			"url":"string",
 			"content": "string",
 		});
+		params.folder = this.getFolderByPath(params.url);
 		params.hash = util.hash(params.content);
 
-		const isEditable = await this.isEditable(user.userId, params.key, user.username);
+		const isEditable = await this.isEditable(user.userId, params.url, user.username);
 		if (!isEditable) ctx.throw(401);
 
-		if (_.startsWith(params.key, username+"/")) {
-			params.userId = userId;
+		if (_.startsWith(params.url, user.username+"/")) {
+			params.userId = user.userId;
 		} else {
-			const user = await app.model.users.getByName(key.split("/")[0]);
-			params.userId = user.id;
+			const tmp = await model.users.getByName(params.url.split("/")[0]);
+			params.userId = tmp.id;
 		}
 
 		let page = await pages.create(params);
 		if (!page) ctx.throw(500);
 		page = page.get({plain:true});
 
-		storage.upload(params.key, params.content);
-
-		return page;
+		return this.success(page);
 	}
 
 	async update() {
@@ -93,22 +109,22 @@ const Page = class extends Controller {
 		const user = this.authenticated();
 		const params = this.validate({
 			"id":"int",
-			"key":"string",
 		});
 
-		const isEditable = await this.isEditable(user.userId, params.key, user.username);
+		const page = await model.pages.getById(params.id);
+		if (!page) this.throw(404);
+		const isEditable = await this.isEditable(user.userId, page.url, user.username);
 		if (!isEditable) ctx.throw(401);
 		
 		delete params.userId;
 
 		if (params.content) {
 			params.hash = util.hash(params.content);
-			storage.upload(params.key, params.content);
 		}
 
 		await pages.update(params, {where:{id:params.id}});
 
-		return ;
+		return this.success("OK");
 	}
 
 	async destroy() {
@@ -120,115 +136,46 @@ const Page = class extends Controller {
 		const page = await pages.getById(params.id);
 		if (!page) ctx.throw(404);
 
-		const isEditable = await this.isEditable(user.userId, page.key, user.username);
+		const isEditable = await this.isEditable(user.userId, page.url, user.username);
 		if (!isEditable) ctx.throw(401);
 
-		const ok = await pages.destroy(params.id);
+		const ok = await pages.destroy({where:{id:params.id}});
 
-		return ok;
+		return this.success(ok);
 	}
 
-	async search() {
+	async index() {
 		const {ctx, model, config, util} = this;
 		const pages = model.pages;
 		const params = this.validate();
 		const where = {};
 
-		if (params.folder) where.folder = params.folder;
+		const list = await pages.findAll({exclude:["content"], where: params});
 
-		const list = await pages.findAll({exclude:["content"], where});
-
-		return list;	
+		return this.success(list);	
 	}
 
 	async visit() {
 		const {ctx, model, config, util} = this;
 		const user = this.getUser();
-		const params = this.validate({"key":"string"});
+		const ip = ctx.ip + (user.userId || "");
+		const {url} = this.validate({"url":"string"});
 
-		let page = await model.pages.getByKey(params.key);
+		let cache = this.cache.get(url) || {visitors:{}};
+		let page = await model.pages.getByUrl(url);
 		if (!page) ctx.throw(404);
 		
-		const isReadable = await this.isReadable(user.userId, page.key, user.username);
+		const isReadable = await this.isReadable(user.userId, page.url, user.username);
 		if (!isReadable) ctx.throw(401);
 
-		return {page};
+		if (!cache.visitors[ip]) {
+			cache.visitors[ip] = true;
+			this.cache.put(url, cache, 1000 * 60 * 30);
+			await model.visitors.addVisitor(user.userId, page.id);
+		}
+
+		return this.success({page});
 	}
 }
 
 module.exports = Page;
-
-//const filetypes = {
-	//"/": "folders",
-
-	//".md": "pages",
-
-	//".jpg": "images",
-	//".jpeg": "images",
-	//".png": "images",
-	//".svg": "images",
-
-	//".mp4": "videos",
-	//".webm": "videos",
-
-	//".mp3": "audios",
-	//".ogg": "audios",
-	//".wav": "audios",
-
-	//".json": "datas",
-	//".yml": "datas",
-
-	////unknow: "files",
-//}
-
-//util.getTypeByKey = function(key) {
-	//for (let ext in filetypes) {
-		//if (_.endsWith(key, ext)) return filetypes[ext];
-	//}
-
-	//return "files";
-//}
-
-//util.isPage = function(key) {
-	//return this.getTypeByKey(key) == "pages";
-//}
-
-//util.getUsernameByKey = function(key) {
-	//return key.substring(0, key.indexOf("/"));
-//}
-//// 获取目录
-//util.getFolderByKey = function(key) {
-	//return key.substring(0, key.lastIndexOf("/", key.length-2) + 1);
-//}
-
-//util.getKeyByPath = function(path, filetype) {
-	//const paths = path.split("/");
-
-	//filetype = filetype || this.getTypeByKey(path);
-
-	//paths.splice(1, 0, filetype);
-
-	//return paths.join("/");
-//}
-
-//util.getPathByKey = function(key) {
-	//const paths = key.split("/");
-	////if (paths.length < 3) return key;
-	//paths.splice(1, 1);
-
-	//return paths.join('/');
-//}
-
-//util.parseKey = function(key) {
-	//const obj = {key};
-	//obj.path = this.getPathByKey(key);
-	//obj.type = this.getTypeByKey(key);
-	//obj.url = key.substring(0, key.lastIndexOf("."));
-
-	//const paths = obj.path.split("/");
-	//obj.username = paths[0];
-	//obj.sitename = paths[1];
-
-	//return obj;
-//}
-

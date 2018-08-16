@@ -21,7 +21,11 @@ module.exports = app => {
 			type: BIGINT,
 		},
 
-		key: {
+		siteId: {
+			type: BIGINT,
+		},
+
+		url: {
 			type: STRING(128),
 			allowNull: false,
 			unique: true,
@@ -59,6 +63,10 @@ module.exports = app => {
 		collate: 'utf8mb4_bin',
 	});
 
+	//model.sync({force:true}).then(() => {
+		//console.log("create table successfully");
+	//});
+	
 	model.getById = async function(id, userId) {
 		const where = {id};
 
@@ -69,8 +77,8 @@ module.exports = app => {
 		return data && data.get({plain:true});
 	}
 
-	model.getByKey = async function(key) {
-		const data = await app.model.pages.findOne({where: {key}});
+	model.getByUrl = async function(url) {
+		const data = await app.model.pages.findOne({where: {url}});
 
 		return data && data.get({plain:true});
 	}

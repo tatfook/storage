@@ -9,6 +9,14 @@ module.exports = {
 				primaryKey: true,
 			},
 
+			userId: {
+				type: Sequelize.BIGINT,
+			},
+
+			siteId: {
+				type: Sequelize.BIGINT,
+			},
+
 			key: {
 				type: Sequelize.STRING(128),
 				allowNull: false,

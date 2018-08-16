@@ -81,12 +81,13 @@ module.exports = app => {
 			and users.username = :username and sites.sitename = :sitename`;
 
 		const list = await app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
 			replacements: {
 				username,
 				sitename,
 			},
 		});
-
+		
 		if (list.length == 1) {
 			return list[0];
 		}

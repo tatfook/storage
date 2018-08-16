@@ -59,6 +59,8 @@ module.exports = app => {
 		collate: 'utf8mb4_bin',
 	});
 
+	//model.sync({force:true});
+	
 	model.getByName = async function(username) {
 		const data = await app.model.users.findOne({
 			where: {username},

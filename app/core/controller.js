@@ -18,6 +18,10 @@ class BaseController extends Controller {
 		//super();
 	//}
 
+	get cache() {
+		return this.app.cache;
+	}
+
 	get model() {
 		return this.app.model;
 	}

@@ -29,10 +29,9 @@ module.exports = app => {
 	router.get(`${prefix}sites/:id/groups`, site.getGroups);
 	router.resources(`${prefix}sites`, site);
 
-	//const page = controller.page;
-	//router.get(`${prefix}pages/search`, page.search);
-	//router.get(`${prefix}pages/visit`, page.visit);
-	//router.resources(`${prefix}pages`, page);
+	const page = controller.page;
+	router.get(`${prefix}pages/visit`, page.visit);
+	router.resources(`${prefix}pages`, page);
 
 	const group = controller.group;
 	router.post(`${prefix}groups/:id/members`, group.postMembers);
@@ -64,6 +63,7 @@ module.exports = app => {
 	router.post(`${prefix}oauth_users/weixin`, oauthUser.weixin);
 	router.post(`${prefix}oauth_users/github`, oauthUser.github);
 	router.post(`${prefix}oauth_users/xinlang`, oauthUser.xinlang);
+	router.resources(`${prefix}oauth_users`, oauthUser);
 
 	const comment = controller.comment;
 	router.resources(`${prefix}comments`, comment);

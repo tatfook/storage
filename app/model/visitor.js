@@ -1,4 +1,11 @@
 
+const _ = require("lodash");
+const {
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+} = require("../core/consts.js");
+
 module.exports = app => {
 	const {
 		BIGINT,
@@ -9,7 +16,7 @@ module.exports = app => {
 		JSON,
 	} = app.Sequelize;
 
-	const model = app.model.define("comments", {
+	const model = app.model.define("visitors", {
 		id: {
 			type: BIGINT,
 			autoIncrement: true,
@@ -18,7 +25,6 @@ module.exports = app => {
 		
 		userId: {                    // 访问者
 			type: BIGINT,
-			allowNull: false,
 		},
 
 		objectType: {                // 访问对象类型  0 -- 用户  1 -- 站点  2 -- 页面
@@ -56,18 +62,18 @@ module.exports = app => {
 		//console.log("create table successfully");
 	//});
 	
-	model.createComment = async function(userId, objectId, objectType = EN) {
+	model.addVisitor = async function(userId, objectId, objectType = ENTITY_TYPE_PAGE) {
 		const user = userId && await app.model.users.getById(userId);
 
 		let visitor = await app.model.visitors.findOne({where:{objectType,objectId}});
 		if (visitor) visitor = visitor.get({plain:true});
-		else visitor = {coount:0, extra:{visitors:[]}};
+		else visitor = {count:0, extra:{visitors:[]}};
 		const visitors = visitor.extra.visitors;
-		visitor.count++;
+		let count = visitor.count;
 
 		if (user) {
 			visitors.splice(_.findIndex(visitors, o => o.userId == userId), 1);
-			visitors.splice(0,0,{
+			visitors.splice(0, 0, {
 				username: user.username,
 				nickname: user.nickname,
 				portrait: user.portrait,
@@ -75,7 +81,10 @@ module.exports = app => {
 			visitors.length > 500 && visitors.pop();
 		}
 
-		await app.model.comments.upsert({
+		count++;
+
+		await app.model.visitors.upsert({
+			userId,
 			count,
 			extra:{visitors},
 			objectType,
