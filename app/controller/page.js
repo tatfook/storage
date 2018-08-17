@@ -81,8 +81,8 @@ const Page = class extends Controller {
 		const user = this.authenticated();
 		const params = this.validate({
 			"url":"string",
-			"content": "string",
 		});
+		params.content = params.content;
 		params.folder = this.getFolderByPath(params.url);
 		params.hash = util.hash(params.content);
 

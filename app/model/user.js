@@ -27,6 +27,11 @@ module.exports = app => {
 			allowNull: false,
 		},
 
+		roleId: {
+			type: INTEGER,
+			defaultValue: 0,
+		},
+
 		email: {
 			type: STRING(24),
 			unique: true,

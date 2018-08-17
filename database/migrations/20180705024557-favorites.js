@@ -14,12 +14,12 @@ module.exports = {
 				allowNull: false,
 			},
 
-			favoriteId: {
+			objectId: {
 				type: Sequelize.BIGINT,
 				allowNull: false,
 			},
 
-			type: {
+			objectType: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 			},
@@ -38,7 +38,7 @@ module.exports = {
 			indexes: [
 			{
 				unique: true,
-				fields: ["userId", "favoriteId", "type"],
+				fields: ["userId", "objectId", "objectType"],
 			},
 			],
 		});

@@ -25,6 +25,7 @@ const User = class extends Controller {
 		delete params.id;
 		delete params.password;
 		delete params.username;
+		delete params.roleId;
 
 		const ok = await ctx.model.users.update(params, {where:{id:userId}});
 
@@ -51,12 +52,11 @@ const User = class extends Controller {
 		if (!user) ctx.throw(400, "用户名或密码错误");
 		user = user.get({plain:true});
 
-		//const roleId = rolesModel.getRoleIdByUserId(user.id);
-		//if (rolesModel.isExceptionUser(roleId)) {
-			//return ERR.ERR_USER_EXCEPTION();
-		//}
+		if (model.roles.isExceptionRole(user.roleId)) this.throw(403, "异常用户");
+
 		const token = util.jwt_encode({
 			userId: user.id, 
+			roleId: user.roleId,
 			username: user.username
 		}, config.secret, config.tokenExpire);
 
@@ -93,18 +93,15 @@ const User = class extends Controller {
 		});
 
 		if (!user) return ctx.throw(500);
-
 		user = user.get({plain:true});
 
-		//const roleId = rolesModel.getRoleIdByUserId(user.id);
 		const token = util.jwt_encode({
 			userId: user.id, 
 			username: user.username,
-			//roleId: roleId,
+			roleId: user.roleId,
 		}, config.secret, config.tokenExpire);
 
 		user.token = token;
-		//user.roleId = roleId;
 		ctx.cookies.set("token", token, {
 			httpOnly: false,
 			maxAge: config.tokenExpire * 1000,

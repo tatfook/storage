@@ -1,3 +1,10 @@
+
+const {
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+} = require("../core/consts.js");
+
 module.exports = app => {
 	const {
 		BIGINT,
@@ -7,12 +14,6 @@ module.exports = app => {
 		BOOLEAN,
 		JSON,
 	} = app.Sequelize;
-
-	//const {
-		//ENTITY_TYPE_USER,
-		//ENTITY_TYPE_SITE,
-		//ENTITY_TYPE_PAGE,
-	//} = app.consts;
 
 	const model = app.model.define("favorites", {
 		id: {
@@ -26,12 +27,12 @@ module.exports = app => {
 			allowNull: false,
 		},
 
-		favoriteId: {
+		objectId: {
 			type: BIGINT,
 			allowNull: false,
 		},
 
-		type: {
+		objectType: {
 			type: INTEGER,
 			allowNull: false,
 		},
@@ -44,10 +45,12 @@ module.exports = app => {
 		indexes: [
 		{
 			unique: true,
-			fields: ["userId", "favoriteId", "type"],
+			fields: ["userId", "objectId", "objectType"],
 		},
 		],
 	});
+
+	//model.sync({force:true});
 
 	model.getById = async function(id, userId) {
 		const where = {id};
@@ -58,17 +61,18 @@ module.exports = app => {
 
 		return data && data.get({plain:true});
 	}
-
+	
 	// 获取粉丝
-	model.getFollows = async function(userId) {
+	model.getFollows = async function(objectId, objectType = ENTITY_TYPE_USER) {
 		const sql = `select users.id, users.username, users.nickname, users.portrait 
 			from favorites, users
-			where favorites.userId = users.id and type = :type and favorites.favoriteId = :favoriteId`;
+			where favorites.userId = users.id and objectType = :objectType and favorites.objectId = :objectId`;
 
-		const result = await this.query(sql, {
+		const result = await app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
 			replacements: {
-				type: ENTITY_TYPE_USER,
-				favoriteId: userId,
+				objectType,
+				objectId,
 			}
 		});
 
@@ -79,11 +83,12 @@ module.exports = app => {
 	model.getFollowing = async function(userId) {
 		const sql = `select users.id, users.username, users.nickname, users.portrait 
 			from favorites, users
-			where favorites.favoriteId = users.id and type = :type and favorites.userId = :userId`;
+			where favorites.objectId = users.id and objectType = :objectType and favorites.userId = :userId`;
 
-		const result = await this.query(sql, {
+		const result = await app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
 			replacements: {
-				type: ENTITY_TYPE_USER,
+				objectType: ENTITY_TYPE_USER,
 				userId: userId,
 			}
 		});
@@ -95,11 +100,12 @@ module.exports = app => {
 	model.getFavoriteSites = async function(userId) {
 		const sql = `select sites.*
 			from favorites, sites 
-			where favorites.favoriteId = sites.id and type = :type and favorites.userId = :userId`;
+			where favorites.objectId = sites.id and objectType = :objectType and favorites.userId = :userId`;
 
-		const result = await this.query(sql, {
+		const result = await app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
 			replacements: {
-				type: ENTITY_TYPE_SITE,
+				objectType: ENTITY_TYPE_SITE,
 				userId: userId,
 			}
 		});
@@ -111,75 +117,50 @@ module.exports = app => {
 	model.getFavoritePages = async function(userId) {
 		const sql = `select pages.*
 			from favorites, pages 
-			where favorites.favoriteId = pages.id and type = :type and favorites.userId = :userId`;
+			where favorites.objectId = pages.id and objectType = :objectType and favorites.userId = :userId`;
 
-		const result = await this.query(sql, {
+		const result = await app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
 			replacements: {
-				type: ENTITY_TYPE_PAGE,
+				objectType: ENTITY_TYPE_PAGE,
 				userId: userId,
 			}
 		});
 
-		return ERR.ERR_OK(result);
+		return result;
 	}
 
-	model.favorite = async function(userId, favoriteId, type) {
-		return await app.model.favorites.create({userId, favoriteId, type});
+	model.favorite = async function(userId, objectId, objectType) {
+		return await app.model.favorites.create({userId, objectId, objectType});
 	}
 
-	model.unfavorite = async function(userId, favoriteId, type) {
-		return await app.model.favorites.destroy({where:{userId, favoriteId, type}});
-	}
-
-	// 关注
-	model.following = async function(userId, favoriteId) {
-		return await this.favorite(userId, favoriteId, ENTITY_TYPE_USER);
-	}
-
-	// 取消关注
-	model.unfollowing = async function(userId, favoriteId) {
-		return await this.unfavorite(userId, favoriteId, ENTITY_TYPE_USER);
-	}
-	
-	model.favoriteSite = async function(userId, favoriteId) {
-		return await this.favorite(userId, favoriteId, ENTITY_TYPE_SITE);
-	}
-
-	model.unfavoriteSite = async function(userId, favoriteId) {
-		return await this.unfavorite(userId, favoriteId, ENTITY_TYPE_SITE);
-	}
-
-	model.favoritePage = async function(userId, favoriteId) {
-		return await this.favorite(userId, favoriteId, ENTITY_TYPE_PAGE);
-	}
-
-	model.unfavoritePage = async function(userId, favoriteId) {
-		return await this.unfavorite(userId, favoriteId, ENTITY_TYPE_PAGE);
+	model.unfavorite = async function(userId, objectId, objectType) {
+		return await app.model.favorites.destroy({where:{userId, objectId, objectType}});
 	}
 
 	model.getStatistics = async function(userId) {
 		// 粉丝
 		const followsCount = await this.model.count({where:{
-			favoriteId:userId,
-			type:ENTITY_TYPE_USER,
+			objectId:userId,
+			objectType:ENTITY_TYPE_USER,
 		}});
 
 		// 关注
 		const followingCount = await this.model.count({where:{
 			userId,
-			type:ENTITY_TYPE_USER,
+			objectType:ENTITY_TYPE_USER,
 		}});
 
 		// 站点
 		const siteFavoriteCount = await this.model.count({where:{
 			userId,
-			type:ENTITY_TYPE_SITE,
+			objectType:ENTITY_TYPE_SITE,
 		}});
 		
 		// 页面
 		const pageFavoriteCount = await this.model.count({where:{
 			userId,
-			type:ENTITY_TYPE_PAGE,
+			objectType:ENTITY_TYPE_PAGE,
 		}});
 
 		// 返回统计信息
@@ -191,5 +172,6 @@ module.exports = app => {
 		}
 	}
 
+	app.model.favorites = model;
 	return model;
 };

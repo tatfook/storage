@@ -233,15 +233,11 @@ const OauthUsers = class extends Controller {
 		if (!user) return this.success({token: oauthUser.token});
 		user = user.get({plain:true});
 
-		//const rolesModel = model["roles"];
-		//const roleId = await rolesModel.getRoleIdByUserId(user.id);
-		//if (rolesModel.isExceptionUser(roleId)) {
-			//return ERR.ERR_USER_EXCEPTION();
-		//}
-		
+		if (model.roles.isExceptionRole(user.roleId)) this.throw(403, "异常用户");
+
 		const token = this.util.jwt_encode({
-			//roleId: roleId,
 			userId: user.id,
+			roleId: user.roleId,
 			username: user.username,
 			oauthUserId: oauthUser.id,
 		}, config.secret, config.tokenExpire);

@@ -15,161 +15,76 @@ const Favorite = class extends Controller {
 	
 	async index() {
 		const {model, ctx} = this;
-		const userId = this.authenticated().userId;
-		const params = this.validate({type: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE)});
+		const {userId, objectType} = this.validate({
+			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE).required(),
+			userId: joi.number().required(),
+		});
 
 		let list = [];
-		if (params.type == "ENTITY_TYPE_USER") {
+		if (objectType == ENTITY_TYPE_USER) {
 			list = await model.favorites.getFollowing(userId);
-		} else if (params.type == "ENTITY_TYPE_SITE") {
+		} else if (objectType == ENTITY_TYPE_SITE) {
 			list = await model.favorites.getFavoriteSites(userId);
-		} else if (params.type == "ENTITY_TYPE_PAGE") {
+		} else if (objectType == ENTITY_TYPE_PAGE) {
 			list = await model.favorites.getFavoritePages(userId);
 		}
 
-		return list;
+		return this.success(list);
 	}
 
 	async create() {
 		const {model, ctx} = this;
 		const userId = this.authenticated().userId;
 		const params = this.validate({
-			favoriteId: "int", 
-			type: Joi.array().items(Joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE)),
+			objectId: "int", 
+			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE).required(),
 		});
 
-		return await model.favorites.favorite(userId, params.favoriteId, params.type);
+		const data = await model.favorites.favorite(userId, params.objectId, params.objectType);
+
+		return this.success(data);
 	}
 
 	async destroy() {
 		const {model, ctx} = this;
 		const userId = this.authenticated().userId;
 		const params = this.validate({
-			favoriteId: "int", 
-			type: Joi.array().items(Joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE)),
+			objectId: "int", 
+			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE).required(),
 		});
 
-		return await model.favorites.unfavorite(userId, params.favoriteId, params.type);
+		const data = await model.favorites.unfavorite(userId, params.objectId, params.objectType);
+		return this.success(data);
 	}
 
 	async exist() {
 		const {model, ctx} = this;
 		const userId = this.authenticated().userId;
 		const params = this.validate({
-			favoriteId: "int", 
-			type: Joi.array().items(Joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE)),
+			objectId: "int", 
+			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE).required(),
 		});
-		const data = await model.favorites.findOne({
+		const data = await model.favorites.findOne({where:{
 			userId,
-			favoriteId: params.favoriteId,
-			type: params.type,
-		})
+			objectId: params.objectId,
+			objectType: params.objectType,
+		}});
 
-		return data;
+		const ok = data ? true : false;
+
+		return this.success(ok);
 	}
 
-	// 粉丝
-	async getFollows(ctx) {
-		const params = ctx.state.params;
-
-		return await model.favorites.getFollows(params.userId);
-	}
-
-	// 关注
-	async getFollowing(ctx) {
-		return await model.favorites.getFollowing(ctx.state.params.userId);
-	}
-
-	async getFavoriteSites(ctx) {
-		return await model.favorites.getFavoriteSites(ctx.state.params.userId);
-	}
-
-	async getFavoritePages(ctx) {
-		return await model.favorites.getFavoritePages(ctx.state.params.userId);
-	}
-
-	// 是否关注
-	async isFollowing() {
+	async follows() {
 		const {model, ctx} = this;
-		const userId = this.authenticated().userId;
-		const params = this.validate({favoriteId: "int"});
-
-		params.userId = userId;
-		params.type = ENTITY_TYPE_USER;
-
-		const result = await model.favorites.findOne({where:params});
-
-		return result ? true : false;
+		const {objectId, objectType} = this.validate({
+			objectId: "int", 
+			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE).required(),
+		});
+	
+		const list = await model.favorites.getFollows(objectId, objectType);
+		return this.success(list);
 	}
-
-	// 取消关注
-	async unfollowing() {
-		const {model, ctx} = this;
-		const userId = this.authenticated().userId;
-		const params = this.validate({favoriteId: "int"});
-
-		const result = await model.favorites.unfollowing(userId, params.favoriteId);
-
-		//notificationsModel.following(params.userId, params.favoriteId, "unfavorite");
-		return result;
-	}
-
-	// 关注
-	async following() {
-		const {model, ctx} = this;
-		const userId = this.authenticated().userId;
-		const params = this.validate({favoriteId: "int"});
-
-		const result = await model.favorites.following(userId, params.favoriteId);
-
-		//notificationsModel.following(params.userId, params.favoriteId, "favorite");
-		return result;
-	}
-
-	async favoriteSite() {
-		const {model, ctx} = this;
-		const userId = this.authenticated().userId;
-		const params = this.validate({favoriteId: "int"});
-
-		const result = await model.favorites.favoriteSite(userId, params.favoriteId);
-
-		//notificationsModel.favoriteSite(params.userId, params.favoriteId, "favorite");
-		return result;
-	}
-
-	async unfavoriteSite() {
-		const {model, ctx} = this;
-		const userId = this.authenticated().userId;
-		const params = this.validate({favoriteId: "int"});
-
-		const result = await model.favorites.unfavoriteSite(userId, params.favoriteId);
-
-		//notificationsModel.favoriteSite(params.userId, params.favoriteId, "unfavorite");
-		return result;
-	}
-
-	async favoritePage() {
-		const {model, ctx} = this;
-		const userId = this.authenticated().userId;
-		const params = this.validate({favoriteId: "int"});
-
-		const result = await model.favorites.favoritePage(userId, params.favoriteId);
-
-		//notificationsModel.favoritePage(params.userId, params.favoriteId, "favorite");
-		return result;
-	}
-
-	async unFavoritePage() {
-		const {model, ctx} = this;
-		const userId = this.authenticated().userId;
-		const params = this.validate({favoriteId: "int"});
-
-		const result = await model.favorites.unfavoritePage(userId, params.favoriteId);
-
-		//notificationsModel.favoritePage(params.userId, params.favoriteId, "unfavorite");
-		return result;
-	}
-
 }
 
 module.exports = Favorite;

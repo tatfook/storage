@@ -54,9 +54,10 @@ module.exports = app => {
 	//router.get(`${prefix}files/:id/token`, file.token);
 	//router.resources(`${prefix}files`, file);
 
-	//const favorite = controller.favorite;
-	//router.get(`${prefix}favorites/exist`, favorite.exist);
-	//router.resources(`${prefix}favorites`, favorite);
+	const favorite = controller.favorite;
+	router.get(`${prefix}favorites/follows`, favorite.follows);
+	router.get(`${prefix}favorites/exist`, favorite.exist);
+	router.resources(`${prefix}favorites`, favorite);
 
 	const oauthUser = controller.oauthUser;
 	router.post(`${prefix}oauth_users/qq`, oauthUser.qq);
