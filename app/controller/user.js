@@ -12,7 +12,8 @@ const User = class extends Controller {
 		const {ctx, model} = this;
 		const params = this.validate({id: "int"});
 
-		const user = await model.users.getById(params.id);
+		const userId = _.toNumber(params.id);
+		const user = userId ?  await model.users.getById(userId) :	await model.users.getByName(params.id);
 
 		return this.success(user);
 	}

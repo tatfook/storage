@@ -153,6 +153,59 @@ class BaseController extends Controller {
 
 		return this.success(data);
 	}
+
+	async postExtra() {
+		const userId = this.authenticated().userId;
+		const model = this.model[this.modelName];
+		const params = this.validate({id: "int"});
+		const where = {id:params.id, userId};
+
+		const result = await model.update({extra:params}, {where});
+		
+		return this.success(result);
+	}
+
+	async putExtra() {
+		const userId = this.authenticated().userId;
+		const model = this.model[this.modelName];
+		const params = this.validate({id: "int"});
+		const where = {id:params.id, userId};
+
+		let data = await model.findOne({where});
+		if (!data) this.throw(404);
+		data = data.get({plain:true});
+
+		const extra = data.extra || {};
+		_.merge(extra, params);
+
+		const result = await model.update({extra}, {where});
+		
+		this.success(result);
+	}
+
+	async getExtra() {
+		const userId = this.authenticated().userId;
+		const model = this.model[this.modelName];
+		const params = this.validate({id: "int"});
+		const where = {id:params.id, userId};
+
+		let data = await model.findOne({where});
+		if (!data) this.throw(404);
+		data = data.get({plain:true});
+
+		this.success(data.extra || {});
+	}
+
+	async deleteExtra() {
+		const userId = this.authenticated().userId;
+		const model = this.model[this.modelName];
+		const params = this.validate({id: "int"});
+		const where = {id:params.id, userId};
+
+		const result = await model.update({extra:{}}, {where});
+		
+		return this.success(result);
+	}
 }
 
 module.exports = BaseController;

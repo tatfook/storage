@@ -46,6 +46,11 @@ module.exports = app => {
 			type: STRING(128),
 		},
 
+		extra: {
+			type: JSON,
+			defaultValue: {},
+		},
+
 	}, {
 		underscored: false,
 		charset: "utf8mb4",
@@ -58,6 +63,8 @@ module.exports = app => {
 		],
 	});
 
+	//model.sync({force:true});
+	
 	model.get = async function(userId) {
 		const list = await app.model.sites.findAll({where:{userId}});
 

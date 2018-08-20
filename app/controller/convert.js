@@ -1,22 +1,21 @@
-import _ from "lodash";
-import joi from "joi";
-import axios from "axios";
 
-import config from "@/config.js";
-import models from "@/models";
-import Controller from "@/controllers/controller.js";
-import {
+const axios = require("axios");
+const joi = require("joi");
+const _ = require("lodash");
+
+const Controller = require("../core/controller.js");
+const {
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+
 	USER_ACCESS_LEVEL_NONE,
 	USER_ACCESS_LEVEL_READ,
 	USER_ACCESS_LEVEL_WRITE,
-} from "@@/common/consts.js";
-import ERR from "@@/common/error.js";
+} = require("../core/consts.js");
 
-const keepworkApiUrlPrefix = config.keepworkBaseURL;
-
-export const Convert = class extends Controller {
-	constructor() {
-		super();
+const Convert = class extends Controller {
+	get modelName() {
 	}
 
 	async convert() {
@@ -26,11 +25,15 @@ export const Convert = class extends Controller {
 		await this.groupMembers();
 		await this.siteGroups();
 
-		this.success("OK");
+		return this.success("OK");
+	}
+
+	keepworkApiUrlPrefix() {
+		return this.app.config.self.keepworkBaseURL;
 	}
 
 	async convertUser(data) {
-		const usersModel = models["users"];
+		const usersModel = this.ctx.model.users;
 		let user = {
 			id: data._id,
 			username: data.username,
@@ -46,46 +49,48 @@ export const Convert = class extends Controller {
 	}
 
 	async users() {
-		const datas = await axios.get(keepworkApiUrlPrefix + "user/export").then(res => res.data);
+		const datas = await axios.get(this.keepworkApiUrlPrefix() + "user/export").then(res => res.data);
 
 		for (let i = 0; i < datas.length; i++) {
 			let data = datas[i];
 			await this.convertUser(data);
 		}
 
-		return datas;
+		return this.success(datas);
 	}
 
 	async convertSite(data) {
-		const usersModel = models["users"];
-		const sitesModel = models["sites"];
+		const usersModel = this.ctx.model.users;
+		const sitesModel = this.ctx.model.sites;
 		let user = await usersModel.findOne({where:{username:data.username}});
 		if (!user) return;
 		let site = {
-			userId: user.id,
 			id: data._id,
+			userId: user.id,
 			sitename: data.name,
-			description: data.desc,
 			visibility: data.visibility == "public" ? 0 : 1,
-			displayName: data.displayName,
-			logoUrl: data.logoUrl,
+			description: data.desc,
+			extra: {
+				logoUrl: data.logoUrl,
+				displayName: data.displayName,
+			}
 		};
 		return await sitesModel.upsert(site);
 	}
 
 	async sites() {
-		const datas = await axios.get(keepworkApiUrlPrefix + "website/export").then(res => res.data);
+		const datas = await axios.get(this.keepworkApiUrlPrefix() + "website/export").then(res => res.data);
 		for (let i = 0; i < datas.length; i++) {
 			let data = datas[i];
 			await this.convertSite(data);
 		}
 
-		return datas;
+		return this.success(datas);
 	}
 
 	async convertGroup(data) {
-		const usersModel = models["users"];
-		const groupsModel = models["groups"];
+		const usersModel = this.ctx.model.users;
+		const groupsModel = this.ctx.model.groups;
 		let user = await usersModel.findOne({where:{username:data.username}});
 		if (!user) return;
 		let group = {
@@ -98,19 +103,19 @@ export const Convert = class extends Controller {
 	}
 
 	async groups() {
-		const datas = await axios.get(keepworkApiUrlPrefix + "group/export").then(res => res.data);
+		const datas = await axios.get(this.keepworkApiUrlPrefix() + "group/export").then(res => res.data);
 		for (let i = 0; i < datas.length; i++) {
 			let data = datas[i];
 			await this.convertGroup(data);
 		}
 
-		return datas;
+		return this.success(datas);
 	}
 
 	async convertGroupMember(data) {
-		const usersModel = models["users"];
-		const groupsModel = models["groups"];
-		const groupMembersModel = models["groupMembers"];
+		const usersModel = this.ctx.model.users;
+		const groupsModel = this.ctx.model.groups;
+		const groupMembersModel = this.ctx.model.groupMembers;
 
 		let user = await usersModel.findOne({where:{username: data.username}});
 		let member = await usersModel.findOne({where:{username: data.memberName}});
@@ -131,20 +136,20 @@ export const Convert = class extends Controller {
 	}
 
 	async groupMembers() {
-		const datas = await axios.get(keepworkApiUrlPrefix + "group_user/export").then(res => res.data);
+		const datas = await axios.get(this.keepworkApiUrlPrefix() + "group_user/export").then(res => res.data);
 		for (let i = 0; i < datas.length; i++) {
 			let data = datas[i];
 			await this.convertGroupMember(data)
 		}
 
-		return datas;
+		return this.success(datas);
 	}
 
 	async convertSiteGroup(data) {
-		const usersModel = models["users"];
-		const sitesModel = models["sites"];
-		const groupsModel = models["groups"];
-		const siteGroupsModel = models["siteGroups"];
+		const usersModel = this.ctx.model.users;
+		const sitesModel = this.ctx.model.sites;
+		const groupsModel = this.ctx.model.groups;
+		const siteGroupsModel = this.ctx.model.siteGroups;
 
 		let user = await usersModel.findOne({where:{username:data.username}});
 		let groupUser = await usersModel.findOne({where:{username: data.groupUsername}});
@@ -167,21 +172,21 @@ export const Convert = class extends Controller {
 	}
 
 	async siteGroups() {
-		const datas = await axios.get(keepworkApiUrlPrefix + "site_group/export").then(res => res.data);
+		const datas = await axios.get(this.keepworkApiUrlPrefix() + "site_group/export").then(res => res.data);
 		for (let i = 0; i < datas.length; i++) {
 			let data = datas[i];
 			await this.convertSiteGroup(data);
 		}
 
-		return datas;
+		return this.success(datas);
 	}
 
 	async data(ctx) {
 		const params = ctx.state.params;
 		const tablename = params.tablename;
 		const data = params.data;
-		if (!data) return ERR.ERR_PARAMS();
-		if (params.token != config.token) return ERR.ERR_NO_PERMISSION();
+		if (!data) return this.success("PARAMS ERROR");
+		if (params.token != config.token) return this.success("NO PERMISSTION");
 
 		if (tablename == "users") return await this.convertUser(data);
 		if (tablename == "sites") return await this.convertSite(data);
@@ -189,7 +194,7 @@ export const Convert = class extends Controller {
 		if (tablename == "groupMembers") return await this.convertGroupMember(data);
 		if (tablename == "siteGroups") return await this.convertSiteGroup(data);
 
-		return ERR.ERR_PARAMS();
+		return this.success("OK");
 	}
 
 	async deleteData(ctx) {
@@ -197,8 +202,8 @@ export const Convert = class extends Controller {
 		const tablename = params.tablename;
 		const id = params.id;
 		const model = models[tablename];
-		if (!model) return ERR.ERR_PARAMS();
-		if (params.token != config.token) return ERR.ERR_NO_PERMISSION();
+		if (!model) return this.success("PARAMS ERROR");
+		if (params.token != config.token) return this.success("NO PERMISSTION");
 
 		const result = await model.destroy({where:{id}});
 
@@ -209,66 +214,8 @@ export const Convert = class extends Controller {
 			await siteGroupsModel.destroy({where:{groupId:id}});
 		}
 
-		return ERR.ERR_OK(result);
-	}
-
-	static getRoutes() {
-		this.pathPrefix = "convert";
-
-		const routes = [
-		{
-			path: "",
-			method:"GET",
-			action: "convert",
-		},
-		{
-			path: "data",
-			method: "ALL",
-			action: "data",
-			validated: {
-				tablename: joi.string().required(),
-				token: joi.string().required(),
-			}
-		},
-		{
-			path: "deleteData",
-			method: "ALL",
-			action: "deleteData",
-			validated: {
-				tablename: joi.string().required(),
-				token: joi.string().required(),
-				id: joi.number().required(),
-			}
-		},
-		{
-			path: "users",
-			method:"GET",
-			action: "users",
-		},
-		{
-			path: "sites",
-			method:"GET",
-			action: "sites",
-		},
-		{
-			path: "groups",
-			method:"GET",
-			action: "groups",
-		},
-		{
-			path: "groupMembers",
-			method:"GET",
-			action: "groupMembers",
-		},
-		{
-			path: "siteGroups",
-			method:"GET",
-			action: "siteGroups",
-		},
-		];
-		
-		return routes;
+		return this.success("OK");
 	}
 }
 
-export default Convert;
+module.exports = Convert;

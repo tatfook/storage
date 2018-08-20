@@ -40,10 +40,10 @@ module.exports = app => {
 	router.resources(`${prefix}groups`, group);
 
 	const groupMember = controller.groupMember;
-	router.resources(`${prefix}groupMembers`, groupMember);
+	router.resources(`${prefix}group_members`, groupMember);
 
 	const siteGroup = controller.siteGroup;
-	router.resources(`${prefix}siteGroups`, siteGroup);
+	router.resources(`${prefix}site_groups`, siteGroup);
 
 	const domain = controller.domain;
 	router.get(`${prefix}domains/exist`, domain.exist);
@@ -55,6 +55,8 @@ module.exports = app => {
 	//router.resources(`${prefix}files`, file);
 
 	const favorite = controller.favorite;
+	router.get(`${prefix}favorites`, favorite.index);
+	router.delete(`${prefix}favorites`, favorite.destroy);
 	router.get(`${prefix}favorites/follows`, favorite.follows);
 	router.get(`${prefix}favorites/exist`, favorite.exist);
 	router.resources(`${prefix}favorites`, favorite);
@@ -68,4 +70,16 @@ module.exports = app => {
 
 	const comment = controller.comment;
 	router.resources(`${prefix}comments`, comment);
+
+
+	const convert = controller.convert;
+	router.get(`${prefix}converts`, convert.convert);
+	router.get(`${prefix}converts/users`, convert.users);
+	router.get(`${prefix}converts/sites`, convert.sites);
+	router.get(`${prefix}converts/groups`, convert.groups);
+	router.get(`${prefix}converts/group_members`, convert.groupMembers);
+	router.get(`${prefix}converts/site_groups`, convert.siteGroups);
+
+	const admin = controller.admin;
+	router.resources(`${prefix}admins/:resources`, admin);
 }
