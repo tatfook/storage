@@ -14,8 +14,6 @@ module.exports = app => {
 		},
 	});
 
-	const from = config.email.from || config.email.user;
-
 	// 连接验证
 	//transporter.verify(function(error, success) {
 		//if (error) {

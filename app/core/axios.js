@@ -64,7 +64,6 @@ mockAxios.mock = function(url, method, data) {
 module.exports = app => {
 	if (app.config.env != "unittest" && app.config.env != "test") {
 		app.axios = axios;
-
 		return;
 	}
 

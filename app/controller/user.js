@@ -73,6 +73,15 @@ const User = class extends Controller {
 		return this.success(user);
 	}
 
+	checkCellphone(cellphone, captcha) {
+		if (!cellphone || !captcha) return "";
+
+		const cache = this.app.cache.get(cellphone) || {};
+		if (cache.captcha == captcha) return cellphone;
+
+		return "";
+	}
+
 	async register() {
 		const {ctx} = this;
 		const {model, util} = this.app;
@@ -88,13 +97,24 @@ const User = class extends Controller {
 		let user = await model.users.getByName(params.username);
 		if (user) return ctx.throw(400, "用户已存在");
 
+		let cellphone = this.checkCellphone(params.cellphone, params.cellphoneCaptcha);
+		if (cellphone) {  // 已绑定则忽略手机号
+			user = await model.users.findOne({where:{cellphone}});
+			cellphone = user ? "" : cellphone;
+		}
+
 		user = await model.users.create({
+			cellphone,
 			username: params.username,
 			password: util.md5(params.password),
 		});
 
 		if (!user) return ctx.throw(500);
 		user = user.get({plain:true});
+
+		if (params.oauthToken) {
+			await model.oauthUsers.update({userId:user.id}, {where:{token:params.oauthToken}});
+		}
 
 		const token = util.jwt_encode({
 			userId: user.id, 
@@ -149,8 +169,7 @@ const User = class extends Controller {
 	// 手机验证第一步
 	async cellphoneVerifyOne() {
 		const {ctx, app} = this;
-		const {model, cache} = this.app;
-		const userId = this.authenticated().userId;
+		const {model} = this.app;
 		const params = this.validate({
 			cellphone:"string",
 		});
@@ -158,8 +177,9 @@ const User = class extends Controller {
 		const captcha = _.times(4, () =>  _.random(0,9,false)).join("");
 
 		const ok = await app.sendSms(cellphone, [captcha, "3分钟"]);
-		console.log(captcha, userId);
-		cache.put(cellphone, {captcha,userId}, 1000 * 60 * 3); // 10分钟有效期
+		//console.log(captcha);
+		
+		app.cache.put(cellphone, {captcha}, 1000 * 60 * 3); // 10分钟有效期
 
 		return this.success();
 	}
@@ -179,7 +199,7 @@ const User = class extends Controller {
 		
 		const cache = app.cache.get(cellphone);
 		//console.log(cache, cellphone, captcha, userId);
-		if (!cache || cache.captcha != captcha || userId != cache.userId) {
+		if (!cache || cache.captcha != captcha) {
 			console.log(captcha, params, userId);
 			ctx.throw(400, "验证码过期");
 		}
@@ -195,17 +215,16 @@ const User = class extends Controller {
 	async emailVerifyOne() {
 		const {ctx, app} = this;
 		const {model} = this.app;
-		const userId = this.authenticated().userId;
 		const params = this.validate({
 			email:"string",
 		});
 		const email = params.email;
 		const captcha = _.times(4, () =>  _.random(0,9,false)).join("");
 
-		const body = `<h3>尊敬的Note用户:</h3><p>您好: 您的邮箱验证码为${captcha}, 请在10分钟内完成邮箱验证。谢谢</p>`;
-		const ok = await app.sendEmail(email, "Note 邮箱绑定验证", body);
-		console.log(captcha, userId);
-		app.cache.put(email, {captcha,userId}, 1000 * 60 * 10); // 10分钟有效期
+		const body = `<h3>尊敬的KEEPWORK用户:</h3><p>您好: 您的邮箱验证码为${captcha}, 请在10分钟内完成邮箱验证。谢谢</p>`;
+		const ok = await app.sendEmail(email, "KEEPWORK 邮箱绑定验证", body);
+		//console.log(captcha);
+		app.cache.put(email, {captcha}, 1000 * 60 * 10); // 10分钟有效期
 
 		return this.success();
 	}
@@ -223,8 +242,8 @@ const User = class extends Controller {
 		let email = params.email;
 		
 		const cache = app.cache.get(email);
-		console.log(cache, email, captcha, userId);
-		if (!cache || cache.captcha != captcha || userId != cache.userId) {
+		//console.log(cache, email, captcha, userId);
+		if (!cache || cache.captcha != captcha) {
 			ctx.throw(400, "验证码过期");
 		}
 		

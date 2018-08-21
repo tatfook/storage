@@ -33,8 +33,8 @@ module.exports = {
 			},
 			
 			content: {
-				type: Sequelize.TEXT,
-				defaultValue: "",
+				type: Sequelize.TEXT('long'),
+				//defaultValue: "",
 			},
 
 			createdAt: {

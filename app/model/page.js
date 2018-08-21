@@ -41,8 +41,8 @@ module.exports = app => {
 		},
 		
 		content: {
-			type: TEXT,
-			defaultValue: "",
+			type: TEXT('long'),
+			//defaultValue: "",
 		},
 
 		keywords: {
