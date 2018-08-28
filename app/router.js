@@ -71,6 +71,21 @@ module.exports = app => {
 	const comment = controller.comment;
 	router.resources(`${prefix}comments`, comment);
 
+	const file = controller.file;
+	router.get(`${prefix}files/:id/rawurl`, file.rawurl);
+	router.get(`${prefix}files/:id/token`, file.token);
+	router.get(`${prefix}files/statistics`, file.statistics);
+	router.post(`${prefix}files/qiniu`, file.qiniu);
+	router.get(`${prefix}files/imageAudit`, file.imageAudit);
+	router.get(`${prefix}files/videoAudit`, file.videoAudit);
+	router.post(`${prefix}files/audit`, file.audit);
+	router.resources(`${prefix}files`, file);
+
+	const siteFile = controller.siteFile;
+	router.post(`${prefix}siteFiles/url`, siteFile.url);
+	router.get(`${prefix}siteFiles/:id/rawurl`, siteFile.rawurl);
+	router.get(`${prefix}siteFiles/:id/raw`, siteFile.raw);
+	router.resources(`${prefix}siteFiles`, siteFile);
 
 	const convert = controller.convert;
 	router.get(`${prefix}converts`, convert.convert);

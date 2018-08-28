@@ -111,9 +111,9 @@ const File = class extends Controller {
 		return ERR(0, data);
 	}
 
-	async upsert(ctx) {
+	async create() {
 		const {userId} = this.authenticated();
-		const params = this.validate();
+		const params = this.validate({key:"string"});
 		params.userId = userId;
 
 		const data = await this.model.files.upsert(params);
@@ -121,7 +121,7 @@ const File = class extends Controller {
 		return ERR(0, data);
 	}
 
-	async delete() {
+	async destroy() {
 		const {id} = this.validate({id:"int"});
 		const {userId} = this.authenticated();
 		const where = {id, userId};
@@ -142,7 +142,21 @@ const File = class extends Controller {
 		return ERR(0, data);
 	}
 
-	async find(ctx) {
+	async show() {
+		const {id} = this.validate({id:"int"});
+		const {userId} = this.authenticated();
+
+		let data = await this.model.files.findOne({
+			where: {
+				id:id,
+				userId,
+			}
+		})
+
+		return ERR(0, data);
+	}
+
+	async index() {
 		const {userId} = this.authenticated();
 		const params = this.validate();
 
@@ -191,20 +205,6 @@ const File = class extends Controller {
 		}
 
 		return ERR(0, list);
-	}
-
-	async findOne() {
-		const {id} = this.validate({id:"int"});
-		const {userId} = this.authenticated();
-
-		let data = await this.model.files.findOne({
-			where: {
-				id:id,
-				userId,
-			}
-		})
-
-		return ERR(0, data);
 	}
 
 	async qiniu() {
