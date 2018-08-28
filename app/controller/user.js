@@ -20,13 +20,15 @@ const User = class extends Controller {
 
 	async update() {
 		const {ctx} = this;
-		const userId = this.authenticated().userId;
+		const {userId, username} = this.authenticated();
 		const params = this.validate();
 
 		delete params.id;
 		delete params.password;
 		delete params.username;
 		delete params.roleId;
+
+		this.app.api.setESUserInfo({...params, username});
 
 		const ok = await ctx.model.users.update(params, {where:{id:userId}});
 
@@ -74,12 +76,12 @@ const User = class extends Controller {
 	}
 
 	checkCellphone(cellphone, captcha) {
-		if (!cellphone || !captcha) return "";
+		if (!cellphone || !captcha) return;
 
 		const cache = this.app.cache.get(cellphone) || {};
 		if (cache.captcha == captcha) return cellphone;
 
-		return "";
+		return ;
 	}
 
 	async register() {
@@ -100,7 +102,7 @@ const User = class extends Controller {
 		let cellphone = this.checkCellphone(params.cellphone, params.cellphoneCaptcha);
 		if (cellphone) {  // 已绑定则忽略手机号
 			user = await model.users.findOne({where:{cellphone}});
-			cellphone = user ? "" : cellphone;
+			cellphone = user ? undefined : cellphone;
 		}
 
 		user = await model.users.create({
@@ -111,6 +113,8 @@ const User = class extends Controller {
 
 		if (!user) return ctx.throw(500);
 		user = user.get({plain:true});
+
+		this.app.api.createGitUser(user);
 
 		if (params.oauthToken) {
 			await model.oauthUsers.update({userId:user.id}, {where:{token:params.oauthToken}});

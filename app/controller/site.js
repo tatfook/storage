@@ -55,8 +55,49 @@ const Site = class extends Controller {
 		if (!data) return ctx.throw(500);
 		data = data.get({plain:true});
 
+		const user = await model.users.getById(userId);
+		user &&  this.app.api.createGitProject({username:user.username, sitename:params.sitename, visibility:data.visibility == 0 ? "public" : "private", site_id: data.id});
+		
 		//this.addNotification(userId, data.id, "create");
 
+		return this.success(data);
+	}
+
+	async update() {
+		const model = this.model;
+		const userId = this.authenticated().userId;
+		const params = this.validate({"id":"int"});
+		const id = params.id;
+
+		const site = await model.sites.getById(id, userId);
+		const user = await model.users.getById(userId);
+		if (!user || !site) this.throw(400);
+		site.username = user.username;
+		this.app.api.setESSiteInfo(site);
+		if (params.visibility != undefined) {
+			this.app.api.setGitProjectVisibility({
+				username:user.username, 
+				sitename:site.sitename, 
+				visibility: params.visibility == 0 ? "public" : "private",
+			});
+		}
+
+		const data = await model.sites.update(params, {where:{id, userId}});
+		return this.success(data);
+	}
+
+	async destroy() {
+		const model = this.model;
+		const userId = this.authenticated().userId;
+		const params = this.validate({"id":"int"});
+		const id = params.id;
+
+		const site = await model.sites.getById(id, userId);
+		const user = await model.users.getById(userId);
+		if (!user || !site) this.throw(400);
+		this.app.api.deleteGitProject({username:user.username, sitename:site.sitename});
+
+		const data = await model.sites.destroy({where:{id, userId}});
 		return this.success(data);
 	}
 

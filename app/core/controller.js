@@ -42,6 +42,10 @@ class BaseController extends Controller {
 		return this.app.consts;
 	}
 
+	get queryOptions() {
+		return this.ctx.state.queryOptions
+	}
+
 	getParams() {
 		return _.merge({}, this.ctx.request.body, this.ctx.query, this.ctx.params);
 	}

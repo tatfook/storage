@@ -5,6 +5,7 @@ const util = require("./app/core/util.js");
 const sms = require("./app/core/sms.js");
 const email = require("./app/core/email.js");
 const axios = require("./app/core/axios.js");
+const api = require("./app/core/api.js");
 
 module.exports = app => {
 	app.cache = cache;
@@ -15,6 +16,7 @@ module.exports = app => {
 	sms(app);
 	email(app);
 	axios(app);
+	api(app);
 
 	//console.log(app.config.env);
 }
