@@ -55,7 +55,7 @@ const User = class extends Controller {
 		if (!user) ctx.throw(400, "用户名或密码错误");
 		user = user.get({plain:true});
 
-		if (model.roles.isExceptionRole(user.roleId)) this.throw(403, "异常用户");
+		//if (model.roles.isExceptionRole(user.roleId)) this.throw(403, "异常用户");
 
 		const token = util.jwt_encode({
 			userId: user.id, 

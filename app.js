@@ -6,6 +6,7 @@ const sms = require("./app/core/sms.js");
 const email = require("./app/core/email.js");
 const axios = require("./app/core/axios.js");
 const api = require("./app/core/api.js");
+const qiniu = require("./app/core/qiniu.js");
 
 module.exports = app => {
 	app.cache = cache;
@@ -17,6 +18,7 @@ module.exports = app => {
 	email(app);
 	axios(app);
 	api(app);
+	qiniu(app);
 
 	//console.log(app.config.env);
 }
