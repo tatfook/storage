@@ -32,6 +32,7 @@ module.exports = app => {
 		let scope = bucketName;
 		if (key) scope += ":" + key;
 		
+		console.log(config.origin + config.baseUrl);
 		const options = {
 			scope: scope,
 			expires: 3600 * 24, // 一天
