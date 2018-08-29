@@ -19,7 +19,7 @@ const SiteFile = class extends Controller {
 
 	async url() {
 		const config = this.app.config.self;
-		const baseURL = config.origin + config.baseUrl + "siteFiles/";
+		const baseURL = config.baseUrl + "siteFiles/";
 
 		const params = this.validate({
 			fileId:"int",
@@ -83,7 +83,7 @@ const SiteFile = class extends Controller {
 		const params = this.validate();
 		const {userId} = this.authenticated();
 		const config = this.app.config.self;
-		const baseURL = config.origin + config.baseUrl + "siteFiles/";
+		const baseURL = config.baseUrl + "siteFiles/";
 		params.userId = userId;
 
 		const result = await this.model.siteFiles.findAndCount({where: params});
