@@ -178,7 +178,7 @@ const File = class extends Controller {
 
 	async list() {
 		const config = this.app.config.self;
-		const baseURL = config.origin + config.baseUrl + "siteFiles/";
+		const baseURL = config.baseUrl + "siteFiles/";
 		const {like, gt, lte, ne, in: opIn} = this.app.Sequelize.Op;
 		const {userId} = this.authenticated();
 		const params = this.validate();
