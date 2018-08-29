@@ -20,7 +20,7 @@ class Api  {
 	async curl(method, url, data, config = {}) {
 		url = config.baseURL + pathToRegexp.compile(url)(data || {});
 		method = (method || "get").toLowerCase();
-		config = {...this.config, ...config, method, url};
+		config = {...config, method, url};
 		if (method == "get" || method == "delete" || method == "head" || method == "options") {
 			config.params = data;
 		} else {
@@ -44,7 +44,7 @@ class Api  {
 	}
 
 	async createGitUser(data) {
-		return await this.curl("post",  + "/accounts", data, this.gitConfig);
+		return await this.curl("post", "/accounts", data, this.gitConfig);
 	}
 
 	async createGitProject(data) {

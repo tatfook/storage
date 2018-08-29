@@ -36,7 +36,7 @@ const Site = class extends Controller {
 
 	async create() {
 		const {ctx, model, config, util} = this;
-		const userId = this.authenticated().userId;
+		const {userId, username} = this.authenticated();
 		const params = this.validate({
 			"sitename":"string",
 		});
@@ -55,8 +55,7 @@ const Site = class extends Controller {
 		if (!data) return ctx.throw(500);
 		data = data.get({plain:true});
 
-		const user = await model.users.getById(userId);
-		user &&  this.app.api.createGitProject({username:user.username, sitename:params.sitename, visibility:data.visibility == 0 ? "public" : "private", site_id: data.id});
+		this.app.api.createGitProject({username:username, sitename:params.sitename, visibility:data.visibility == 0 ? "public" : "private", site_id: data.id});
 		
 		//this.addNotification(userId, data.id, "create");
 

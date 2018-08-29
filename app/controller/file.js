@@ -7,6 +7,11 @@ const {
 	ENTITY_TYPE_USER,
 	ENTITY_TYPE_SITE,
 	ENTITY_TYPE_PAGE,
+
+	QINIU_AUDIT_STATE_NO_AUDIT,
+	QINIU_AUDIT_STATE_PASS,
+	QINIU_AUDIT_STATE_NOPASS,
+	QINIU_AUDIT_STATE_FAILED,
 } = require("../core/consts.js");
 
 const File = class extends Controller {
@@ -78,7 +83,7 @@ const File = class extends Controller {
 		if (!data) return this.ERR(-1);
 
 		data = data.get({plain:true});
-		const url = storage.getDownloadUrl(data.key, 3600 * 24 * 365 * 100);
+		const url = this.storage.getDownloadUrl(data.key, 3600 * 24 * 365 * 100);
 
 		return this.ERR(0, url);
 	}
@@ -153,6 +158,7 @@ const File = class extends Controller {
 	}
 
 	async index() {
+		const {like, gt, lte, ne, in: opIn} = this.app.Sequelize.Op;
 		const {userId} = this.authenticated();
 		const params = this.validate();
 

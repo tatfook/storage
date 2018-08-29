@@ -45,33 +45,33 @@ const SiteFile = class extends Controller {
 		return this.ERR(0, url);
 	}
 
-	async rawurl() {
-		const {id} = this.validate({id:'int'});
-
+	async getRawUrl(id) {
 		let data = await this.model.siteFiles.findOne({where: {id:id}});
-		if (!data) return this.ERR(-1);
+		if (!data) return;
 
 		data = data.get({plain:true});
 
 		let file = await this.model.files.findOne({where:{id:data.fileId}});
-		if (!file) return this.ERR(-1);
+		if (!file) return;
 		file = file.get({plain:true});
 
 		const url = this.storage.getDownloadUrl(file.key);
+
+		return url;
+	}
+
+	async rawurl() {
+		const {id} = this.validate({id:'int'});
+
+		const url = await this.getRawUrl(id);
 
 		return this.ERR(0, url);
 	}
 
 	async raw() {
-		const result = await this.rawurl();
-
-		if (!result.data) {
-			return this.throw(404);
-		}
-
-		const url = result.data;
-
-		console.log(url);
+		const {id} = this.validate({id:'int'});
+		const url = await this.getRawUrl(id);
+		if (!url) this.throw(404);
 
 		this.ctx.redirect(url);
 	}
@@ -79,6 +79,8 @@ const SiteFile = class extends Controller {
 	async index() {
 		const params = this.validate();
 		const {userId} = this.authenticated();
+		const config = this.app.config.self;
+		const baseURL = config.origin + config.baseUrl + "siteFiles/";
 		params.userId = userId;
 
 		const result = await this.model.siteFiles.findAndCount({where: params});
