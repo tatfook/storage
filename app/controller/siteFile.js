@@ -18,6 +18,9 @@ const SiteFile = class extends Controller {
 	}
 
 	async url() {
+		const config = this.app.config.self;
+		const baseURL = config.origin + config.baseUrl + "siteFiles/";
+
 		const params = this.validate({
 			fileId:"int",
 			siteId:"int",

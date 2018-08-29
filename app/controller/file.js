@@ -177,6 +177,8 @@ const File = class extends Controller {
 	}
 
 	async list() {
+		const config = this.app.config.self;
+		const baseURL = config.origin + config.baseUrl + "siteFiles/";
 		const {like, gt, lte, ne, in: opIn} = this.app.Sequelize.Op;
 		const {userId} = this.authenticated();
 		const params = this.validate();
@@ -201,7 +203,7 @@ const File = class extends Controller {
 			if (siteId) {
 				let siteFile = await this.model.siteFiles.findOne({where: {fileId: item.id, siteId}});
 				if (siteFile) {
-					item.url = "/api/v0/siteFiles/" + siteFile.id + "/raw";
+					item.url = baseURL + siteFile.id + "/raw";
 				}
 			}
 			list.push(item);
