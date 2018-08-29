@@ -35,7 +35,7 @@ module.exports = app => {
 		const options = {
 			scope: scope,
 			expires: 3600 * 24, // 一天
-			callbackUrl: config.origin + config.baseURL + "files/qiniu",
+			callbackUrl: config.origin + config.baseUrl + "files/qiniu",
 			callbackBody: '{"key":"$(key)","hash":"$(etag)","size":$(fsize),"bucket":"$(bucket)","mimeType":"$(mimeType)","filename":"$(x:filename)","siteId":$(x:siteId)}',
 			callbackBodyType: 'application/json',
 			//returnBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)"}',
@@ -237,7 +237,7 @@ module.exports = app => {
 			data: {uri:videoUrl}, 
 			params: {
 				async: async,
-				hookURL: baseURL + "files/audit",
+				hookURL: config.origin + config.baseUrl + "files/audit",
 			},
 			ops:[{op:"pulp"}, {op:"terror"}, {op:"politician"}]
 		};
