@@ -4,10 +4,6 @@ const _ = require("lodash");
 
 const Controller = require("../core/controller.js");
 
-function ERR(code, data) {
-	return {code, data};
-}
-
 const SiteFile = class extends Controller {
 	get modelName() {
 		return "siteFiles";
@@ -18,7 +14,7 @@ const SiteFile = class extends Controller {
 	}
 
 	ERR(code, data) {
-		return ERR(code, data);
+		return this.success({code, data});
 	}
 
 	async url() {
@@ -46,24 +42,24 @@ const SiteFile = class extends Controller {
 
 		const url = baseURL + data.id + "/raw";
 
-		return ERR(0, url);
+		return this.ERR(0, url);
 	}
 
 	async rawurl() {
 		const {id} = this.validate({id:'int'});
 
 		let data = await this.model.siteFiles.findOne({where: {id:id}});
-		if (!data) return ERR(-1);
+		if (!data) return this.ERR(-1);
 
 		data = data.get({plain:true});
 
 		let file = await this.model.files.findOne({where:{id:data.fileId}});
-		if (!file) return ERR(-1);
+		if (!file) return this.ERR(-1);
 		file = file.get({plain:true});
 
 		const url = this.storage.getDownloadUrl(file.key);
 
-		return ERR(0, url);
+		return this.ERR(0, url);
 	}
 
 	async raw() {
@@ -93,7 +89,7 @@ const SiteFile = class extends Controller {
 			rows.push(item);
 		});
 
-		return ERR(0, {count:result.count, rows:rows});
+		return this.ERR(0, {count:result.count, rows:rows});
 	}
 }
 

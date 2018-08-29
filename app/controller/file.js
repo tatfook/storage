@@ -9,10 +9,6 @@ const {
 	ENTITY_TYPE_PAGE,
 } = require("../core/consts.js");
 
-function ERR(code, data) {
-	return {code, data};
-}
-
 const File = class extends Controller {
 	get modelName() {
 		return "files";
@@ -23,7 +19,7 @@ const File = class extends Controller {
 	}
 
 	ERR(code, data) {
-		return ERR(code, data);
+		return this.success({code, data});
 	}
 
 	getTypeByMimeType(mimeType) {
@@ -93,14 +89,14 @@ const File = class extends Controller {
 		const key = decodeURIComponent(params.id);
 
 		if (await this.model.storages.isFull(userId)) {
-			return ERR.ERR().setMessage("存贮空间不足");
+			return this.ERR(-1);
 		}
 
 		const token =  this.storage.getUploadToken(key);
 
-		await this.model.upsert({userId, key});
+		await this.model.files.upsert({userId, key});
 
-		return ERR(0, {token});
+		return this.ERR(0, {token});
 	}
 
 	async statistics() {
@@ -108,7 +104,7 @@ const File = class extends Controller {
 
 		const data = await this.model.storages.getStatistics(userId);
 
-		return ERR(0, data);
+		return this.ERR(0, data);
 	}
 
 	async create() {
@@ -118,7 +114,7 @@ const File = class extends Controller {
 
 		const data = await this.model.files.upsert(params);
 
-		return ERR(0, data);
+		return this.ERR(0, data);
 	}
 
 	async destroy() {
@@ -127,19 +123,19 @@ const File = class extends Controller {
 		const where = {id, userId};
 
 		let data = await this.model.files.findOne({where});
-		if (!data) return ERR(-1);
+		if (!data) return this.ERR(-1);
 
 		data = data.get({plain:true});
 		const key = data.key;
 
 		// 删除七牛文件 
 		data = await this.storage.delete(key);
-		//if (!data) return ERR(-1);
+		//if (!data) return this.ERR(-1);
 
 		data = await this.model.files.destroy({where});
 		//await storage.updateStatistics(userId);
 
-		return ERR(0, data);
+		return this.ERR(0, data);
 	}
 
 	async show() {
@@ -153,7 +149,7 @@ const File = class extends Controller {
 			}
 		})
 
-		return ERR(0, data);
+		return this.ERR(0, data);
 	}
 
 	async index() {
@@ -171,10 +167,11 @@ const File = class extends Controller {
 			offset: params.offset,
 		});
 
-		return ERR(0, data);
+		return this.ERR(0, data);
 	}
 
 	async list() {
+		const {like, gt, lte, ne, in: opIn} = this.app.Sequelize.Op;
 		const {userId} = this.authenticated();
 		const params = this.validate();
 		const siteId = params.siteId && parseInt(params.siteId);
@@ -204,7 +201,7 @@ const File = class extends Controller {
 			list.push(item);
 		}
 
-		return ERR(0, list);
+		return this.ERR(0, list);
 	}
 
 	async qiniu() {
@@ -218,7 +215,7 @@ const File = class extends Controller {
 			//checked = await storage.imageAudit(key);
 		//}
 
-		console.log(params);
+		//console.log(params);
 
 		let data = await this.model.files.upsert({
 			type: type,
@@ -232,13 +229,13 @@ const File = class extends Controller {
 		// 添加记录失败 应删除文件
 		//if (type == "videos") {
 			//data = await this.model.findOne({where: {key:key}});
-			//if (!data) return ERR.ERR();
+			//if (!data) return this.ERR.this.ERR();
 			//data = data.get({plain:true});
 			//storage.videoAudit(util.aesEncode({id:data.id}), key);
 		//}
 
 		console.log("-----------qiniu callback finish-------------");
-		return ERR(0, data);
+		return this.ERR(0, data);
 	}
 
 	async audit() {
@@ -294,7 +291,7 @@ const File = class extends Controller {
 
 	async videoAudit() {
 		const params = this.validate();
-		console.log(params);
+		//console.log(params);
 		const result = await this.storage.videoAudit(params.id || 0, params.key, false);
 		const pulpLabels = result.pulp.labels;
 		const terrorLabels = result.terror.labels;
@@ -309,7 +306,7 @@ const File = class extends Controller {
 			auditResult = QINIU_AUDIT_STATE_PASS;
 		}
 
-		return ERR(0, auditResult);
+		return this.ERR(0, auditResult);
 	}
 
 	async imageAudit() {
@@ -317,7 +314,7 @@ const File = class extends Controller {
 
 		const result = await this.storage.imageAudit(params.key);
 
-		return ERR(0, result);
+		return this.ERR(0, result);
 	}
 }
 

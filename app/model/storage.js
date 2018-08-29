@@ -45,7 +45,7 @@ module.exports = app => {
 
 	model.updateStatistics = async function(userId) {
 		const sql = "SELECT SUM(size) AS `used`, COUNT(*) as `fileCount` from `files` where `userId` = :userId and size > 0";
-		let result = await sequelize.query(sql,  {
+		let result = await app.model.query(sql,  {
 			type: app.model.QueryTypes.SELECT, 
 			replacements: {
 				userId: userId,
