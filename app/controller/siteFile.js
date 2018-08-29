@@ -20,10 +20,10 @@ const SiteFile = class extends Controller {
 	async url() {
 		const params = this.validate({
 			fileId:"int",
-			userId:"int",
 			siteId:"int",
 		});
 		const {userId} = this.authenticated();
+		params.userId = userId;
 
 		if (userId != params.userId) {
 			// 验证访问权限
