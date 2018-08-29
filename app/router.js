@@ -76,6 +76,7 @@ module.exports = app => {
 	router.get(`${prefix}files/:id/token`, file.token);
 	router.get(`${prefix}files/statistics`, file.statistics);
 	router.get(`${prefix}files/list`, file.list);
+	router.post(`${prefix}files/list`, file.list);
 	router.post(`${prefix}files/qiniu`, file.qiniu);
 	router.get(`${prefix}files/imageAudit`, file.imageAudit);
 	router.get(`${prefix}files/videoAudit`, file.videoAudit);
