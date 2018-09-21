@@ -8,6 +8,7 @@ const {
 	ENTITY_TYPE_USER,
 	ENTITY_TYPE_SITE,
 	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_GROUP,
 
 	USER_ACCESS_LEVEL_NONE,
 	USER_ACCESS_LEVEL_READ,
@@ -115,7 +116,7 @@ const Convert = class extends Controller {
 	async convertGroupMember(data) {
 		const usersModel = this.ctx.model.users;
 		const groupsModel = this.ctx.model.groups;
-		const groupMembersModel = this.ctx.model.groupMembers;
+		const membersModel = this.ctx.model.members;
 
 		let user = await usersModel.findOne({where:{username: data.username}});
 		let member = await usersModel.findOne({where:{username: data.memberName}});
@@ -128,7 +129,8 @@ const Convert = class extends Controller {
 		let groupMember = {
 			id: data._id,
 			userId: user.id,
-			memberId: member.id,
+			objectId: member.id,
+			objectType: ENTITY_TYPE_GROUP,
 			groupId: group.id,
 		};
 

@@ -1,3 +1,11 @@
+
+const {
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_GROUP,
+} = require("../core/consts.js");
+
 module.exports = app => {
 	const {
 		BIGINT,
@@ -56,27 +64,14 @@ module.exports = app => {
 		if (!group) return;
 
 		await app.model.groups.destroy({where:{id}});
-		await app.model.groupMembers.destroy({where:{groupId:id}});
+		await app.model.members.destroy({where:{objectId: id, objectType: ENTITY_TYPE_GROUP}});
 		await app.model.siteGroups.destroy({where:{groupId:id}});
 
 		return;
 	}
 
 	model.getGroupMembers = async function(userId, groupId) {
-		const sql = `select u.id as userId, u.username, u.nickname, u.portrait 
-			from groupMembers as gm, users as u
-		   	where gm.memberId = u.id 
-			and gm.groupId = :groupId and gm.userId = :userId`;
-
-		const list = await app.model.query(sql, {
-			type: app.model.QueryTypes.SELECT,
-			replacements:{
-				groupId,
-				userId,
-			}
-		});
-
-		return list;
+		return await app.model.members.getObjectMembers(groupId, ENTITY_TYPE_GROUP)
 	}
 
 	app.model.groups = model;

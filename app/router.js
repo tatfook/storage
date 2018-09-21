@@ -9,8 +9,7 @@ module.exports = app => {
 	router.resources(`${prefix}indexs`, index);
 
 	const user = controller.user;
-	//router.get(`${prefix}users/follows`, user.follows);
-	//router.get(`${prefix}users/detail`, user.detail);
+	router.get(`${prefix}users/:id/detail`, user.detail);
 	router.post(`${prefix}users/register`, user.register);
 	router.post(`${prefix}users/login`, user.login);
 	router.post(`${prefix}users/logout`, user.logout);
@@ -39,9 +38,6 @@ module.exports = app => {
 	router.get(`${prefix}groups/:id/members`, group.getMembers);
 	router.resources(`${prefix}groups`, group);
 
-	const groupMember = controller.groupMember;
-	router.resources(`${prefix}group_members`, groupMember);
-
 	const siteGroup = controller.siteGroup;
 	router.resources(`${prefix}site_groups`, siteGroup);
 
@@ -49,13 +45,7 @@ module.exports = app => {
 	router.get(`${prefix}domains/exist`, domain.exist);
 	router.resources(`${prefix}domains`, domain);
 
-	//const file = controller.file;
-	//router.post(`${prefix}files/upsert`, file.upsert);
-	//router.get(`${prefix}files/:id/token`, file.token);
-	//router.resources(`${prefix}files`, file);
-
 	const favorite = controller.favorite;
-	router.get(`${prefix}favorites`, favorite.index);
 	router.delete(`${prefix}favorites`, favorite.destroy);
 	router.get(`${prefix}favorites/follows`, favorite.follows);
 	router.get(`${prefix}favorites/exist`, favorite.exist);
@@ -89,6 +79,24 @@ module.exports = app => {
 	router.get(`${prefix}siteFiles/:id/raw`, siteFile.raw);
 	router.resources(`${prefix}siteFiles`, siteFile);
 
+	const tag = controller.tag;
+	router.resources(`${prefix}tags`, tag);
+
+	const project = controller.project;
+	router.get(`${prefix}projects/:id/visit`, project.visit);
+	router.post(`${prefix}projects/:id/star`, project.star);
+	router.post(`${prefix}projects/:id/unstar`, project.unstar);
+	router.resources(`${prefix}projects`, project);
+
+	const issue = controller.issue;
+	router.resources(`${prefix}issues`, issue);
+
+	const member = controller.member;
+	router.resources(`${prefix}members`, member);
+
+	const apply = controller.apply;
+	router.resources(`${prefix}applys`, apply);
+
 	const convert = controller.convert;
 	router.get(`${prefix}converts`, convert.convert);
 	router.get(`${prefix}converts/users`, convert.users);
@@ -99,4 +107,8 @@ module.exports = app => {
 
 	const admin = controller.admin;
 	router.resources(`${prefix}admins/:resources`, admin);
+
+	const trade = controller.trade;
+	router.post(`${prefix}trades/pingpp`, trade.pingpp);
+	router.resources(`${prefix}trades`, trade);
 }

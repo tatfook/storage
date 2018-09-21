@@ -12,6 +12,11 @@ module.exports = app => {
 	} = app.Sequelize;
 
 	const {
+		ENTITY_TYPE_USER,
+		ENTITY_TYPE_SITE,
+		ENTITY_TYPE_PAGE,
+		ENTITY_TYPE_GROUP,
+
 		ENTITY_VISIBILITY_PUBLIC,
 		ENTITY_VISIBILITY_PRIVATE,
 
@@ -130,12 +135,13 @@ module.exports = app => {
 		let level = site.visibility == ENTITY_VISIBILITY_PRIVATE ? USER_ACCESS_LEVEL_NONE : USER_ACCESS_LEVEL_READ;
 
 		let sql = `select level 
-			from siteMembers
-			where siteId = :siteId and memberId = :memberId`;
+			from members
+			where objectId = :objectId and :objectType = :objectType and memberId = :memberId`;
 		let list = await app.model.query(sql, {
 			type: app.model.QueryTypes.SELECT,
 			replacements: {
-				siteId,
+				objectId:siteId,
+				objectType: ENTITY_TYPE_SITE,
 				memberId,
 			}
 		});
@@ -143,13 +149,14 @@ module.exports = app => {
 		_.each(list, val => level = level < val.level ? val.level : level);
 
 		sql = `select siteGroups.level 
-			from sites, siteGroups, groupMembers 
-			where sites.id = siteGroups.siteId and siteGroups.groupId = groupMembers.groupId 
-			and sites.id = :siteId and groupMembers.memberId = :memberId`;
+			from siteGroups, members 
+			where siteGroups.groupId = members.objectId  and members.objectType = :objectType 
+			and siteGroups.siteId = :siteId and members.memberId = :memberId`;
 
 		list = await app.model.query(sql, {
 			type: app.model.QueryTypes.SELECT,
 			replacements: {
+				objectType: ENTITY_TYPE_GROUP,
 				siteId: siteId,
 				memberId: memberId,
 			}
@@ -164,13 +171,14 @@ module.exports = app => {
 		level = level || USER_ACCESS_LEVEL_WRITE;
 
 		const sql = `select sites.*, users.username
-			from sites, siteGroups, groupMembers, users 
-			where sites.id = siteGroups.siteId and siteGroups.groupId = groupMembers.groupId and sites.userId = users.id
-			and groupMembers.memberId = :memberId and siteGroups.level >= :level`;
+			from sites, siteGroups, members, users 
+			where sites.id = siteGroups.siteId and siteGroups.groupId = members.objectId and members.objectType = :objectType and sites.userId = users.id
+			and members.memberId = :memberId and siteGroups.level >= :level`;
 
 		const list = await app.model.query(sql, {
 			type: app.model.QueryTypes.SELECT,
 			replacements: {
+				objectType: ENTITY_TYPE_GROUP,
 				memberId: userId,
 				level: level,
 			}
@@ -195,6 +203,10 @@ module.exports = app => {
 		});
 
 		return list;
+	}
+
+	model.getCountByUserId = async function(userId) {
+		return await app.model.sites.count({where:{userId}});
 	}
 
 	app.model.sites = model;

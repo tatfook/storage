@@ -32,7 +32,6 @@ module.exports = app => {
 		let scope = bucketName;
 		if (key) scope += ":" + key;
 		
-		console.log(config.origin + config.baseUrl);
 		const options = {
 			scope: scope,
 			expires: 3600 * 24, // 一天
@@ -156,7 +155,7 @@ module.exports = app => {
 	}
 
 	storage.get = async function(key) {
-		const url = this.getDownloadUrl(key).getData();
+		const url = this.getDownloadUrl(key);
 
 		const content = await axios.get(url).then(res => res.data);
 		

@@ -1,6 +1,13 @@
 const joi = require("joi");
 const _ = require("lodash");
 
+const {
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_GROUP,
+} = require("../core/consts.js");
+
 const Controller = require("../core/controller.js");
 
 
@@ -31,11 +38,11 @@ const Group = class extends Controller {
 		if (!user) this.throw(400, "成员不存在");
 		const memberId = user.id;
 
-		const data = await this.model.groupMembers.create({
+		const data = await this.model.members.create({
 			userId,
-			groupId: params.id,
+			objectId: params.id,
+			objectType: ENTITY_TYPE_GROUP,
 			memberId,
-			description: params.description,
 		});
 
 		return this.success(data);
@@ -53,9 +60,10 @@ const Group = class extends Controller {
 		if (!user) this.throw(400, "成员不存在");
 		const memberId = user.id;
 
-		const data = await this.model.groupMembers.destroy({where:{
+		const data = await this.model.members.destroy({where:{
 			userId,
-			groupId: params.id,
+			objectId: params.id,
+			objectType: ENTITY_TYPE_GROUP,
 			memberId,
 		}});
 

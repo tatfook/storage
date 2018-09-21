@@ -259,16 +259,12 @@ const User = class extends Controller {
 	}
 
 	async detail() {
-		const {ctx, model, app} = this;
-	}
-
-	// 粉丝
-	async follows() {
-		const {ctx, model, app} = this;
-		const userId = this.authenticated().userId;
-		const list = await model.favorites.getFollows(userId);
-
-		return list;
+		const {id} = this.validate({id:'int'});
+		const user = await this.model.users.getById(id);
+		if (!user) this.throw(400);
+		
+		user.siteCount = await this.model.sites.getCountByUserId(id);
+		
 	}
 }
 

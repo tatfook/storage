@@ -3,11 +3,11 @@ const { app, mock, assert  } = require('egg-mock/bootstrap');
 
 describe("/groups", () => {
 	before(async () => {
-		await app.model.users.truncate();
-		await app.model.sites.truncate();
-		await app.model.groups.truncate();
-		await app.model.groupMembers.truncate();
-		await app.model.siteGroups.truncate();
+		await app.model.users.sync({force:true});
+		await app.model.sites.sync({force:true});
+		await app.model.groups.sync({force:true});
+		await app.model.members.sync({force:true});
+		await app.model.siteGroups.sync({force:true});
 
 		let data = await app.httpRequest().post("/users/register").send({
 			username:"xiaoyao",
