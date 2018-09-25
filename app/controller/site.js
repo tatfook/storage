@@ -20,7 +20,7 @@ const Site = class extends Controller {
 	}
 
 	async index() {
-		const userId = this.authenticated().userId;
+		const {userId, username} = this.authenticated();
 		const params = this.validate({
 			owned: "boolean_optional", 
 			membership: "boolean_optional",
@@ -28,7 +28,12 @@ const Site = class extends Controller {
 
 		let list = [];
 		params.owned = params.owned == undefined ? true : false;
-		if (params.owned) list = list.concat(await this.model.sites.get(userId));
+		if (params.owned) {
+			const sites = await this.model.sites.get(userId);
+			_.each(sites, site => site.username = username);
+			list = list.concat(sites);
+		}
+
 		if (params.membership) list = list.concat(await this.model.sites.getJoinSites(userId, USER_ACCESS_LEVEL_WRITE));
 
 		return this.success(list);

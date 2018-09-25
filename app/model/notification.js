@@ -60,7 +60,7 @@ module.exports = app => {
 	model.addNotification = async function(userId, description) {
 		if (!userId) return;
 
-		const data = await this.model.create({
+		const data = await app.model.notifications.create({
 			userId,
 			description,
 			state: NOTIFICATION_STATE_UNREAD,
@@ -80,6 +80,14 @@ module.exports = app => {
 		return data;
 	}
 	
+	model.favoriteNotification = async function(userId, objectId, objectType, oper = "favorite") {
+		if (objectType == ENTITY_TYPE_USER) await this.favoriteUser(userId, objectId, oper);
+		else if (objectType == ENTITY_TYPE_SITE) await this.favoriteSite(userId, objectId, oper);
+		else if (objectType == ENTITY_TYPE_PAGE) await this.favoritePage(userId, pageId, oper);
+
+		return;
+	}
+
 	model.favoriteUser = async function(userId, followingId, oper="favorite") {
 		const usersModel = app.model["users"];
 
