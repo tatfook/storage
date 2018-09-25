@@ -56,7 +56,7 @@ module.exports = {
 	// 申请状态
 	APPLY_STATE_DEFAULT:0,   // 待处理状态
 	APPLY_STATE_AGREE:1,     // 同意
-	APLLY_STATE_REFUSE:2,    // 拒绝
+	APPLY_STATE_REFUSE:2,    // 拒绝
 
 	// 申请类型
 	APPLY_TYPE_MEMBER:0,     // 成员申请

@@ -13,7 +13,6 @@ const Project = class extends Controller {
 		const params = this.validate();
 
 		params.userId = userId;
-		delete params.userId;
 		delete params.star;
 		delete params.visit;
 		delete params.hotNo;
@@ -57,7 +56,7 @@ const Project = class extends Controller {
 	async star() {
 		const {id} = this.validate({id:'int'});
 
-		const project = await this.model.projects.getbyid(id);
+		const project = await this.model.projects.getById(id);
 		
 		if (!project) return this.throw(404);
 
@@ -71,7 +70,7 @@ const Project = class extends Controller {
 	async unstar() {
 		const {id} = this.validate({id:'int'});
 
-		const project = await this.model.projects.getbyid(id);
+		const project = await this.model.projects.getById(id);
 		
 		if (!project) return this.throw(404);
 

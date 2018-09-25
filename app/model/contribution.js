@@ -1,4 +1,3 @@
-
 const _ = require("lodash");
 
 module.exports = app => {
@@ -21,8 +20,12 @@ module.exports = app => {
 		
 		userId: {                    // 评论者
 			type: BIGINT,
-			unique: true,
 			allowNull: false,
+		},
+
+		year: {
+			type: INTEGER,
+			defaultValue:0,
 		},
 
 		data: {
@@ -33,6 +36,13 @@ module.exports = app => {
 		underscored: false,
 		charset: "utf8mb4",
 		collate: 'utf8mb4_bin',
+
+		indexes: [
+		{
+			unique: true,
+			fields: ["userId", "year"],
+		},
+		],
 	});
 
 	//model.sync({force:true}).then(() => {
@@ -41,26 +51,38 @@ module.exports = app => {
 	
 	model.addContributions = async function(userId, count = 1) {
 		const date = new Date();
+		const year = date.getFullYear();
 		const key = date.getFullYear() + '-' + _.padStart(date.getMonth() + 1, 2, "0") + '-' + _.padStart(date.getDate(), 2, "0");
 
-		const data = await this.getByUserId(userId);
+		let data = await app.model.contributions.findOne({where:{userId, year}});
+		if (data) data = data.get({plain:true});
+		else data = {userId, year, data:{}};
 
-		data[key] = (data[key] || 0) + count;
+		data.data[key] = (data.data[key] || 0) + count;
 
-		await app.model.contributions.upsert({
-			userId,
-			data,
-		});
+		await app.model.contributions.upsert(data);
+
+		return;
 	}
 
 	model.getByUserId = async function(userId) {
-		let data = await app.model.contributions.findOne({where:{userId}});
-		if (data) data = data.get({plain:true}); else data  = {}; 
+		const date = new Date();
+		const year = date.getFullYear();
+		const datas = await app.model.contributions.findALl({where:{
+			userId,
+			year: {
+				[app.Sequelize.Op.in]: [year, year-1],
+			},
+		}});
+		
+		const data = {};
+		_.each(datas, o => _.merge(data, o.data));
 
-		return data.data || {};
+		return data;
 	}
 
 	app.model.contributions = model;
+
 	return model;
 };
 

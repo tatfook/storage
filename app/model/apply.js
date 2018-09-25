@@ -86,33 +86,33 @@ module.exports = app => {
 
 		if (userId) where.userId = userId;
 
-		const data = await app.model.sites.findOne({where: where});
+		const data = await app.model.applies.findOne({where: where});
 
 		return data && data.get({plain:true});
 	}
 
 	model.getObject = async function(objectId, objectType, userId) {
 		const modelName = {
-			ENTITY_TYPE_USER: "users",
-			ENTITY_TYPE_SITE: "sites",
-			ENTITY_TYPE_PAGE: "pages",
-			ENTITY_TYPE_GROUP: "groups",
-			ENTITY_TYPE_PROJECT: "projects",
+			[ENTITY_TYPE_USER]: "users",
+			[ENTITY_TYPE_SITE]: "sites",
+			[ENTITY_TYPE_PAGE]: "pages",
+			[ENTITY_TYPE_GROUP]: "groups",
+			[ENTITY_TYPE_PROJECT]: "projects",
 		};
 
+		//console.log(objectType, modelName[objectType], modelName);
 		const data = await app.model[modelName[objectType]].getById(objectId, userId);
 		
 		return data;
 	}
 
-	model.getObjectApplies = async function(objectId, objectType) {
+	model.getObjectApplies = async function(objectId, objectType, applyType) {
 		const list = await app.model.applies.findAll({where: {
-			objectId, objectType, state: APPLY_STATE_DEFAULT,
+			objectId, objectType, state: APPLY_STATE_DEFAULT, applyType,
 		}});
 		if (list.length == 0) return [];
 
 		const ids = [];
-		const applyType = list[0].applyType;
 		for (let i = 0; i < list.length; i++) {
 			const item = list[i].get ? list[i].get({plain:true}) : list[i];
 			ids.push(item.applyId);
@@ -129,10 +129,11 @@ module.exports = app => {
 				}
 			});
 
+			_.each(users, (val, i) => users[i] = val.get({plain:true}));
 			for (let i = 0; i < list.length; i++) {
 				const item = list[i].get ? list[i].get({plain:true}) : list[i];
-				item.object = users[_.findIndex(users, o => o.id == item.applyId)];
-				list[i] = item;
+				const index = _.findIndex(users, o => o.userId == item.applyId);
+				item.object = users[index];
 			}
 		}
 
@@ -141,10 +142,10 @@ module.exports = app => {
 
 	model.agree = async function(id, userId) {
 		let data = await app.model.applies.getById(id);
-		if (!data) return -1;
+		if (!data) {console.log("申请对象不存在"); return -1;};
 
 		let object = await app.model.applies.getObject(data.objectId, data.objectType, userId);
-		if (!object) return -1;
+		if (!object) {console.log("所属对象不存在"); return -1;};
 		
 		await app.model.applies.update({
 			state:APPLY_STATE_AGREE,
@@ -164,10 +165,10 @@ module.exports = app => {
 
 	model.refuse = async function(id, userId) {
 		let data = await app.model.applies.getById(id);
-		if (!data) return -1;
+		if (!data) {console.log("申请对象不存在"); return -1;};
 
 		let object = await app.model.applies.getObject(data.objectId, data.objectType, userId);
-		if (!object) return -1;
+		if (!object) {console.log("所属对象不存在"); return -1;};
 	
 		await app.model.applies.update({
 			state:APPLY_STATE_REFUSE,

@@ -258,6 +258,14 @@ const User = class extends Controller {
 		return this.success(result && result[0] == 1);
 	}
 
+	async profile() {
+		const {userId} = this.authenticated();
+
+		const user = await this.model.users.getById(userId);
+		
+		return this.success(user);
+	}
+
 	async detail() {
 		const {id} = this.validate({id:'int'});
 		const user = await this.model.users.getById(id);

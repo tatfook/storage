@@ -13,6 +13,7 @@ module.exports = app => {
 	router.post(`${prefix}users/register`, user.register);
 	router.post(`${prefix}users/login`, user.login);
 	router.post(`${prefix}users/logout`, user.logout);
+	router.get(`${prefix}users/profile`, user.profile);
 	router.put(`${prefix}users/pwd`, user.changepwd);
 	router.get(`${prefix}users/email_captcha`, user.emailVerifyOne);
 	router.post(`${prefix}users/email_captcha`, user.emailVerifyTwo);
@@ -95,7 +96,7 @@ module.exports = app => {
 	router.resources(`${prefix}members`, member);
 
 	const apply = controller.apply;
-	router.resources(`${prefix}applys`, apply);
+	router.resources(`${prefix}applies`, apply);
 
 	const convert = controller.convert;
 	router.get(`${prefix}converts`, convert.convert);
