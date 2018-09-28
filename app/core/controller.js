@@ -90,13 +90,29 @@ class BaseController extends Controller {
 		return this.ctx.throw(...args);
 	}
 
+	async search() {
+		const {userId} = this.authenticated();
+		const model = this.model[this.modelName];
+		const query = this.validate();
+
+		this.formatQuery(query);
+
+		const result = await model.findAndCount({...this.queryOptions, where:query});
+
+		this.success(result);
+	}
+
 	async index() {
 		const userId = this.authenticated().userId;
 		const model = this.model[this.modelName];
+		const params = this.validate();
+		params.userId = userId;
 
-		const list = await model.findAll({where:{userId}});
+		this.formatQuery(params);
 
-		return this.success(list);
+		const list = await model.findAll({...this.queryOptions, where:params});
+
+		return list;
 	}
 
 	async show() {

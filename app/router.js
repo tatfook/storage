@@ -84,6 +84,7 @@ module.exports = app => {
 	router.resources(`${prefix}tags`, tag);
 
 	const project = controller.project;
+	router.post(`${prefix}projects/search`, project.search);
 	router.get(`${prefix}projects/:id/visit`, project.visit);
 	router.post(`${prefix}projects/:id/star`, project.star);
 	router.post(`${prefix}projects/:id/unstar`, project.unstar);
@@ -112,4 +113,7 @@ module.exports = app => {
 	const trade = controller.trade;
 	router.post(`${prefix}trades/pingpp`, trade.pingpp);
 	router.resources(`${prefix}trades`, trade);
+
+	const world = controller.world;
+	router.resources(`${prefix}worlds`, world);
 }

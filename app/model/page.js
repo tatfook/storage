@@ -57,6 +57,15 @@ module.exports = app => {
 			type: STRING(512),
 		},
 
+		visitors: {    // 访客 id 列表  |1|2|3|
+			type: TEXT,
+			//defaultValue: "|",
+		},
+
+		visitorCount: {  // 访问量
+			type: INTEGER,
+			defaultValue: 0,
+		},
 	}, {
 		underscored: false,
 		charset: "utf8mb4",
@@ -83,6 +92,26 @@ module.exports = app => {
 		return data && data.get({plain:true});
 	}
 
+	model.visitor = async function(pageId, userId) {
+		const page = await this.getById(pageId);
+		if (!page) return;
+
+		page.visitorCount++;
+		console.log(userId);
+		if (userId) {
+			let visitors = page.visitors || "|";
+			visitors = visitors.replace("|" + userId + "|", "|");
+			visitors = "|" + userId + visitors;
+			page.visitors = visitors;
+		}
+
+		await app.model.pages.update(page, {
+			fields:["visitorCount", "visitors"],
+			where: {id:pageId},
+		});
+
+		return;
+	}
 	app.model.pages = model;
 	return model;
 };

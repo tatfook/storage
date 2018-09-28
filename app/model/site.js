@@ -130,13 +130,13 @@ module.exports = app => {
 
 		if (!memberId) return site.visibility == ENTITY_VISIBILITY_PRIVATE ? USER_ACCESS_LEVEL_NONE : USER_ACCESS_LEVEL_READ;
 
-		if (siteId.userId == memberId) return USER_ACCESS_LEVEL_WRITE;
+		if (site.userId == memberId) return USER_ACCESS_LEVEL_WRITE;
 
 		let level = site.visibility == ENTITY_VISIBILITY_PRIVATE ? USER_ACCESS_LEVEL_NONE : USER_ACCESS_LEVEL_READ;
 
 		let sql = `select level 
 			from members
-			where objectId = :objectId and :objectType = :objectType and memberId = :memberId`;
+			where objectId = :objectId and objectType = :objectType and memberId = :memberId`;
 		let list = await app.model.query(sql, {
 			type: app.model.QueryTypes.SELECT,
 			replacements: {

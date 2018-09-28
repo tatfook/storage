@@ -106,10 +106,9 @@ module.exports = app => {
 		return data;
 	}
 
-	model.getObjectApplies = async function(objectId, objectType, applyType) {
-		const list = await app.model.applies.findAll({where: {
-			objectId, objectType, state: APPLY_STATE_DEFAULT, applyType,
-		}});
+	model.getObjectApplies = async function(option) {
+		const applyType =  option.where.applyType;
+		const list = await app.model.applies.findAll(option);
 		if (list.length == 0) return [];
 
 		const ids = [];

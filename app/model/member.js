@@ -64,7 +64,7 @@ module.exports = app => {
 	//});
 	
 	model.getObjectMembers = async function(objectId, objectType) {
-		const sql = `select users.id as userId, users.username, users.nickname, users.portrait 
+		const sql = `select users.id as userId, users.username, users.nickname, users.portrait, members.createdAt createdAt  
 			from members, users 
 			where members.memberId = users.id and
 			members.objectId = :objectId and members.objectType = :objectType`;

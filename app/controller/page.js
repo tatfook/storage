@@ -156,23 +156,18 @@ const Page = class extends Controller {
 	}
 
 	async visit() {
-		const {ctx, model, config, util} = this;
-		const user = this.getUser();
-		const ip = ctx.ip + (user.userId || "");
+		const {userId, username} = this.getUser();
+		console.log(this.getUser());
 		const {url} = this.validate({"url":"string"});
 
-		let cache = this.cache.get(url) || {visitors:{}};
-		let page = await model.pages.getByUrl(url);
-		if (!page) ctx.throw(404);
+		let page = await this.model.pages.getByUrl(url);
+		if (!page) this.throw(404);
+		if (page.visibility && page.userId != userId) return this.throw(411);
 		
-		const isReadable = await this.isReadable(user.userId, page.url, user.username);
-		if (!isReadable) ctx.throw(401);
+		const isReadable = await this.isReadable(userId, page.url, username);
+		if (!isReadable) this.throw(401);
 
-		if (!cache.visitors[ip]) {
-			cache.visitors[ip] = true;
-			this.cache.put(url, cache, 1000 * 60 * 30);
-			await model.visitors.addVisitor(user.userId, page.id);
-		}
+		await this.model.pages.visitor(page.id, userId);
 
 		return this.success({page});
 	}

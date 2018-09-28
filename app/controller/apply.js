@@ -21,13 +21,13 @@ const Apply = class extends Controller {
 	}
 
 	async index() {
-		const params = this.validate({
+		const query = this.validate({
 			objectType: joi.number().valid(ENTITY_TYPE_PROJECT),
 			objectId: "int",
 			applyType:"int",
 		});
 
-		const list = await this.model.applies.getObjectApplies(params.objectId, params.objectType, params.applyType);
+		const list = await this.model.applies.getObjectApplies({where:query});
 
 		return this.success(list);
 	}

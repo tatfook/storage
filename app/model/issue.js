@@ -41,6 +41,21 @@ module.exports = app => {
 			defaultValue:"",
 		},
 
+		state: {
+			type: INTEGER,
+			defaultValue:0,
+		},
+
+		tags: {
+			type: STRING(256),
+			defaultValue: "|",
+		},
+
+		assigns: {
+			type: STRING(256),
+			defaultValue: "|",
+		},
+
 		extra: {
 			type: JSON,
 			defaultValue: {},
@@ -65,32 +80,40 @@ module.exports = app => {
 		return data && data.get({plain:true});
 	}
 
-	model.getObjectIssues = async function(objectId, objectType) {
-		const result = await app.model.issues.findAndCount({where:{objectId, objectType}});
+	model.getObjectStatistics = async function(objectId, objectType) {
+		const sql = `select state, count(*) count from issues where objectId = :objectId and objectType = :objectType group by state`;
+		const list = await app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
+			replacements: {
+				objectId,
+				objectType,
+			}
+		});
+
+		return list;
+	}
+
+	model.getObjectIssues = async function(query, options = {}) {
+		const result = await app.model.issues.findAndCount({...options, where: query});
 		const issues = result.rows;
 		const total = result.count;
 
 		const userIds = [];
-		const issueIds = [];
 
 		_.each(issues, (val, index) => {
 			val = val.get ? val.get({plain:true}) : val;
 			issues[index] = val;
 
 			if (_.indexOf(userIds, val.userId) < 0) userIds.push(val.userId);
-			if (_.indexOf(issueIds, val.id) < 0) issueIds.push(val.id); 
-		});
 
-		const assigns = await app.model.members.findAll({where:{
-			objectId:{
-				[app.Sequelize.Op.in]: issueIds,
-			},
-			objectType:ENTITY_TYPE_ISSUE,
-		}});
-
-		_.each(assigns, o => {
-			o = o.get ? o.get({plain:true}) : o;
-			if (_.indexOf(userIds, o.memberId) < 0) userIds.push(o.memberId);
+			const ids = val.assigns.split("|");
+			val.assigns = [];
+			_.each(ids, id => {
+				id = id ? _.toNumber(id) : NaN;
+				if (_.isNaN(id)) return;
+				val.assigns.push(id);
+				if (_.indexOf(userIds, id) < 0) userIds.push(id);
+			});
 		});
 
 		const attributes = [["id", "userId"], "username", "nickname", "portrait", "description"];
@@ -99,52 +122,40 @@ module.exports = app => {
 			where: {id:{[app.Sequelize.Op.in]:userIds}},
 		});
 
-		const tags = await app.model.tags.findAll({
-			where: {
-				objectId: {
-					[app.Sequelize.Op.in]: issueIds,
-				},
-				objectType: ENTITY_TYPE_ISSUE,
-			}
+		const usermap = {};
+		_.each(users, user => {
+			user = user.get ? user.get({plain:true}) : user;
+			usermap[user.userId] = user;
 		});
 
-		const getUser = (userId) => {
-			const index = _.findIndex(users, o => {
-				o = o.get ? o.get({plain:true}) : o;
-				return o.userId == userId;
-			});
-			return users[index] || {}
-		};
-
-		const getAssigns = (id) => {
-			const list = [];
-			_.each(assigns, o => {
-				o = o.get ? o.get({plain:true}) : o;
-				if (o.objectId == id) {
-					const user = getUser(o.memberId);
-					user && list.push(user);
-				}
-			});
-
-			return list;
-		}
-
-		const getTags = (id) => {
-			const tagnames = [];
-			_.each(tags, tag => {
-				tag = tag.get ? tag.get({plain:true}) : tag;
-				tag.objectId == id && tagnames.push(tag.tagname);
-			});
-			return tagnames;
-		}
-
 		_.each(issues, val => {
-			val.tags = getTags(val.id);
-			val.assigns = getAssigns(val.id);
-			val.user = getUser(val.userId);
+			val.user = usermap[val.userId];
+			const assigns = val.assigns;
+			val.assigns = [];
+			_.each(assigns, id => val.assigns.push(usermap[id]));
 		});
 
 		return issues;
+	}
+
+	model.getIssueAssigns = async function(assigns) {
+		const ids = assigns.split("|");
+		const userIds = [];
+		val.assigns = [];
+		_.each(ids, id => {
+			id = id ? _.toNumber(id) : NaN;
+			if (_.isNaN(id)) return;
+			if (_.indexOf(userIds, id) < 0) userIds.push(id);
+		});
+		
+		const attributes = [["id", "userId"], "username", "nickname", "portrait", "description"];
+		const users = await app.model.users.findAll({
+			attributes,
+			where: {id:{[app.Sequelize.Op.in]:userIds}},
+		});
+
+		_.each(users, (val, index) => users[index] = val.get ? val.get({plain:true}) : val);
+		return users;
 	}
 
 	app.model.issues = model;

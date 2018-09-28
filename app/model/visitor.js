@@ -1,10 +1,5 @@
 
 const _ = require("lodash");
-const {
-	ENTITY_TYPE_USER,
-	ENTITY_TYPE_SITE,
-	ENTITY_TYPE_PAGE,
-} = require("../core/consts.js");
 
 module.exports = app => {
 	const {
@@ -23,29 +18,31 @@ module.exports = app => {
 			primaryKey: true,
 		},
 		
-		userId: {                    // 访问者
-			type: BIGINT,
-		},
-
-		objectType: {                // 访问对象类型  0 -- 用户  1 -- 站点  2 -- 页面
-			type: INTEGER,
+		url: {                      // url
+			type:STRING,
 			allowNull: false,
 		},
 
-		objectId: {                  // 访问对象id
-			type: BIGINT,
+		date: {                     // 统计日期
+			type: STRING(24),
 			allowNull: false,
+			defaultValue:"",
 		},
 
-		count: {                    // 访问次数
+		count: {
 			type: INTEGER,
 			defaultValue:0,
+		},
+
+		visitors: {                 // 访客的用户id列表  使用字符串而不用数组原因是字符串可模糊查找  数组则不可查询
+			type: TEXT,
 		},
 
 		extra: {
 			type: JSON,
 			defaultValue: {},
 		},
+
 	}, {
 		underscored: false,
 		charset: "utf8mb4",
@@ -53,7 +50,7 @@ module.exports = app => {
 		indexes: [
 		{
 			unique: true,
-			fields: ["objectId", "objectType"],
+			fields: ["url", "date"],
 		},
 		],
 	});
@@ -62,36 +59,17 @@ module.exports = app => {
 		//console.log("create table successfully");
 	//});
 	
-	model.addVisitor = async function(userId, objectId, objectType = ENTITY_TYPE_PAGE) {
-		const user = userId && await app.model.users.getById(userId);
+	model.addVisitor = async function(url, userId) {
+		const {year, month, day} = app.util.getDate();
+		const date = year + month + day;
+		let visitor = await app.model.visitors.findOne({where:{url, date}});
+		visitor = visitor ? visitor.get({plain:true}) : {url, count:0, visitors:"|", extra:{}, date};
 
-		let visitor = await app.model.visitors.findOne({where:{objectType,objectId}});
-		if (visitor) visitor = visitor.get({plain:true});
-		else visitor = {count:0, extra:{visitors:[]}};
-		const visitors = visitor.extra.visitors;
-		let count = visitor.count;
+		visitor.count++;
+		if (userId) visitor.visitors = "|" + userId + visitor.visitors.replace("|" + userId + "|", "|");
 
-		if (user) {
-			visitors.splice(_.findIndex(visitors, o => o.userId == userId), 1);
-			visitors.splice(0, 0, {
-				username: user.username,
-				nickname: user.nickname,
-				portrait: user.portrait,
-			}),
-			visitors.length > 500 && visitors.pop();
-		}
-
-		count++;
-
-		await app.model.visitors.upsert({
-			userId,
-			count,
-			extra:{visitors},
-			objectType,
-			objectId
-		});
-		
-		return;
+		await app.model.visitors.upsert(visitor);
+		return visitor;
 	} 
 
 	app.model.visitors = model;

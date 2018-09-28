@@ -60,8 +60,8 @@ const Site = class extends Controller {
 		if (!data) return ctx.throw(500);
 		data = data.get({plain:true});
 
-		this.app.api.createGitProject({username:username, sitename:params.sitename, visibility:data.visibility == 0 ? "public" : "private", site_id: data.id});
-		
+		const ok = await this.app.api.createGitProject({username:username, sitename:params.sitename, visibility:data.visibility == 0 ? "public" : "private", site_id: data.id});
+		if (!ok) this.throw(500, "创建git仓库失败");
 		//this.addNotification(userId, data.id, "create");
 
 		return this.success(data);
