@@ -145,6 +145,7 @@ class BaseController extends Controller {
 		const id = params.id;
 
 		const data = await model.findOne({where:{id, userId}});
+		if (!data) return this.throw(404);
 
 		return this.success(data);
 	}

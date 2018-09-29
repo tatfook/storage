@@ -37,6 +37,11 @@ module.exports = app => {
 			allowNull: false,
 		},
 
+		extra: {
+			type:JSON,
+			defaultValue: {},
+		},
+
 	}, {
 		underscored: false,
 		charset: "utf8mb4",
@@ -136,6 +141,10 @@ module.exports = app => {
 
 	model.unfavorite = async function(userId, objectId, objectType) {
 		return await app.model.favorites.destroy({where:{userId, objectId, objectType}});
+	}
+
+	model.objectCount = async function(objectId, objectType) {
+		return await app.model.favorites.count({where:{objectId, objectType}});
 	}
 
 	model.getStatistics = async function(userId) {

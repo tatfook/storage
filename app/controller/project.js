@@ -115,6 +115,17 @@ const Project = class extends Controller {
 
 		return this.success(project);
 	}
+
+	async detail() {
+		const {id} = this.validate({id:'int'});
+
+		const project = await this.model.projects.getById(id);
+		if (!project) return this.throw(404);
+		
+		project.favoriteCount = await this.model.favorites.objectCount(project.id, ENTITY_TYPE_PROJECT);
+
+		return this.success(project);
+	}
 }
 
 module.exports = Project;
