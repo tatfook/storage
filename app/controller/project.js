@@ -8,6 +8,29 @@ const Project = class extends Controller {
 		return "projects";
 	}
 
+	async search() {
+		const model = this.model[this.modelName];
+		const query = this.validate();
+
+		this.formatQuery(query);
+
+		const result = await model.findAndCount({...this.queryOptions, where:query});
+		const rows = result.rows;
+		const userIds = [];
+
+		_.each(rows, (o, i) => {
+			userIds.push(o.userId);
+			rows[i] = o.get ? o.get({plain:true}) : o;
+		});
+
+		console.log(userIds);
+		const users = await this.model.users.getUsers(userIds);
+		console.log(users);
+		_.each(rows, o => o.user = users[o.userId]);
+
+		return this.success(result);
+	}
+
 	async create() {
 		const userId = this.authenticated().userId;
 		const params = this.validate();

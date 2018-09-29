@@ -115,7 +115,6 @@ class BaseController extends Controller {
 	}
 
 	async search() {
-		const {userId} = this.authenticated();
 		const model = this.model[this.modelName];
 		const query = this.validate();
 
@@ -136,7 +135,7 @@ class BaseController extends Controller {
 
 		const list = await model.findAll({...this.queryOptions, where:params});
 
-		return list;
+		return this.success(list);
 	}
 
 	async show() {

@@ -1,4 +1,6 @@
 
+const _ = require("lodash");
+
 module.exports = app => {
 	const {
 		BIGINT,
@@ -87,6 +89,26 @@ module.exports = app => {
 		});
 
 		return data && data.get({plain:true});
+	}
+
+	model.getUsers = async function(userIds = []) {
+		const attributes = [["id", "userId"], "username", "nickname", "portrait", "description"];
+		const list = await app.model.users.findAll({
+			attributes,
+			where: {
+				id: {
+					[app.Sequelize.Op.in]: userIds,
+				}
+			}
+		});
+
+		const users = {};
+		_.each(list, o => {
+			o = o.get ? o.get({plain:true}) : o;
+			users[o.userId] = o;
+		});
+
+		return users;
 	}
 
 	app.model.users = model;
