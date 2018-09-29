@@ -1,6 +1,12 @@
 const joi = require("joi");
 const _ = require("lodash");
 
+const {
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_PROJECT,
+} = require("../core/consts.js");
 const Controller = require("../core/controller.js");
 
 const Project = class extends Controller {
@@ -17,16 +23,22 @@ const Project = class extends Controller {
 		const result = await model.findAndCount({...this.queryOptions, where:query});
 		const rows = result.rows;
 		const userIds = [];
+		const projectIds = [];
 
 		_.each(rows, (o, i) => {
+			o = o.get ? o.get({plain:true}) : o;
 			userIds.push(o.userId);
-			rows[i] = o.get ? o.get({plain:true}) : o;
+			projectIds.push(o.id);
+			rows[i] = o;
 		});
 
-		console.log(userIds);
 		const users = await this.model.users.getUsers(userIds);
-		console.log(users);
-		_.each(rows, o => o.user = users[o.userId]);
+		const commentCounts = await this.model.comments.getObjectsCount(projectIds, ENTITY_TYPE_PROJECT);
+
+		_.each(rows, o => {
+			o.user = users[o.userId];
+			o.commentCount = commentCounts[o.id] || 0;
+		});
 
 		return this.success(result);
 	}

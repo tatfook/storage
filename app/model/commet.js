@@ -1,3 +1,4 @@
+const _ = require("lodash");
 
 module.exports = app => {
 	const {
@@ -68,6 +69,19 @@ module.exports = app => {
 		
 		return data && data.get({plain:true});
 	} 
+
+	model.getObjectsCount = async function(objectIds, objectType) {
+		const sql = `select objectId, count(*) count from comments where objectType = :objectType and objectId in (:objectIds) group by objectId`;
+		const list = await app.model.query(sql, {
+			type: app.Sequelize.QueryTypes.Sequelize,
+			replacements: {objectIds, objectType},
+		});
+
+		const counts = {};
+		_.each(list, o => counts[o.objectId] = o.count);
+		
+		return counts;
+	}
 
 	app.model.comments = model;
 	return model;
