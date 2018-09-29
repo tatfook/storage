@@ -189,6 +189,20 @@ const Site = class extends Controller {
 
 		return this.success(level);
 	}
+
+	async getByName() {
+		let {username, sitename} = this.validate({username:"string", sitename:'string'});
+		username = decodeURIComponent(username);
+		sitename = decodeURIComponent(sitename);
+		const user = await this.model.users.getByName(username);
+		if (!user) return this.throw(404);
+
+		let site = await this.model.sites.findOne({where:{userId:user.id, sitename}});
+		if (!site) return this.throw(404);
+		site = site.get({plain: true});
+
+		return this.success({user, site});
+	}
 }
 
 module.exports = Site;

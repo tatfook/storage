@@ -42,6 +42,10 @@ module.exports = app => {
 			allowNull: false,
 		},
 
+		displayName: {
+			type: STRING(64),
+		},
+
 		visibility: {
 			type: INTEGER, // public private
 			defaultValue: 0,

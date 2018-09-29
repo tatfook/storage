@@ -22,6 +22,7 @@ module.exports = app => {
 	router.resources(`${prefix}users`, user);
 
 	const site = controller.site;
+	router.get(`${prefix}sites/getByName`, site.getByName);
 	router.get(`${prefix}sites/:id/privilege`, site.privilege);
 	router.post(`${prefix}sites/:id/groups`, site.postGroups);
 	router.put(`${prefix}sites/:id/groups`, site.putGroups);
