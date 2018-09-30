@@ -1,4 +1,11 @@
 
+const {
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_PROJECT,
+} = require("../core/consts.js");
+
 module.exports = app => {
 	const {
 		BIGINT,
@@ -110,6 +117,22 @@ module.exports = app => {
 		const data = await app.model.projects.findOne({where: where});
 
 		return data && data.get({plain:true});
+	}
+
+	model.getJoinProjects = async function(userId) {
+		const sql = `select projects.* from projects, members where 
+			members.memberId = :memberId and projects.id = members.objectId 
+			and objectType = :objectType`;
+
+		const list = app.model.query(sql, {
+			type: app.model.QueryTypes.SELECT,
+			replacements: {
+				memberId: userId,
+			   	objectType,
+			}
+		});
+
+		return list;
 	}
 
 	app.model.projects = model;

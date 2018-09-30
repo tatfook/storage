@@ -76,6 +76,14 @@ const Project = class extends Controller {
 		return this.success(data);
 	}
 
+	async join() {
+		const {userId} = this.authenticated();
+
+		const list = await this.model.projects.getJoinProjects(userId);
+
+		return this.success(list);
+	}
+
 	async visit() {
 		const {id} = this.validate({id:'int'});
 
