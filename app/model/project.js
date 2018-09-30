@@ -4,6 +4,12 @@ const {
 	ENTITY_TYPE_SITE,
 	ENTITY_TYPE_PAGE,
 	ENTITY_TYPE_PROJECT,
+
+	PROJECT_PRIVILEGE_RECRUIT_ENABLE,
+	PROJECT_PRIVILEGE_RECRUIT_DISABLE,
+
+	PROJECT_TYPE_PARACRAFT,
+	PROJECT_TYPE_SITE
 } = require("../core/consts.js");
 
 module.exports = app => {
@@ -134,6 +140,23 @@ module.exports = app => {
 
 		return list;
 	}
+
+	//model.statistics = async function() {
+		//const paracraftCount = await app.model.projects.count({where:{type:PROJECT_TYPE_PARACRAFT}});
+		//const siteCount = await app.model.projects.count({where:{type:PROJECT_TYPE_SITE}});
+		//const projectCount = paracraftCount + siteCount;
+
+		//const sql = `select count(*) count from projects where privilege & :recuritValue`;
+		//const list = await app.model.query(sql, {
+			//replacements: {
+				//recuritValue: PROJECT_PRIVILEGE_RECRUIT_ENABLE,
+			//}
+		//});
+		//const recuritCount = list[0] ? list[0].count : 0;
+		//const userCount = await app.model.users.count({});
+
+		//return {paracraftCount, siteCount, recuritCount, userCount, projectCount}
+	//}
 
 	app.model.projects = model;
 	return model;

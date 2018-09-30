@@ -88,6 +88,8 @@ module.exports = {
 	PROJECT_PRIVILEGE_ISSUE_EDIT_ALL: 128,     // 白板编辑 所有人
 	PROJECT_PRIVILEGE_ISSUE_EDIT_MEMBER: 256,     // 白板编辑 成员
 
+	PROJECT_TYPE_PARACRAFT: 0, // paracraft 项目
+	PROJECT_TYPE_SITE: 1,      // 网站项目
 }
 
 

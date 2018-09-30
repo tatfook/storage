@@ -8,6 +8,9 @@ module.exports = app => {
 	const index = controller.index;
 	router.resources(`${prefix}indexs`, index);
 
+	const keepwork = controller.keepwork;
+	router.get(`${prefix}keepworks/statistics`, keepwork.statistics);
+
 	const user = controller.user;
 	router.get(`${prefix}users/:id/detail`, user.detail);
 	router.post(`${prefix}users/register`, user.register);
