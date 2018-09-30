@@ -56,6 +56,11 @@ module.exports = app => {
 			defaultValue: 0,
 		},
 
+		stars: {                     // 点赞用户id 列表
+			type: JSON,
+			defaultValue:[],
+		},
+
 		hotNo: {
 			type: INTEGER,           // 热门编号
 			defaultValue: 0,

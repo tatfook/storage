@@ -88,6 +88,7 @@ module.exports = app => {
 	router.post(`${prefix}projects/search`, project.search);
 	router.get(`${prefix}projects/:id/detail`, project.detail);
 	router.get(`${prefix}projects/:id/visit`, project.visit);
+	router.get(`${prefix}projects/:id/star`, project.isStar);
 	router.post(`${prefix}projects/:id/star`, project.star);
 	router.post(`${prefix}projects/:id/unstar`, project.unstar);
 	router.resources(`${prefix}projects`, project);

@@ -6,7 +6,11 @@ const {
 	ENTITY_TYPE_USER,
 	ENTITY_TYPE_SITE,
 	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_GROUP, 
+	ENTITY_TYPE_PROJECT,
 } = require("../core/consts.js");
+
+const ENTITYS = [ENTITY_TYPE_USER, ENTITY_TYPE_SITE, ENTITY_TYPE_PAGE, ENTITY_TYPE_GROUP, ENTITY_TYPE_PROJECT];
 
 const Favorite = class extends Controller {
 	get modelName() {
@@ -16,7 +20,7 @@ const Favorite = class extends Controller {
 	async index() {
 		const {model, ctx} = this;
 		const {userId, objectType} = this.validate({
-			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE).required(),
+			objectType: joi.number().valid(ENTITYS).required(),
 			userId: joi.number().required(),
 		});
 
@@ -37,7 +41,7 @@ const Favorite = class extends Controller {
 		const userId = this.authenticated().userId;
 		const params = this.validate({
 			objectId: "int", 
-			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE).required(),
+			objectType: joi.number().valid(ENTITYS).required(),
 		});
 
 		const data = await model.favorites.favorite(userId, params.objectId, params.objectType);
@@ -50,7 +54,7 @@ const Favorite = class extends Controller {
 		const userId = this.authenticated().userId;
 		const params = this.validate({
 			objectId: "int", 
-			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE).required(),
+			objectType: joi.number().valid(ENTITYS).required(),
 		});
 
 		const data = await model.favorites.unfavorite(userId, params.objectId, params.objectType);
@@ -62,7 +66,7 @@ const Favorite = class extends Controller {
 		const userId = this.authenticated().userId;
 		const params = this.validate({
 			objectId: "int", 
-			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE).required(),
+			objectType: joi.number().valid(ENTITYS).required(),
 		});
 		const data = await model.favorites.findOne({where:{
 			userId,
@@ -79,7 +83,7 @@ const Favorite = class extends Controller {
 		const {model, ctx} = this;
 		const {objectId, objectType} = this.validate({
 			objectId: "int", 
-			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE,ENTITY_TYPE_PAGE).required(),
+			objectType: joi.number().valid(ENTITYS).required(),
 		});
 	
 		const list = await model.favorites.getFollows(objectId, objectType);

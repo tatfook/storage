@@ -49,6 +49,7 @@ const Project = class extends Controller {
 
 		params.userId = userId;
 		delete params.star;
+		delete params.stars;
 		delete params.visit;
 		delete params.hotNo;
 		delete params.choicenessNo;
@@ -65,6 +66,7 @@ const Project = class extends Controller {
 
 		delete params.userId;
 		delete params.star;
+		delete params.stars;
 		delete params.visit;
 		delete params.hotNo;
 		delete params.choicenessNo;
@@ -88,30 +90,52 @@ const Project = class extends Controller {
 		return this.success(project);
 	}
 
-	async star() {
+	async isStar() {
+		const {userId} = this.authenticated();
 		const {id} = this.validate({id:'int'});
 
 		const project = await this.model.projects.getById(id);
-		
 		if (!project) return this.throw(404);
 
+		const index = _.findIndex(project.stars, id => id == userId);
+
+		return this.success(index < 0 ? false : true);
+	}
+
+	async star() {
+		const {userId} = this.authenticated();
+		const {id} = this.validate({id:'int'});
+
+		const project = await this.model.projects.getById(id);
+		if (!project) return this.throw(404);
+
+		project.stars = project.stars || [];
+		const index = _.findIndex(project.stars, id => id == userId);
+		if (index < 0) return this.success(project);
+
+		project.stars.push(userId);
 		project.star++;
 
-		await this.model.projects.update({star:project.star}, {where:{id}});
+		await this.model.projects.update(project, {fields:["star", "stars"], where:{id}});
 
 		return this.success(project);
 	}
 
 	async unstar() {
+		const {userId} = this.authenticated();
 		const {id} = this.validate({id:'int'});
 
 		const project = await this.model.projects.getById(id);
-		
 		if (!project) return this.throw(404);
 
+		project.stars = project.stars || [];
+		const index = _.findIndex(project.stars, id => id == userId);
+		if (index < 0) return this.success(project);
+
+		project.stars.splice(index, 1);
 		project.star--;
 
-		await this.model.projects.update({star:project.star}, {where:{id}});
+		await this.model.projects.update(project, {fields:["star", "stars"], where:{id}});
 
 		return this.success(project);
 	}
