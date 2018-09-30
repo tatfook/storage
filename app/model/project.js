@@ -128,7 +128,7 @@ module.exports = app => {
 			type: app.model.QueryTypes.SELECT,
 			replacements: {
 				memberId: userId,
-			   	objectType,
+			   	objectType: ENTITY_TYPE_PROJECT,
 			}
 		});
 

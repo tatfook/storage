@@ -119,7 +119,7 @@ const Project = class extends Controller {
 
 		project.stars = project.stars || [];
 		const index = _.findIndex(project.stars, id => id == userId);
-		if (index < 0) return this.success(project);
+		if (index >= 0) return this.success(project);
 
 		project.stars.push(userId);
 		project.star++;
