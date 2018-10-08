@@ -59,6 +59,11 @@ module.exports = app => {
 			defaultValue: 1,
 		},
 
+		tags: {                      // 项目tags
+			type:STRING(255),
+			defaultValue:"|",
+		},
+
 		visit: {                     // 访问量
 			type: INTEGER,
 			defaultValue:0,
@@ -81,11 +86,6 @@ module.exports = app => {
 
 		choicenessNo: {              // 精选编号
 			type: INTEGER,
-			defaultValue: 0,
-		},
-
-		hotNo: {
-			type: INTEGER,           // 热门编号
 			defaultValue: 0,
 		},
 
