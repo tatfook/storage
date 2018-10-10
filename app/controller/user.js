@@ -226,10 +226,9 @@ const User = class extends Controller {
 		const captcha = params.captcha;
 		const cache = await app.model.caches.get(cellphone);
 		//console.log(cache, cellphone, captcha, userId);
-		if (!cache || cache.captcha != captcha) {
-			console.log(captcha, params, userId);
+		if (!captcha || !cache || cache.captcha != captcha) {
 			if (!cache) ctx.throw(400, "验证码过期");
-			if (cache.captcha != captcha) return ctx.throw(400, "验证码错误" + cache.captcha + "-" + captcha);
+			if (!captcha || cache.captcha != captcha) return ctx.throw(400, "验证码错误" + cache.captcha + "-" + captcha);
 		}
 		
 		if (!params.isBind) cellphone = "";
@@ -278,9 +277,9 @@ const User = class extends Controller {
 		
 		const cache = await app.model.caches.get(email);
 		//console.log(cache, email, captcha, userId);
-		if (!cache || cache.captcha != captcha) {
+		if (!captcha || !cache || cache.captcha != captcha) {
 			if (!cache) ctx.throw(400, "验证码过期");
-			if (cache.captcha != captcha) return ctx.throw(400, "验证码错误");
+			if (!captcha || cache.captcha != captcha) return ctx.throw(400, "验证码错误");
 		}
 		
 		if (!params.isBind) email = null;
