@@ -103,7 +103,7 @@ const User = class extends Controller {
 		const cellphone = params.cellphone;
 		if (cellphone) {
 			const cache = this.app.cache.get(cellphone) || {};
-			if (cache.captcha != params.captcha) return this.throw(400, "验证码错码");
+			if (!params.captcha || !cache.captcha || cache.captcha != params.captcha) return this.throw(400, "验证码错码");
 			const isBindCellphone = await model.users.findOne({where:{cellphone}});
 			if (isBindCellphone) delete params.cellphone;
 		}
