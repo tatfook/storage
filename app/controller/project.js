@@ -91,7 +91,8 @@ const Project = class extends Controller {
 		
 		if (!project) return this.throw(404);
 
-		project.visit++;
+		//project.visit++;
+		await this.model.projects.statistics(id, 1, 0, 0);
 
 		await this.model.projects.update({visit:project.visit}, {where:{id}});
 
@@ -122,9 +123,10 @@ const Project = class extends Controller {
 		if (index >= 0) return this.success(project);
 
 		project.stars.push(userId);
-		project.star++;
-
+		//project.star++;
 		await this.model.projects.update(project, {fields:["star", "stars"], where:{id}});
+
+		await this.model.projects.statistics(id, 0, 1, 0);
 
 		return this.success(project);
 	}
@@ -139,11 +141,11 @@ const Project = class extends Controller {
 		project.stars = project.stars || [];
 		const index = _.findIndex(project.stars, id => id == userId);
 		if (index < 0) return this.success(project);
-
 		project.stars.splice(index, 1);
-		project.star--;
-
 		await this.model.projects.update(project, {fields:["star", "stars"], where:{id}});
+
+		//project.star--;
+		await this.model.projects.statistics(id, 0, -1, 0);
 
 		return this.success(project);
 	}

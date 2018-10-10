@@ -75,13 +75,10 @@ const User = class extends Controller {
 		return this.success(user);
 	}
 
-	checkCellphone(cellphone, captcha) {
-		if (!cellphone || !captcha) return;
+	checkCellphoneCaptcha(cellphone, captcha) {
+		if (cache.captcha == captcha) return true;
 
-		const cache = this.app.cache.get(cellphone) || {};
-		if (cache.captcha == captcha) return cellphone;
-
-		return ;
+		return false;
 	}
 
 	async register() {
@@ -90,6 +87,8 @@ const User = class extends Controller {
 		const config = this.app.config.self;
 		const usernameReg = /^[\w\d]+$/;
 		const params = this.validate({
+			//"cellphone":"string",
+			//"captcha":"string",
 			"username":"string",
 			"password":"string",
 		});
@@ -99,14 +98,16 @@ const User = class extends Controller {
 		let user = await model.users.getByName(params.username);
 		if (user) return ctx.throw(400, "用户已存在");
 
-		let cellphone = this.checkCellphone(params.cellphone, params.cellphoneCaptcha);
-		if (cellphone) {  // 已绑定则忽略手机号
-			user = await model.users.findOne({where:{cellphone}});
-			cellphone = user ? undefined : cellphone;
+		const cellphone = params.cellphone;
+		if (cellphone) {
+			const cache = this.app.cache.get(cellphone) || {};
+			if (cache.captcha != params.captcha) return this.throw(400, "验证码错码");
+			const isBindCellphone = await model.users.findOne({where:{cellphone}});
+			if (isBindCellphone) delete params.cellphone;
 		}
 
 		user = await model.users.create({
-			cellphone,
+			cellphone: params.cellphone,
 			username: params.username,
 			password: util.md5(params.password),
 		});
@@ -181,6 +182,7 @@ const User = class extends Controller {
 		const captcha = _.times(4, () =>  _.random(0,9,false)).join("");
 
 		const ok = await app.sendSms(cellphone, [captcha, "3分钟"]);
+		if (!ok) return this.throw(500, "请求此时过多");
 		//console.log(captcha);
 		
 		app.cache.put(cellphone, {captcha}, 1000 * 60 * 3); // 10分钟有效期

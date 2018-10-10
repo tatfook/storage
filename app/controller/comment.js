@@ -26,6 +26,15 @@ const Comment = class extends Controller {
 
 		return this.success(data);
 	}
+
+	async destroy() {
+		const {userId} = this.authenticated();
+		const {id} = this.validate({id:'int'});
+
+		await this.model.comments.deleteComment(id, userId);
+
+		return this.success("OK");
+	}
 }
 
 module.exports = Comment;

@@ -74,6 +74,25 @@ module.exports = app => {
 			defaultValue: 0,
 		},
 
+		comment: {                   // 评论数量
+			type: INTEGER,
+			defaultValue: 0,
+		},
+
+		lastVisit: {                     // 最近访问量
+			type: INTEGER,
+			defaultValue:0,
+		},
+
+		lastStar: {                      // 最近点赞数量
+			type: INTEGER,
+			defaultValue: 0,
+		},
+
+		lastComment: {                   // 最近评论数量
+			type: INTEGER,
+			defaultValue: 0,
+		},
 		stars: {                     // 点赞用户id 列表
 			type: JSON,
 			defaultValue:[],
@@ -94,7 +113,12 @@ module.exports = app => {
 			defaultValue:"",
 		},
 
-		extra: {
+		extend: {                      // 后端使用
+			type: JSON,
+			defaultValue:{},
+		},
+
+		extra: {                     // 前端使用
 			type: JSON,
 			defaultValue: {},
 		},
@@ -139,6 +163,49 @@ module.exports = app => {
 		});
 
 		return list;
+	}
+
+	model.statistics = async function(id, visit, star, comment) {
+		const project = await this.getById(id);
+		if (!project) return;
+		
+		const data = project.extend || {};
+		const statistics = data.statistics || {};
+		const {year, month, day} = app.util.getDate();
+		const curTime = (new Date(year, month, day)).getTime();
+		const dayTime = 1000 * 3600 * 24;
+		const newStatistics = {};
+		for (let i = 0; i < 3; i++) newStatistics[curTime - i * dayTime] = statistics[curTime - i * dayTime] || {visit:0, star:0, comment:0};
+		newStatistics[curTime].visit += visit;
+		newStatistics[curTime].star += star;
+		newStatistics[curTime].comment += comment;
+		project.visit += visit;
+		project.star += star;
+		project.comment += comment;
+		project.lastVisit = 0;
+		project.lastStar = 0;
+		project.lastComment = 0;
+
+		for (let i = 0; i < 3; i++) {
+			project.lastVisit += newStatistics[curTime - i * dayTime].visit;
+			project.lastStar += newStatistics[curTime - i * dayTime].star;
+			project.lastComment += newStatistics[curTime - i * dayTime].comment;
+		}
+		
+		data.statistics = newStatistics;
+		project.extend = data;
+
+		await app.model.projects.update(project, {where:{id}});
+		
+		return;
+	}
+
+	model.commentCreateHook = async function(id) {
+		await this.statistics(id, 0, 0, 1);
+	}
+
+	model.commentDestroyHook = async function(id) {
+		await this.statistics(id, 0, 0, -1);
 	}
 
 	//model.statistics = async function() {

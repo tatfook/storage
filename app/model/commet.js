@@ -1,4 +1,10 @@
 const _ = require("lodash");
+const {
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_PROJECT,
+} = require("../core/consts.js");
 
 module.exports = app => {
 	const {
@@ -66,9 +72,29 @@ module.exports = app => {
 				portrait: user.portrait,
 			},
 		});
+		if (!data) return ;
+
+		if (data.objectType == ENTITY_TYPE_PROJECT && app.model.projects.commentCreateHook) {
+			await app.model.projects.commentCreateHook(comment.objectId);	
+		}
 		
-		return data && data.get({plain:true});
+		return data.get({plain:true});
 	} 
+
+	model.deleteComment = async function(id, userId) {
+		const where = {id};
+		
+		if (userId) where.userId = userId;
+
+		const data = await app.model.comments.findOne({where});
+		if (!data) return;
+
+		await app.model.comments.destroy({where});
+
+		if (data.objectType == ENTITY_TYPE_PROJECT && app.model.projects.commentDestroyHook) {
+			await app.model.projects.commentDestroyHook(data.objectId);	
+		}
+	}
 
 	model.getObjectsCount = async function(objectIds, objectType) {
 		const sql = `select objectId, count(*) count from comments where objectType = :objectType and objectId in (:objectIds) group by objectId`;
