@@ -114,7 +114,10 @@ const User = class extends Controller {
 		const cellphone = params.cellphone;
 		if (cellphone) {
 			const cache = this.app.cache.get(cellphone) || {};
-			if (!params.captcha || !cache.captcha || cache.captcha != params.captcha) return this.throw(400, "验证码错码");
+			if (!params.captcha || !cache.captcha || cache.captcha != params.captcha){
+				if (!cache.captcha) return this.throw(400, "验证码过期");
+				if (cache.captcha != params.captcha) return this.throw(400, "验证码失效");
+			} 
 			const isBindCellphone = await model.users.findOne({where:{cellphone}});
 			if (isBindCellphone) delete params.cellphone;
 		}
@@ -220,7 +223,8 @@ const User = class extends Controller {
 		//console.log(cache, cellphone, captcha, userId);
 		if (!cache || cache.captcha != captcha) {
 			console.log(captcha, params, userId);
-			ctx.throw(400, "验证码过期");
+			if (!cache) ctx.throw(400, "验证码过期");
+			if (cache.captcha != captcha) return ctx.throw(400, "验证码错误" + cache.captcha + "-" + captcha);
 		}
 		
 		if (!params.isBind) cellphone = "";
@@ -263,7 +267,8 @@ const User = class extends Controller {
 		const cache = app.cache.get(email);
 		//console.log(cache, email, captcha, userId);
 		if (!cache || cache.captcha != captcha) {
-			ctx.throw(400, "验证码过期");
+			if (!cache) ctx.throw(400, "验证码过期");
+			if (cache.captcha != captcha) return ctx.throw(400, "验证码错误" + cache.captcha + "-" + captcha);
 		}
 		
 		if (!params.isBind) email = "";
