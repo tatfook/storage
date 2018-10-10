@@ -50,7 +50,7 @@ module.exports = app => {
 
 		const curtime = (new Date()).getTime();
 
-		if (curtime > data.expire) return ;
+		if (data.expire && curtime > data.expire) return ;
 
 		return data.value;
 	}

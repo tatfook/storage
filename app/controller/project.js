@@ -49,7 +49,7 @@ const Project = class extends Controller {
 
 		const list = await this.model.projects.getJoinProjects(userId);
 
-		this.setProjectUser(list);
+		await this.setProjectUser(list);
 
 		return this.success(list);
 	}
@@ -64,7 +64,7 @@ const Project = class extends Controller {
 
 		const list = await model.findAll({...this.queryOptions, where:params});
 
-		this.setProjectUser(list);
+		await this.setProjectUser(list);
 
 		return this.success(list);
 	}

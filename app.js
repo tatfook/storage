@@ -48,4 +48,5 @@ module.exports = app => {
 	//app.model.trades.sync({force:true});
 	//app.model.visitors.sync({force:true});
 	//app.model.applies.sync({force:true});
+	//app.model.caches.sync({force:true});
 }
