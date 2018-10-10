@@ -6,7 +6,15 @@ const {
 	ENTITY_TYPE_USER,
 	ENTITY_TYPE_SITE,
 	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_PROJECT,
 } = require("../core/consts.js");
+
+const ENTITYS = [
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_PROJECT,
+];
 
 const Comment = class extends Controller {
 	get modelName() {
@@ -16,7 +24,7 @@ const Comment = class extends Controller {
 	async create() {
 		const userId = this.authenticated().userId;
 		const {objectType, objectId, content} = this.validate({
-			objectType: joi.number().valid(ENTITY_TYPE_USER, ENTITY_TYPE_SITE, ENTITY_TYPE_PAGE),
+			objectType: joi.number().valid(ENTITYS),
 			objectId: "int",
 			content: "string",
 		});

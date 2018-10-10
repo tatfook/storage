@@ -15,6 +15,8 @@ const User = class extends Controller {
 		const userId = _.toNumber(id);
 		const user = userId ?  await model.users.getById(userId) :	await model.users.getByName(id);
 
+		if (!user) return this.throw(404);
+
 		return this.success(user);
 	}
 
