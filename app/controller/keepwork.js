@@ -37,6 +37,14 @@ class Keepwork extends Controller {
 
 		return this.success(data);
 	}
+
+	async test() {
+		const cache = this.app.cache.get("test");
+
+		if (!cache) this.app.cache.put("test", "hello world", 1000 * 60 * 10);
+
+		return this.success(cache);
+	}
 }
 
 module.exports = Keepwork;
