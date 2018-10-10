@@ -195,7 +195,7 @@ const User = class extends Controller {
 		const captcha = _.times(4, () =>  _.random(0,9,false)).join("");
 
 		const ok = await app.sendSms(cellphone, [captcha, "3分钟"]);
-		if (!ok) return this.throw(500, "请求此时过多");
+		if (!ok) return this.throw(500, "请求次数过多");
 		//console.log(captcha);
 		
 		app.cache.put(cellphone, {captcha}, 1000 * 60 * 3); // 10分钟有效期

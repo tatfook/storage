@@ -75,7 +75,7 @@ module.exports = app => {
 		if (!data) return ;
 
 		if (data.objectType == ENTITY_TYPE_PROJECT && app.model.projects.commentCreateHook) {
-			await app.model.projects.commentCreateHook(comment.objectId);	
+			await app.model.projects.commentCreateHook(data.objectId);	
 		}
 		
 		return data.get({plain:true});
