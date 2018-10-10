@@ -198,11 +198,11 @@ const User = class extends Controller {
 		const captcha = _.times(4, () =>  _.random(0,9,false)).join("");
 
 		const ok = await app.sendSms(cellphone, [captcha, "3分钟"]);
-		if (!ok) return this.throw(500, "请求次数过多");
-		//console.log(captcha);
 		
 		await app.model.caches.put(cellphone, {captcha}, 1000 * 60 * 3); // 10分钟有效期
 
+		if (!ok) return this.throw(500, "请求次数过多");
+		//console.log(captcha);
 		return this.success();
 	}
 	
@@ -214,11 +214,16 @@ const User = class extends Controller {
 		const userId = this.authenticated().userId;
 		const params = this.validate({
 			cellphone:"string",
-			captcha:"string",
+			captcha:"string_optional",
+			password: "string_optional",
 		});
-		const captcha = params.captcha;
 		let cellphone = params.cellphone;
+		// 解绑有密码 优先密码验证
+		if (!params.isBind && params.password) {
+			return await this.model.users.update({cellphone: null}, {where:{userId, password: util.md5(params.password)}});
+		}
 		
+		const captcha = params.captcha;
 		const cache = await app.model.caches.get(cellphone);
 		//console.log(cache, cellphone, captcha, userId);
 		if (!cache || cache.captcha != captcha) {
@@ -259,19 +264,26 @@ const User = class extends Controller {
 		const userId = this.authenticated().userId;
 		const params = this.validate({
 			email:"string",
-			captcha:"string",
+			captcha:"string_optional",
+			password: "string_optional",
 		});
-		const captcha = params.captcha;
+
 		let email = params.email;
+
+		// 解绑有密码 优先密码验证
+		if (!params.isBind && params.password) {
+			return await this.model.users.update({email: null}, {where:{userId, password: util.md5(params.password)}});
+		}
+		const captcha = params.captcha;
 		
 		const cache = await app.model.caches.get(email);
 		//console.log(cache, email, captcha, userId);
 		if (!cache || cache.captcha != captcha) {
 			if (!cache) ctx.throw(400, "验证码过期");
-			if (cache.captcha != captcha) return ctx.throw(400, "验证码错误" + cache.captcha + "-" + captcha);
+			if (cache.captcha != captcha) return ctx.throw(400, "验证码错误");
 		}
 		
-		if (!params.isBind) email = "";
+		if (!params.isBind) email = null;
 
 		const result = await model.users.update({email}, {where:{id:userId}});
 
