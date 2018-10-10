@@ -25,13 +25,13 @@ module.exports = app => {
 			unique: true,
 		},
 
+		value: {
+			type:JSON,
+		},
+
 		expire: {
 			type: BIGINT,
 			defaultValue: 0,
-		},
-
-		value: {
-			type:JSON,
 		},
 
 	}, {
@@ -41,31 +41,27 @@ module.exports = app => {
 	});
 
 	//model.sync({force:true});
-	model.getByUserId = async function(userId) {
-		const roles = await this.model.findAll({where: {userId}});
+	
+	model.get = async function(key) {
+		let data = await app.model.caches.findOne({where:{key}});
+		if (!data) return ;
 
-		return roles;
+		data = data.get({plain:true});
+
+		const curtime = (new Date()).getTime();
+
+		if (curtime > data.expire) return ;
+
+		return data.value;
 	}
 
-	model.getRoleIdByUserId = async function(userId) {
-		const roles = await this.model.findAll({where: {userId}});
-		let roleId = USER_ROLE_NORMAL;
-		_.each(roles, role => roleId = roleId | role.roleId);
+	model.put = async function(key, value, expire) {
+		if (expire) expire += (new Date()).getTime();
 
-		return roleId;
-	}
-
-	model.isExceptionRole = function(roleId = USER_ROLE_NORMAL) {
-		return roleId & USER_ROLE_EXCEPTION;
-	}
-
-	model.isExceptionUser = async function(userId) {
-		const roleId = await this.getRoleIdByUserId(userId);
-		
-		return this.isExceptionRole(roleId);
+		await app.model.caches.upsert({key, value, expire});
 	}
 	
-	app.model.roles = model;
+	app.model.caches = model;
 	return model;
 };
 

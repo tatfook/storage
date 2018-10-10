@@ -113,7 +113,7 @@ const User = class extends Controller {
 
 		const cellphone = params.cellphone;
 		if (cellphone) {
-			const cache = this.app.cache.get(cellphone) || {};
+			const cache = await this.app.model.caches.get(cellphone) || {};
 			if (!params.captcha || !cache.captcha || cache.captcha != params.captcha){
 				if (!cache.captcha) return this.throw(400, "验证码过期");
 				if (cache.captcha != params.captcha) return this.throw(400, "验证码失效");
@@ -201,7 +201,7 @@ const User = class extends Controller {
 		if (!ok) return this.throw(500, "请求次数过多");
 		//console.log(captcha);
 		
-		app.cache.put(cellphone, {captcha}, 1000 * 60 * 3); // 10分钟有效期
+		await app.model.caches.put(cellphone, {captcha}, 1000 * 60 * 3); // 10分钟有效期
 
 		return this.success();
 	}
@@ -219,7 +219,7 @@ const User = class extends Controller {
 		const captcha = params.captcha;
 		let cellphone = params.cellphone;
 		
-		const cache = app.cache.get(cellphone);
+		const cache = await app.model.caches.get(cellphone);
 		//console.log(cache, cellphone, captcha, userId);
 		if (!cache || cache.captcha != captcha) {
 			console.log(captcha, params, userId);
@@ -247,7 +247,7 @@ const User = class extends Controller {
 		const body = `<h3>尊敬的KEEPWORK用户:</h3><p>您好: 您的邮箱验证码为${captcha}, 请在10分钟内完成邮箱验证。谢谢</p>`;
 		const ok = await app.sendEmail(email, "KEEPWORK 邮箱绑定验证", body);
 		//console.log(captcha);
-		app.cache.put(email, {captcha}, 1000 * 60 * 10); // 10分钟有效期
+		await app.model.caches.put(email, {captcha}, 1000 * 60 * 10); // 10分钟有效期
 
 		return this.success();
 	}
@@ -264,7 +264,7 @@ const User = class extends Controller {
 		const captcha = params.captcha;
 		let email = params.email;
 		
-		const cache = app.cache.get(email);
+		const cache = await app.model.caches.get(email);
 		//console.log(cache, email, captcha, userId);
 		if (!cache || cache.captcha != captcha) {
 			if (!cache) ctx.throw(400, "验证码过期");
