@@ -14,6 +14,22 @@ const Project = class extends Controller {
 		return "projects";
 	}
 
+	async setProjectUser(list) {
+		const userIds = [];
+
+		_.each(list, (o, i) => {
+			o = o.get ? o.get({plain:true}) : o;
+			userIds.push(o.userId);
+			list[i] = o;
+		});
+
+		const users = await this.model.users.getUsers(userIds);
+
+		_.each(list, o => {
+			o.user = users[o.userId];
+		});
+	}
+
 	async search() {
 		const model = this.model[this.modelName];
 		const query = this.validate();
@@ -22,25 +38,35 @@ const Project = class extends Controller {
 
 		const result = await model.findAndCount({...this.queryOptions, where:query});
 		const rows = result.rows;
-		const userIds = [];
-		const projectIds = [];
 
-		_.each(rows, (o, i) => {
-			o = o.get ? o.get({plain:true}) : o;
-			userIds.push(o.userId);
-			projectIds.push(o.id);
-			rows[i] = o;
-		});
-
-		const users = await this.model.users.getUsers(userIds);
-		const commentCounts = await this.model.comments.getObjectsCount(projectIds, ENTITY_TYPE_PROJECT);
-
-		_.each(rows, o => {
-			o.user = users[o.userId];
-			o.commentCount = commentCounts[o.id] || 0;
-		});
+		await this.setProjectUser(rows);
 
 		return this.success(result);
+	}
+
+	async join() {
+		const {userId} = this.authenticated();
+
+		const list = await this.model.projects.getJoinProjects(userId);
+
+		this.setProjectUser(list);
+
+		return this.success(list);
+	}
+
+	async index() {
+		const userId = this.authenticated().userId;
+		const model = this.model[this.modelName];
+		const params = this.validate();
+		params.userId = userId;
+
+		this.formatQuery(params);
+
+		const list = await model.findAll({...this.queryOptions, where:params});
+
+		this.setProjectUser(list);
+
+		return this.success(list);
 	}
 
 	async create() {
@@ -74,14 +100,6 @@ const Project = class extends Controller {
 		const data = await this.model.projects.update(params, {where:{id, userId}});
 
 		return this.success(data);
-	}
-
-	async join() {
-		const {userId} = this.authenticated();
-
-		const list = await this.model.projects.getJoinProjects(userId);
-
-		return this.success(list);
 	}
 
 	async visit() {
