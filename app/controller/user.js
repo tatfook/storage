@@ -10,10 +10,10 @@ const User = class extends Controller {
 
 	async show() {
 		const {ctx, model} = this;
-		const params = this.validate({id: "int"});
+		const {id} = this.validate();
 
-		const userId = _.toNumber(params.id);
-		const user = userId ?  await model.users.getById(userId) :	await model.users.getByName(params.id);
+		const userId = _.toNumber(id);
+		const user = userId ?  await model.users.getById(userId) :	await model.users.getByName(id);
 
 		return this.success(user);
 	}
