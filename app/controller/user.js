@@ -8,6 +8,17 @@ const User = class extends Controller {
 		return "users";
 	}
 
+	async index() {
+		const query = this.validate();
+
+		this.formatQuery(query);
+
+		const attributes = ["id", "username", "nickname", "portrait", "email"];
+		const list = await this.model.users.findAll({...this.queryOptions, attributes, where:query});
+
+		return this.success(list);
+	}
+
 	async show() {
 		const {ctx, model} = this;
 		const {id} = this.validate();
