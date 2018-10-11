@@ -40,6 +40,19 @@ export default app => {
 		},
 	});
 
+	app.sequelize.addHook("afterCreate", async(instance, options) => {
+		console.log(options);
+		instance = instance.get({plain:true});
+	});
+
+	app.sequelize.addHook("afterBulkUpdate", async(options) => {
+		
+	});
+
+	app.sequelize.addHook("beforeBulkDestroy", async(options) => {
+
+	});
+
 	Object.defineProperty(app, "model", {
 		value: new Model(app.sequelize),
 		writable: false,

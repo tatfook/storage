@@ -107,6 +107,8 @@ module.exports = app => {
 	router.resources(`${prefix}members`, member);
 
 	const apply = controller.apply;
+	router.get(`${prefix}applies/state`, apply.state);
+	router.post(`${prefix}applies/search`, apply.search);
 	router.resources(`${prefix}applies`, apply);
 
 	const convert = controller.convert;

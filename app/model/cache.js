@@ -65,6 +65,15 @@ module.exports = app => {
 		//console.log(instance, options);
 	//});
 
+	model.beforeUpsert((value, options) => {
+		console.log("beforeUpsert");
+		console.log(value, options);
+	});
+
+	model.beforeBulkDestroy((instance, options) => {
+		console.log("beforeDestroy");
+		console.log(instance, options);
+	});
 	model.afterDestroy((instance, options) => {
 		console.log("-------------");
 		console.log(instance, options);

@@ -14,6 +14,7 @@ const {
 	APPLY_STATE_REFUSE,
 	APPLY_TYPE_MEMBER,
 } = require("../core/consts.js");
+const ENTITYS = [ENTITY_TYPE_USER, ENTITY_TYPE_SITE, ENTITY_TYPE_PAGE, ENTITY_TYPE_GROUP, ENTITY_TYPE_PROJECT];
 
 const Apply = class extends Controller {
 	get modelName() {
@@ -63,6 +64,21 @@ const Apply = class extends Controller {
 		if (ok != 0) this.throw(400);
 
 		return this.success("OK");
+	}
+
+	async state() {
+		const params = this.validate({
+			applyId: "int",
+			applyType: "int",
+			objectId:'int',
+			objectType: joi.number().valid(ENTITYS).required(),
+		});
+		
+		const list = await this.model.applies.findAll({order:[["createdAt", "desc"]], where:params});
+
+		const state = list.length == 0 ? -1 : list[0].state;
+
+		return this.success(state);
 	}
 }
 
