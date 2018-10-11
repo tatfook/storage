@@ -224,7 +224,8 @@ const User = class extends Controller {
 		let cellphone = params.cellphone;
 		// 解绑有密码 优先密码验证
 		if (!params.isBind && params.password) {
-			return await this.model.users.update({cellphone: null}, {where:{userId, password: this.util.md5(params.password)}});
+			const ok await this.model.users.update({cellphone: null}, {where:{id:userId, password: this.util.md5(params.password)}});
+			return this.success(ok);
 		}
 		
 		const captcha = params.captcha;
@@ -275,7 +276,8 @@ const User = class extends Controller {
 
 		// 解绑有密码 优先密码验证
 		if (!params.isBind && params.password) {
-			return await this.model.users.update({email: null}, {where:{userId, password: this.util.md5(params.password)}});
+			const ok = await this.model.users.update({email: null}, {where:{id:userId, password: this.util.md5(params.password)}});
+			return this.success(ok);
 		}
 		const captcha = params.captcha;
 		
