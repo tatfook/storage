@@ -52,7 +52,7 @@ const Member = class extends Controller {
 
 	async exist() {
 		const {userId} = this.authenticated();
-		const {objectId, objectType, memberId:userId} = this.validate({
+		const {objectId, objectType, memberId=userId} = this.validate({
 			memberId:"int_optional",
 			objectId:'int',
 			objectType: joi.number().valid(ENTITYS).required(),

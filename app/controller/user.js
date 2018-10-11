@@ -45,8 +45,6 @@ const User = class extends Controller {
 		delete params.username;
 		delete params.roleId;
 
-		this.app.api.setESUserInfo({...params, username});
-
 		const ok = await ctx.model.users.update(params, {where:{id:userId}});
 
 		return this.success(ok && ok[0] == 1);

@@ -77,7 +77,6 @@ const Site = class extends Controller {
 		const user = await model.users.getById(userId);
 		if (!user || !site) this.throw(400);
 		site.username = user.username;
-		this.app.api.setESSiteInfo(site);
 		if (params.visibility != undefined) {
 			this.app.api.setGitProjectVisibility({
 				username:user.username, 

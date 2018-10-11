@@ -75,8 +75,16 @@ module.exports = app => {
 		console.log(instance, options);
 	});
 
-	model.afterUpsert((instance, options) => {
-		console.log(instance, options);
+	model.afterUpsert((created, options) => {
+		console.log(created, options);
+	});
+
+	model.afterBulkUpdate((options) => {
+		console.log(options);
+	});
+
+	model.afterBulkDestroy((options) => {
+		console.log(options);
 	});
 
 	//model.addHook("afterCreate", "afterDestroy", "afterUpdate", "afterSave", "afterUpsert", (arg1, arg2) => {
