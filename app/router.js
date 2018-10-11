@@ -103,6 +103,7 @@ module.exports = app => {
 	router.resources(`${prefix}issues`, issue);
 
 	const member = controller.member;
+	router.get(`${prefix}members/exist`, member.exist);
 	router.resources(`${prefix}members`, member);
 
 	const apply = controller.apply;

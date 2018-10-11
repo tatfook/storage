@@ -49,6 +49,23 @@ const Member = class extends Controller {
 
 		return this.success(data);
 	}
+
+	async exist() {
+		const {userId} = this.authenticated();
+		const {objectId, objectType, memberId:userId} = this.validate({
+			memberId:"int_optional",
+			objectId:'int',
+			objectType: joi.number().valid(ENTITYS).required(),
+		});
+		
+		const data = await this.model.members.findOne({where: {
+			objectId,objectType, memberId,
+		}});
+
+		if (!data) return this.success(false);
+
+		return this.success(true);
+	}
 }
 
 module.exports = Member;

@@ -43,6 +43,19 @@ class Keepwork extends Controller {
 
 		if (!cache) this.app.cache.put("test", "hello world", 1000 * 60 * 10);
 
+		const caches = this.model.caches;
+
+		await caches.destroy({where:{key:"key"}});
+		await caches.destroy({where:{key:"key1"}});
+		console.log("---------------create cache-------------");
+		await caches.create({key:"key", value:"value"});
+		console.log("---------------update cache-------------");
+		await caches.update({key:"key", value:"value1"}, {where:{key:"key"}});
+		console.log("--------------upsert caceh----------------");
+		await caches.upsert({key:"key", value:"value"});
+		await caches.upsert({key:"key1", value:"value1"});
+		console.log("--------------destroy cache---------------");
+		await caches.destroy({where:{key:"key"}});
 		return this.success(cache);
 	}
 }

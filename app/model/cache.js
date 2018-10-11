@@ -61,6 +61,28 @@ module.exports = app => {
 		await app.model.caches.upsert({key, value, expire});
 	}
 	
+	//model.afterCreate((instance, options) => {
+		//console.log(instance, options);
+	//});
+
+	model.afterDestroy((instance, options) => {
+		console.log("-------------");
+		console.log(instance, options);
+	});
+
+	model.afterUpdate((instance, options) => {
+		console.log("-------------");
+		console.log(instance, options);
+	});
+
+	model.afterUpsert((instance, options) => {
+		console.log(instance, options);
+	});
+
+	//model.addHook("afterCreate", "afterDestroy", "afterUpdate", "afterSave", "afterUpsert", (arg1, arg2) => {
+		//console.log(arg1, arg2);
+	//});
+
 	app.model.caches = model;
 	return model;
 };
