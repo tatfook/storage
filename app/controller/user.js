@@ -8,6 +8,10 @@ const User = class extends Controller {
 		return "users";
 	}
 
+	tokeninfo() {
+		return this.success(this.authenticated());
+	}
+
 	async index() {
 		const query = this.validate();
 
