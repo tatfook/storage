@@ -126,6 +126,7 @@ const User = class extends Controller {
 
 		user = await model.users.create({
 			cellphone: params.cellphone,
+			nickname: params.nickname || params.username,
 			username: params.username,
 			password: util.md5(params.password),
 		});
