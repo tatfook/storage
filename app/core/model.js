@@ -1,63 +1,40 @@
-import _ from "lodash";
-import Sequelize from 'sequelize';
+const _ = require("lodash");
 
-import model from "@/model";
+module.exports = app => {
+	//app.model.afterCreate((instance, options) => {
+		//console.log(instance,_modelOptions);
+		//instance = instance.get({plain:true});
+		//console.log(instance, options);
+		//console.log("--------");
+	//});
+	
+	async function getList(options) {
+		const models = ["users", "sites", "packages", "projects"];
+		const {model, where} = options;
+	
+		const index = _.findIndex(models, val => val == model);
 
-export const Model = class {
-	constructor(sequelize) {
-		this.sequelize = sequelize;
-		this.QueryTypes = sequelize.QueryTypes;
+		if (index < 0) return [];
+
+		const list = await app.model[model].findAll({where});
+
+		_.each(list, (o, i) => list[i] = o.get ? o.get({plain:true}) : o);
+
+		return list;
 	}
 
-	define(modelName, attributes, options) {
-		this[modelName] = this.sequelize.define(modelName, attributes, options);
-		return this[modelName];
-	}
+	app.model.afterBulkUpdate(async (options) => {
+		const list = await getList(options);
 
-	async query(sql, options) {
-		options = options || {};
-		options.type = options.type || this.sequelize.QueryTypes.SELECT;
-		return await this.sequelize.query(sql, options);
-	}
-}
-
-export default app => {
-	const config = app.config;
-	const dbconfig = config.database;
-
-	app.Sequelize = Sequelize;
-	app.sequelize = new Sequelize(dbconfig.database, dbconfig.username, dbconfig.password, {
-		port: dbconfig.port,
-		host: dbconfig.host,
-		dialect: dbconfig.type,
-		operatorsAliases: false,
-
-		pool: {
-			max: 5,
-			min: 0,
-			acquire: 30000,
-			idle: 10000
-		},
+		for (let i = 0; i < list.length; i++) {
+			await app.api[model + "Upsert"](inst);
+		}
 	});
 
-	app.sequelize.addHook("afterCreate", async(instance, options) => {
-		console.log(options);
-		instance = instance.get({plain:true});
+	app.model.beforeBulkDestroy(async (options) => {
+		const list = await getList(options);
+		for (let i = 0; i < list.length; i++) {
+			await app.api[model + "Destroy"](inst);
+		}
 	});
-
-	app.sequelize.addHook("afterBulkUpdate", async(options) => {
-		
-	});
-
-	app.sequelize.addHook("beforeBulkDestroy", async(options) => {
-
-	});
-
-	Object.defineProperty(app, "model", {
-		value: new Model(app.sequelize),
-		writable: false,
-		configurable: false,
-	});
-
-	model(app);
 }

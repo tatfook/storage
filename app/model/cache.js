@@ -65,36 +65,36 @@ module.exports = app => {
 		//console.log(instance, options);
 	//});
 
-	model.beforeUpsert((value, options) => {
-		console.log("beforeUpsert");
-		console.log(value, options);
-	});
+	//model.beforeUpsert((value, options) => {
+		//console.log("beforeUpsert");
+		//console.log(value, options);
+	//});
 
-	model.beforeBulkDestroy((instance, options) => {
-		console.log("beforeDestroy");
-		console.log(instance, options);
-	});
-	model.afterDestroy((instance, options) => {
-		console.log("-------------");
-		console.log(instance, options);
-	});
+	//model.beforeBulkDestroy((instance, options) => {
+		//console.log("beforeDestroy");
+		//console.log(instance, options);
+	//});
+	//model.afterDestroy((instance, options) => {
+		//console.log("-------------");
+		//console.log(instance, options);
+	//});
 
-	model.afterUpdate((instance, options) => {
-		console.log("-------------");
-		console.log(instance, options);
-	});
+	//model.afterUpdate((instance, options) => {
+		//console.log("-------------");
+		//console.log(instance, options);
+	//});
 
-	model.afterUpsert((created, options) => {
-		console.log(created, options);
-	});
+	//model.afterUpsert((created, options) => {
+		//console.log(created, options);
+	//});
 
-	model.afterBulkUpdate((options) => {
-		console.log(options);
-	});
+	//model.afterBulkUpdate((options) => {
+		//console.log(options);
+	//});
 
-	model.afterBulkDestroy((options) => {
-		console.log(options);
-	});
+	//model.afterBulkDestroy((options) => {
+		//console.log(options);
+	//});
 
 	//model.addHook("afterCreate", "afterDestroy", "afterUpdate", "afterSave", "afterUpsert", (arg1, arg2) => {
 		//console.log(arg1, arg2);

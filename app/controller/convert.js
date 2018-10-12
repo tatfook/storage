@@ -68,6 +68,7 @@ const Convert = class extends Controller {
 		let site = {
 			id: data._id,
 			userId: user.id,
+			username: user.username,
 			sitename: data.name,
 			visibility: data.visibility == "public" ? 0 : 1,
 			description: data.desc,

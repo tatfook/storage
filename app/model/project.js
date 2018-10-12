@@ -139,6 +139,11 @@ module.exports = app => {
 		//console.log("create table successfully");
 	//});
 	
+	model.afterCreate(async (inst) => {
+		inst = inst.get({plain:true});
+		await app.api.projectsUpsert(inst);
+	});
+
 	model.getById = async function(id, userId) {
 		const where = {id};
 

@@ -47,6 +47,7 @@ const Site = class extends Controller {
 		});
 
 		params.userId = userId;
+		params.username = username;
 		let data = await model.sites.findOne({
 			where: {
 				userId:userId,

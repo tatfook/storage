@@ -37,6 +37,10 @@ module.exports = app => {
 			allowNull: false,
 		},
 
+		username: {
+			type: STRING(64),
+		},
+
 		sitename: {
 			type: STRING(48),
 			allowNull: false,
@@ -73,6 +77,11 @@ module.exports = app => {
 	});
 
 	//model.sync({force:true});
+
+	model.afterCreate(async (inst) => {
+		inst = inst.get({plain:true});
+		await app.api.sitesUpsert(inst);
+	});
 	
 	model.get = async function(userId) {
 		const list = await app.model.sites.findAll({where:{userId}});

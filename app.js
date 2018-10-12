@@ -8,7 +8,7 @@ const axios = require("./app/core/axios.js");
 const api = require("./app/core/api.js");
 const qiniu = require("./app/core/qiniu.js");
 const pingpp = require("./app/core/pingpp.js");
-
+const model = require("./app/core/model.js");
 module.exports = app => {
 	app.cache = cache;
 	app.consts = consts;
@@ -20,6 +20,7 @@ module.exports = app => {
 	axios(app);
 	api(app);
 	qiniu(app);
+	model(app);
 
 	//console.log(app.config.env);
 	//
