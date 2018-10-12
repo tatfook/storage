@@ -24,6 +24,7 @@ module.exports = app => {
 	}
 
 	app.model.afterBulkUpdate(async (options) => {
+		const {model} = options;
 		const list = await getList(options);
 
 		for (let i = 0; i < list.length; i++) {
@@ -32,6 +33,7 @@ module.exports = app => {
 	});
 
 	app.model.beforeBulkDestroy(async (options) => {
+		const {model} = options;
 		const list = await getList(options);
 		for (let i = 0; i < list.length; i++) {
 			await app.api[model + "Destroy"](inst);
