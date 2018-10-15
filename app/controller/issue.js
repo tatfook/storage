@@ -20,12 +20,12 @@ const Issue = class extends Controller {
 	}
 
 	async index() {
-		const {objectId, objectType} = this.validate({
+		const query = this.validate({
 			objectId: 'int',
 			objectType: joi.number().valid(ENTITYS).required(),
 		});
 
-		const list = await this.model.issues.getObjectIssues(objectId, objectType);
+		const list = await this.model.issues.getObjectIssues(query);
 
 		return this.success(list);
 	}
