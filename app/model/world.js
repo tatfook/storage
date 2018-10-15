@@ -22,26 +22,40 @@ module.exports = app => {
 			allowNull: false,
 		},
 
-		worldName: {
+		worldName: {                 // 世界名
 			type: STRING(128),
 			allowNull: false,
 		},
 
-		revision: {
+		revision: {                  // 版本
 			type: STRING(32),	
 			allowNull: false,
 		},
 
-		opusId: {
+		projectId: {                 // 项目id
 			type: BIGINT,
 			allowNull: false,
 		},
 		
+		fileSize: {                  // 文件大小
+			type: BIGINT,
+			defaultValue: 0,
+		},
+
+		giturl: {                    // git url
+			type: STRING(256),
+		},
+
+		download: {                  // 下载地址
+			type: STRING(256),
+		},
+
 		extra: {
 			type: JSON,
 			defaultValue: {},
 		}
 
+		// 默认字段 updatedAt修改日期  createdAt创建日期
 	}, {
 		underscored: false,
 		charset: "utf8mb4",
@@ -49,6 +63,7 @@ module.exports = app => {
 		indexes: [
 		{
 			unique: true,
+			fields: ["userId", "worldName"],
 		},
 		],
 	});

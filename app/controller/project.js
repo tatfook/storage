@@ -14,6 +14,15 @@ const Project = class extends Controller {
 		return "projects";
 	}
 
+	// 创建3D 实现3D世界相关的文件的创建  
+	// project 对象项目记录对象
+	createWorld(project) {
+		const worldName = project.name;  // 世界名
+		const projectId = project.id;    // 项目ID
+
+		// TODO
+	}
+
 	async setProjectUser(list) {
 		const userIds = [];
 
@@ -71,7 +80,7 @@ const Project = class extends Controller {
 
 	async create() {
 		const userId = this.authenticated().userId;
-		const params = this.validate();
+		const params = this.validate({type:"int"});
 
 		params.userId = userId;
 		delete params.star;
@@ -81,8 +90,12 @@ const Project = class extends Controller {
 		delete params.choicenessNo;
 
 		const data = await this.model.projects.create(params);
+		if (!data) return this.throw(500, "记录创建失败");
+		const project = data.get({plain:true});
 
-		return this.success(data);
+		await this.createWorld(project);
+
+		return this.success(project);
 	}
 
 	async update() {
