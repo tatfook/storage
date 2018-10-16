@@ -72,11 +72,6 @@ module.exports = app => {
 	});
 
 	//model.sync({force:true});
-	
-	model.afterCreate(async (inst) => {
-		inst = inst.get({plain:true});
-		await app.api.usersUpsert(inst);
-	});
 
 	model.getByName = async function(username) {
 		const data = await app.model.users.findOne({

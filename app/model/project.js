@@ -74,6 +74,11 @@ module.exports = app => {
 			defaultValue: 0,
 		},
 
+		favorite: {                  // 收藏量
+			type: INTEGER,
+			defaultValue:0,
+		},
+
 		comment: {                   // 评论数量
 			type: INTEGER,
 			defaultValue: 0,
@@ -93,6 +98,7 @@ module.exports = app => {
 			type: INTEGER,
 			defaultValue: 0,
 		},
+
 		stars: {                     // 点赞用户id 列表
 			type: JSON,
 			defaultValue:[],
@@ -139,11 +145,6 @@ module.exports = app => {
 		//console.log("create table successfully");
 	//});
 	
-	model.afterCreate(async (inst) => {
-		inst = inst.get({plain:true});
-		await app.api.projectsUpsert(inst);
-	});
-
 	model.getById = async function(id, userId) {
 		const where = {id};
 

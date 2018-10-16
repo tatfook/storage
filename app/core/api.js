@@ -40,6 +40,10 @@ class Api  {
 		return this.curlConfig(this.config.gitGatewayToken, this.config.gitGatewayURL);
 	}
 
+	get esConfig() {
+		return this.curlConfig(this.config.gitGatewayToken, this.config.esBaseURL);
+	}
+
 	async createGitUser(data) {
 		return await this.curl("post", "/accounts", data, this.gitConfig);
 	}
@@ -66,7 +70,7 @@ class Api  {
 			id: inst.id,
 			username: inst.username,
 			user_portrait: inst.portrait,
-		}, this.gitConfig);
+		}, this.esConfig);
 	}
 
 	async sitesUpsert(inst) {
@@ -78,7 +82,7 @@ class Api  {
 			display_name: inst.displayName,
 			cover: inst.extra.imageUrl,
 			desc: inst.description,
-		}, this.gitConfig);
+		}, this.esConfig);
 	}
 
 	async projectsUpsert(inst) {
@@ -94,10 +98,15 @@ class Api  {
 			user_portrait: user.portrait,
 			visibility: inst.visibility == 0 ? "public" : "private",
 			recruiting: (inst.privilege & 1) ? true : false,
-			type: inst.type,
+			type: inst.type == 0 ? "paracraft" : "site",
 			created_time: inst.createdAt,
 			cover: inst.extra.imageUrl,
-		}, this.gitConfig);
+			total_like: inst.star,
+			total_view: inst.visit,
+			total_mark: inst.favorite,
+			recent_like: inst.lastStar,
+			recent_view: inst.lastVisit,
+		}, this.esConfig);
 	}
 
 	async packagesUpsert(inst) {
@@ -105,19 +114,19 @@ class Api  {
 	}
 
 	async usersDestroy({id}) {
-		return await this.curl('delete', `/users/${id}`, {}, this.gitConfig);
+		return await this.curl('delete', `/users/${id}`, {}, this.esConfig);
 	}
 
 	async sitesDestroy({id}) {
-		return await this.curl('delete', `/sites/${id}`, {}, this.gitConfig);
+		return await this.curl('delete', `/sites/${id}`, {}, this.esConfig);
 	}
 
 	async projectsDestroy({id}) {
-		return await this.curl('delete', `/projects/${id}`, {}, this.gitConfig);
+		return await this.curl('delete', `/projects/${id}`, {}, this.esConfig);
 	}
 
 	async packagesDestroy({id}) {
-		return await this.curl('delete', `/packages/${id}`, {}, this.gitConfig);
+		return await this.curl('delete', `/packages/${id}`, {}, this.esConfig);
 	}
 }
 

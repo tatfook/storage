@@ -78,11 +78,6 @@ module.exports = app => {
 
 	//model.sync({force:true});
 
-	model.afterCreate(async (inst) => {
-		inst = inst.get({plain:true});
-		await app.api.sitesUpsert(inst);
-	});
-	
 	model.get = async function(userId) {
 		const list = await app.model.sites.findAll({where:{userId}});
 
