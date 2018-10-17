@@ -27,6 +27,7 @@ module.exports = (options, app) => {
 		}
 
 		const token = getCookieToken(ctx) || getAuthorizationHeaderToken(ctx);
+		ctx.state.token = token;
 		ctx.state.user = token ? app.util.jwt_decode(token, config.secret, true) : {};
 
 		await next();
