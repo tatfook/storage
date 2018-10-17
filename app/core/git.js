@@ -49,7 +49,7 @@ class Git {
       return false;
     }
 
-    let url = this.gitGatewayApi + '/projects/user/' + userName;
+    let url = `${this.gitGatewayApi}/projects/user/${userName}`;
     let adminToken = await this.getAdminToken()
 
     let axios = this.app.axios.create({
@@ -96,11 +96,7 @@ class Git {
       }
     }
 
-    let url =
-      this.gitGatewayApi +
-      '/projects/' +
-      encodeURIComponent(projectPath) +
-      '/tree/?recursive';
+    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath)}/tree/?recursive`;
     let response;
 
     try {
@@ -123,12 +119,7 @@ class Git {
 
     projectPath = projectPath || this.paracraftDefaultProject;
 
-    let url =
-      this.gitGatewayApi +
-      '/projects/' +
-      encodeURIComponent(projectPath) +
-      '/files/' +
-      encodeURIComponent(path);
+    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath)}/files/${encodeURIComponent(path)}`;
 
     if (projectPath == this.paracraftDefaultProject) {
       if (this.cacheContent[url]) {
@@ -151,7 +142,7 @@ class Git {
     }
   }
 
-  writeFile(projectPath, path, content) {
+  async writeFile(token, projectPath, path, content) {
     if (!this.isConfigRight || !projectPath || !path) {
       return false;
     }
@@ -160,26 +151,60 @@ class Git {
       return false;
     }
 
-    let url =
-      this.gitGatewayApi +
-      '/projects/' +
-      encodeURIComponent(projectPath) +
-      '/files/' +
-      encodeURIComponent(path);
-    
+    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath)}/files/${encodeURIComponent(path)}`;
+
+    let axios = this.app.axios.create({
+      headers: {
+        Authorization: `Bearer ${token || ''}`,
+        "Content-Type": "application/json"
+      }
+    })
+
+    let result = await axios.post(url, {
+      content: content
+    })
+
+    if (result && result.data && result.data.created) {
+      return true
+    } else {
+      return false
+    }
   }
 
-  deleteFile(projectPath, path) {
+  // deleteFile(projectPath, path) {
+  //   if (!this.isConfigRight) {
+  //     return false;
+  //   }
+
+  //   let url =
+  //     this.gitGatewayApi +
+  //     '/projects/' +
+  //     encodeURIComponent(projectPath) +
+  //     '/files/' +
+  //     encodeURIComponent(path);
+  // }
+
+  async isProjectExist(projectPath) {
     if (!this.isConfigRight) {
       return false;
     }
 
-    let url =
-      this.gitGatewayApi +
-      '/projects/' +
-      encodeURIComponent(projectPath) +
-      '/files/' +
-      encodeURIComponent(path);
+    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath) || ''}/exist`
+    let adminToken = await this.getAdminToken()
+
+    let axios = this.app.axios.create({
+      headers: {
+        Authorization: `Bearer ${adminToken || ''}`
+      }
+    })
+
+    let result = await axios.get(url)
+
+    if (result && result.data) {
+      return true
+    } else {
+      return false
+    }
   }
 }
 

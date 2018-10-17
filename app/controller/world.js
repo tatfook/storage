@@ -15,7 +15,7 @@ const World = class extends Controller {
   }
 
   async test() {
-    return this.generateDefaultWorld('你好啊');
+    return this.generateDefaultWorld('你好啊6');
   }
 
   async generateDefaultWorld(worldName) {
@@ -27,6 +27,17 @@ const World = class extends Controller {
 
     let tree = await this.app.git.getTree()
     let baseWorldName = this.base32(worldName)
+    let worldProject = (userInfo.username || '') + '/' + (baseWorldName || '')
+
+    let result = await this.app.git.isProjectExist(worldProject)
+
+    if (!result) {
+      let result = await this.app.git.createProject(userInfo.username, baseWorldName)
+
+      if (!result) {
+        return this.ctx.throw(500);
+      }
+    }
 
     await new Promise((resolve, reject) => {
       let index = 0;
@@ -50,28 +61,26 @@ const World = class extends Controller {
       })
     })
 
-    let result = await this.app.git.createProject(userInfo.username, baseWorldName)
-    
-    // if (!result) {
-    //   return this.ctx.throw(500);
-    // }
+    let token = this.ctx.state.token
+    let writeList = []
 
-    let worldProject = (userInfo.username || '') + '/' + (worldName || '')
-  
     _.forEach(tree, (item, key) => {
       if (item && item.path && item.content) {
         if (item.path == 'tag.xml') {
           item.content = item.content.replace('name="DefaultName"', `name="${worldName || ''}"`)
         }
 
-        this.app.git.writeFile(worldProject, item.path, item.content)
+        writeList[writeList.length] = this.app.git.writeFile(token, worldProject, item.path, item.content)
       }
     })
 
-    console.log(this.ctx.state.token)
-    console.log(this.ctx)
-    // console.log(tree);
-    // return this.ctx.throw(500);
+    try {
+      await Promise.all(writeList)
+
+      return this.success()
+    } catch (error) {
+      return this.ctx.throw(409)
+    }
   }
 
   // =转成-equal  +转成-plus  /转成-slash
