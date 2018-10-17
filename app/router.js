@@ -127,5 +127,6 @@ module.exports = app => {
 	router.resources(`${prefix}trades`, trade);
 
 	const world = controller.world;
+	router.get(`${prefix}worlds/test`, world.test);
 	router.resources(`${prefix}worlds`, world);
 }
