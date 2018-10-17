@@ -5,6 +5,7 @@
   "main": "backpack.config.js",
   "dependencies": {
     "axios": "^0.18.0",
+    "base32": "^0.0.6",
     "blueimp-md5": "^2.10.0",
     "egg": "^2.10.0",
     "egg-cors": "^2.1.0",
