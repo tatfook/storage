@@ -30,6 +30,7 @@ module.exports = app => {
 		revision: {                  // 版本
 			type: STRING(32),	
 			allowNull: false,
+			defaultValue:0,
 		},
 
 		projectId: {                 // 项目id

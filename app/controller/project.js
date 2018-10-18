@@ -16,11 +16,16 @@ const Project = class extends Controller {
 
 	// 创建3D 实现3D世界相关的文件的创建  
 	// project 对象项目记录对象
-	createWorld(project) {
+	async createWorld(project) {
 		const worldName = project.name;  // 世界名
 		const projectId = project.id;    // 项目ID
+		const userId = project.userId;   // 用户ID
 
-		// TODO
+		await this.model.worlds.upsert({worldName, projectId, userId});
+
+		const ok = await this.ctx.service.world.generateDefaultWorld(worldName);
+
+		console.log(ok ? `创建世界失败:${worldName}` : `创建世界成功:${worldName}`);
 	}
 
 	async setProjectUser(list) {
