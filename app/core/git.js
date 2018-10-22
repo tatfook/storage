@@ -1,4 +1,4 @@
-
+const axios = require("axios");
 
 class Git {
   constructor(config, app) {
@@ -27,7 +27,7 @@ class Git {
       this.isConfigRight = false;
     }
 
-    if (!this.app || !this.app.axios) {
+    if (!this.app) {
       this.isConfigRight = false;
     }
   }
@@ -52,7 +52,7 @@ class Git {
     let url = `${this.gitGatewayApi}/projects/user/${userName}`;
     let adminToken = await this.getAdminToken()
 
-    let axios = this.app.axios.create({
+    let axiosInst = axios.create({
       headers: {
         Authorization: "Bearer " + adminToken || '',
         "Content-Type": "application/json"
@@ -60,7 +60,7 @@ class Git {
     })
 
     try {
-      let response = await axios.post(url, {
+      let response = await axiosInst.post(url, {
         sitename: worldName,
         visibility: 'public'
       });
@@ -68,11 +68,11 @@ class Git {
       if (response && response.data && response.data.created) {
         return true;
       } else {
-		  console.log(response);
+		  console.log("--------1", response);
         return false;
       }
     } catch (error) {
-		console.log(error);
+		console.log("--------2", error);
       return false;
     }
   }
@@ -102,7 +102,7 @@ class Git {
     let response;
 
     try {
-      response = await this.app.axios.get(url);
+      response = await axios.get(url);
     } catch (error) {}
 
     if (response && response.data) {
@@ -132,7 +132,7 @@ class Git {
     let response;
 
     try {
-      response = await this.app.axios.get(url);
+      response = await axios.get(url);
     } catch (error) {}
 
     if (response && response.data && response.data.content) {
@@ -155,14 +155,14 @@ class Git {
 
     let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath)}/files/${encodeURIComponent(path)}`;
 
-    let axios = this.app.axios.create({
+    let axiosInst = axios.create({
       headers: {
         Authorization: `Bearer ${token || ''}`,
         "Content-Type": "application/json"
       }
     })
 
-    let result = await axios.post(url, {
+    let result = await axiosInst.post(url, {
       content: content
     })
 
@@ -194,13 +194,13 @@ class Git {
     let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath) || ''}/exist`
     let adminToken = await this.getAdminToken()
 
-    let axios = this.app.axios.create({
+    let axiosInst = axios.create({
       headers: {
         Authorization: `Bearer ${adminToken || ''}`
       }
     })
 
-    let result = await axios.get(url)
+    let result = await axiosInst.get(url)
 
     if (result && result.data) {
       return true

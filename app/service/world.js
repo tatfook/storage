@@ -59,10 +59,11 @@ class World extends Service {
     })
 
     try {
-      await Promise.all(writeList)
+      const ok = await Promise.all(writeList)
 
-      return this.success()
+	  return ok;
     } catch (error) {
+		console.log(error);
       return this.ctx.throw(409)
     }
   }

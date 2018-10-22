@@ -15,9 +15,9 @@ const World = class extends Controller {
   }
 
   async test() {
-    return this.generateDefaultWorld('你好啊6');
+    const ok = await this.ctx.service.world.generateDefaultWorld('你好啊6');
+	return this.success(ok);
   }
-
 };
 
 module.exports = World;
