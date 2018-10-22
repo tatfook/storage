@@ -73,6 +73,14 @@ module.exports = app => {
 
 	//model.sync({force:true});
 
+	model.get = async function(id) {
+		if (_.toNumber(id)) {
+			return await this.getById(_.toNumber(id));
+		}
+		
+		return await this.getByName(id);
+	}
+
 	model.getByName = async function(username) {
 		const data = await app.model.users.findOne({
 			where: {username},

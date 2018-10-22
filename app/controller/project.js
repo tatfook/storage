@@ -6,6 +6,9 @@ const {
 	ENTITY_TYPE_SITE,
 	ENTITY_TYPE_PAGE,
 	ENTITY_TYPE_PROJECT,
+
+	PROJECT_TYPE_SITE,
+	PROJECT_TYPE_PARACRAFT,
 } = require("../core/consts.js");
 const Controller = require("../core/controller.js");
 
@@ -98,7 +101,9 @@ const Project = class extends Controller {
 		if (!data) return this.throw(500, "记录创建失败");
 		const project = data.get({plain:true});
 
-		await this.createWorld(project);
+		if (params.type == PROJECT_TYPE_PARACRAFT) {
+			await this.createWorld(project);
+		}
 
 		return this.success(project);
 	}
