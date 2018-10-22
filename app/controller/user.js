@@ -322,7 +322,7 @@ const User = class extends Controller {
 
 		const userId = user.id;
 		const sites = await this.model.sites.get(userId);
-		const joinSites = await this.model.sites.getJoinSites(userId, USER_ACCESS_LEVEL_READ);
+		const joinSites = await this.model.sites.getJoinSites(userId, 0);
 
 		return this.success(sites.concat(joinSites));
 	}
