@@ -106,6 +106,7 @@ class Api  {
 			total_mark: inst.favorite,
 			recent_like: inst.lastStar,
 			recent_view: inst.lastVisit,
+			updated_time: inst.updatedAt,
 		}, this.esConfig);
 	}
 
@@ -133,7 +134,7 @@ class Api  {
 module.exports = app => {
 	const config = app.config.self;
 
-	config.gitGatewayToken = app.util.jwt_encode({userId:1, roleId:10}, config.secret, 3600 * 24 * 365 * 10);
+	config.gitGatewayToken = app.util.jwt_encode({userId:1, username:"xiaoyao", roleId:10}, config.secret, 3600 * 24 * 365 * 10);
 	app.api = new Api(config, app);
 }
 

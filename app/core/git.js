@@ -68,9 +68,11 @@ class Git {
       if (response && response.data && response.data.created) {
         return true;
       } else {
+		  console.log(response);
         return false;
       }
     } catch (error) {
+		console.log(error);
       return false;
     }
   }
