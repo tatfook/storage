@@ -28,7 +28,7 @@ class World extends Service {
       let result = await this.app.git.createProject(userInfo.username, baseWorldName)
 
       if (!result) {
-        return this.ctx.throw(500);
+        return this.ctx.throw(500, "创建GIT项目失败");
       }
     }
 
