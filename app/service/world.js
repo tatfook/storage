@@ -3,6 +3,15 @@ const base32 = require('base32');
 const Service = require('egg').Service;
 
 class World extends Service {
+	getArchiveUrl(username, worldName) {
+		const config = this.app.config.self.gitlab;
+		const host = config.host;
+		const baseWorldName = this.base32(worldName);
+		const gitUsername = config.usernamePrefix + username;
+		
+		return `${host}/${gitUsername}/${baseWorldName}/repository/archive.zip`;
+	}
+
   async generateDefaultWorld(worldName) {
     let userInfo = this.ctx.state.user;
     if (!userInfo || !userInfo.username) {
@@ -60,8 +69,8 @@ class World extends Service {
 
     try {
       const ok = await Promise.all(writeList)
-
-	  return ok;
+      const archiveUrl = this.getArchiveUrl(userInfo.username, worldName);
+	  return {archiveUrl};
     } catch (error) {
 		console.log(error);
       return this.ctx.throw(409)

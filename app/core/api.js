@@ -37,7 +37,7 @@ class Api  {
 	}
 
 	get gitConfig() {
-		return this.curlConfig(this.config.gitGatewayToken, this.config.gitGatewayURL);
+		return this.curlConfig(this.config.gitGatewayToken, this.config.gitBaseURL);
 	}
 
 	get esConfig() {

@@ -24,11 +24,15 @@ const Project = class extends Controller {
 		const projectId = project.id;    // 项目ID
 		const userId = project.userId;   // 用户ID
 
-		await this.model.worlds.upsert({worldName, projectId, userId});
+		const data = await this.ctx.service.world.generateDefaultWorld(worldName);
+		
+		console.log(data ? `创建世界成功:${worldName}` : `创建世界失败:${worldName}`);
 
-		const ok = await this.ctx.service.world.generateDefaultWorld(worldName);
+		if (!data) return false;
 
-		console.log(ok ? `创建世界失败:${worldName}` : `创建世界成功:${worldName}`);
+		await this.model.worlds.upsert({worldName, projectId, userId, archiveUrl:data.archiveUrl});
+
+		return true;
 	}
 
 	async setProjectUser(list) {
@@ -102,7 +106,11 @@ const Project = class extends Controller {
 		const project = data.get({plain:true});
 
 		if (params.type == PROJECT_TYPE_PARACRAFT) {
-			await this.createWorld(project);
+			const ok = await this.createWorld(project);
+			if (!ok) {
+				await this.model.projects.destroy({where:{id:project.id}});
+				return this.throw(500, "创建世界失败");
+			}
 		}
 
 		return this.success(project);
@@ -198,8 +206,15 @@ const Project = class extends Controller {
 		if (!project) return this.throw(404);
 		
 		project.favoriteCount = await this.model.favorites.objectCount(project.id, ENTITY_TYPE_PROJECT);
+		if (project.type == PROJECT_TYPE_PARACRAFT) {
+			project.world = await this.model.worlds.getByProjectId(project.id);
+		}
 
 		return this.success(project);
+	}
+
+	async world() {
+		//const {id} = this.validate()
 	}
 }
 

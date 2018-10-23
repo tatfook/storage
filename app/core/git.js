@@ -19,7 +19,7 @@ class Git {
       this.isConfigRight = false;
     }
 
-    this.gitGatewayApi = this.app.config.self.gitGatewayURL || '';
+    this.gitGatewayApi = this.app.config.self.gitBaseURL || '';
     this.paracraftDefaultProject =
       this.app.config.self.paracraftDefaultProject || '';
 
@@ -30,6 +30,7 @@ class Git {
     if (!this.app) {
       this.isConfigRight = false;
     }
+	//console.log(this.isConfigRight);
   }
 
   async getAdminToken() {
