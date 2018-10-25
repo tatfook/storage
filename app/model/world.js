@@ -30,6 +30,7 @@ module.exports = app => {
 		revision: {                  // 版本
 			type: STRING(32),	
 			allowNull: false,
+			defaultValue:0,
 		},
 
 		projectId: {                 // 项目id
@@ -37,6 +38,16 @@ module.exports = app => {
 			allowNull: false,
 		},
 		
+		commitId: {                  // 最后一次提价id
+			type: STRING(64),
+			defaultValue: "master",
+		},
+
+		archiveUrl: {                // git archive url
+			type: STRING(255),
+			defaultValue:"",
+		},
+
 		fileSize: {                  // 文件大小
 			type: BIGINT,
 			defaultValue: 0,
@@ -65,6 +76,10 @@ module.exports = app => {
 			unique: true,
 			fields: ["userId", "worldName"],
 		},
+		{
+			unique: true,
+			fields: ["projectId"],
+		},
 		],
 	});
 
@@ -72,6 +87,11 @@ module.exports = app => {
 		//console.log("create table successfully");
 	//});
 	
+	model.getByProjectId = async function(projectId) {
+		const world = await app.model.worlds.findOne({where:{projectId}});
+		
+		return world && world.get({plain:true});
+	}
 
 	app.model.worlds = model;
 	return model;

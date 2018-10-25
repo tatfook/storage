@@ -1,13 +1,9 @@
 
 module.exports = {
-	//get model() {
-		//return this.app.model;
-	//}
-	//get config() {
-		//return this.app.config.self;
-	//}
+	authenticated() {
+		const user = this.state.user;
+		if (!user || user.userId == undefined) return this.throw(401);
 
-	//get util() {
-		//return this.app.util;
-	//}
+		return user;
+	}
 }

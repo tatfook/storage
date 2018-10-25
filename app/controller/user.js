@@ -134,7 +134,11 @@ const User = class extends Controller {
 		if (!user) return ctx.throw(500);
 		user = user.get({plain:true});
 
-		this.app.api.createGitUser(user);
+		const ok = await this.app.api.createGitUser(user);
+		if (!ok) {
+			await this.model.users.destroy({where:{id:user.id}});
+			return this.throw(500, "创建git用户失败");
+		}
 
 		if (params.oauthToken) {
 			await model.oauthUsers.update({userId:user.id}, {where:{token:params.oauthToken}});
@@ -308,7 +312,19 @@ const User = class extends Controller {
 		if (!user) this.throw(400);
 		
 		user.siteCount = await this.model.sites.getCountByUserId(id);
-		
+	}
+
+	async sites() {
+		const {id} = this.validate();
+		const user = await this.model.users.get(id);
+
+		if (!user) return this.success([]);
+
+		const userId = user.id;
+		const sites = await this.model.sites.get(userId);
+		const joinSites = await this.model.sites.getJoinSites(userId, 0);
+
+		return this.success(sites.concat(joinSites));
 	}
 }
 
