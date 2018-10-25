@@ -181,7 +181,7 @@ module.exports = app => {
 		const curTime = (new Date(year, month, day)).getTime();
 		const dayTime = 1000 * 3600 * 24;
 		const newStatistics = {};
-		for (let i = 0; i < 3; i++) newStatistics[curTime - i * dayTime] = statistics[curTime - i * dayTime] || {visit:0, star:0, comment:0};
+		for (let i = 0; i < 7; i++) newStatistics[curTime - i * dayTime] = statistics[curTime - i * dayTime] || {visit:0, star:0, comment:0};
 		newStatistics[curTime].visit += visit;
 		newStatistics[curTime].star += star;
 		newStatistics[curTime].comment += comment;
