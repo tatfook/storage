@@ -37,11 +37,11 @@ class Api  {
 	}
 
 	get gitConfig() {
-		return this.curlConfig(this.config.gitGatewayToken, this.config.gitBaseURL);
+		return this.curlConfig(this.config.adminToken, this.config.gitBaseURL);
 	}
 
 	get esConfig() {
-		return this.curlConfig(this.config.gitGatewayToken, this.config.esBaseURL);
+		return this.curlConfig(this.config.adminToken, this.config.esBaseURL);
 	}
 
 	async createGitUser(data) {
@@ -111,7 +111,16 @@ class Api  {
 	}
 
 	async packagesUpsert(inst) {
-
+		return this.curl('post', `/packages/${inst.id}/upsert`, {
+		//return await this.curl('post', `/projects/${inst.id}/upsert`, {
+			id: inst.id,
+			title: inst.packageName,
+			description: inst.description,
+			age_min: inst.minAge,
+			age_max: inst.maxAge,
+			cover: inst.extra.coverUrl,
+			recent_view: 0,
+		}, this.esConfig);
 	}
 
 	async usersDestroy({id}) {
@@ -134,7 +143,7 @@ class Api  {
 module.exports = app => {
 	const config = app.config.self;
 
-	config.gitGatewayToken = app.util.jwt_encode({userId:1, username:"xiaoyao", roleId:10}, config.secret, 3600 * 24 * 365 * 10);
+	config.adminToken = app.util.jwt_encode({userId:1, username:"xiaoyao", roleId:10}, config.secret, 3600 * 24 * 365 * 10);
 	app.api = new Api(config, app);
 }
 
