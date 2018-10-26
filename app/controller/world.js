@@ -15,7 +15,12 @@ const World = class extends Controller {
   }
 
   async test() {
-    const ok = await this.ctx.service.world.generateDefaultWorld('你好啊6');
+    const params = this.validate({
+			worldName: "string"
+		});
+
+    const ok = await this.ctx.service.world.generateDefaultWorld(params.worldName);
+    console.log(params.worldName)
 	return this.success(ok);
   }
 };
