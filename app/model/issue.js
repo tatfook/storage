@@ -42,7 +42,7 @@ module.exports = app => {
 			defaultValue:"",
 		},
 
-		state: {
+		state: {                     // 0 -- 进行中  1 -- 已完成
 			type: INTEGER,
 			defaultValue:0,
 		},

@@ -98,7 +98,7 @@ class Api  {
 			user_portrait: user.portrait,
 			visibility: inst.visibility == 0 ? "public" : "private",
 			recruiting: (inst.privilege & 1) ? true : false,
-			type: inst.type == 0 ? "paracraft" : "site",
+			type: inst.type == 1 ? "paracraft" : "site",
 			created_time: inst.createdAt,
 			cover: inst.extra.imageUrl,
 			total_like: inst.star,
