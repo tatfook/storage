@@ -3,80 +3,117 @@ const base32 = require('base32');
 const Service = require('egg').Service;
 
 class World extends Service {
-	getArchiveUrl(username, worldName) {
-		const config = this.app.config.self.gitlab;
-		const host = config.host;
-		const baseWorldName = this.base32(worldName);
-		const gitUsername = config.usernamePrefix + username;
-		
-		return `${host}/${gitUsername}/${baseWorldName}/repository/archive.zip`;
-	}
+  getArchiveUrl(username, worldName) {
+    const config = this.app.config.self.gitlab;
+    const host = config.host;
+    const baseWorldName = this.base32(worldName);
+    const gitUsername = config.usernamePrefix + username;
+
+    return `${host}/${gitUsername}/${baseWorldName}/repository/archive.zip`;
+  }
 
   async generateDefaultWorld(worldName) {
     let userInfo = this.ctx.state.user;
+    let token = this.ctx.state.token;
     if (!userInfo || !userInfo.username) {
-      return false
+      return false;
     }
 
-    let tree = await this.app.git.getTree()
-    let baseWorldName = this.base32(worldName)
-    let worldProject = (userInfo.username || '') + '/' + (baseWorldName || '')
+    let baseWorldName = this.base32(worldName);
 
-    let result = await this.app.git.isProjectExist(worldProject)
+    let {
+      gitlabToken,
+      gitlabUsername
+    } = await this.app.gitGateway.getUserGitlabTokenAndUsername(token);
+
+    if (!gitlabToken) {
+      return false;
+    }
+
+    let result = await this.app.git.isProjectExist(
+      gitlabToken,
+      gitlabUsername,
+      baseWorldName
+    );
 
     if (!result) {
-      let result = await this.app.git.createProject(userInfo.username, baseWorldName)
+      let result = await this.app.gitGateway.createProject(
+        userInfo.username,
+        baseWorldName
+      );
 
       if (!result) {
-        return this.ctx.throw(500, "创建GIT项目失败");
+        return this.ctx.throw(500, '创建GIT项目失败');
       }
     }
+
+    let tree = await this.app.gitGateway.getTree();
 
     await new Promise((resolve, reject) => {
       let index = 0;
 
       if (!tree || tree.length == 0) {
-        resolve()
+        resolve();
       }
 
       _.forEach(tree, async (item, key) => {
         if (item && item.path) {
-
-          let content = await this.app.git.getContent(null, item.path);
+          let content = await this.app.gitGateway.getContent(null, item.path);
 
           item.content = content;
-          index++
+          index++;
 
           if (index == tree.length) {
-            resolve()
+            resolve();
           }
         }
-      })
-    })
+      });
+    });
 
-    let token = this.ctx.state.token
-    let writeList = []
+    let success = await new Promise((resolve, reject) => {
+      let index = 0;
+      let self = this;
 
-    _.forEach(tree, (item, key) => {
-      if (item && item.path && item.content) {
-        if (item.path == 'tag.xml') {
-          item.content = item.content.replace('name="DefaultName"', `name="${worldName || ''}"`)
+      async function upload() {
+        if (index + 1 == tree.length) {
+          resolve(true);
+          return true;
         }
 
-        writeList[writeList.length] = this.app.git.writeFile(token, worldProject, item.path, item.content)
-      }
-    })
+        let item = tree[index];
+        if (item && item.path && item.content) {
+          if (item.path == 'tag.xml') {
+            item.content = item.content.replace(
+              'name="DefaultName"',
+              `name="${worldName || ''}"`
+            );
+          }
 
-    try {
-      const ok = await Promise.all(writeList)
+          await self.app.git.writeFile(
+            gitlabToken,
+            gitlabUsername,
+            baseWorldName,
+            item.path,
+            item.content
+          );
+
+          index++;
+          upload();
+        } else {
+          reject(false);
+        }
+      }
+
+      upload();
+    });
+
+    if (success) {
       const archiveUrl = this.getArchiveUrl(userInfo.username, worldName);
-	  return {archiveUrl};
-    } catch (error) {
-		console.log(error);
-      return this.ctx.throw(409)
+      return { archiveUrl };
+    } else {
+      return this.ctx.throw(400, '写入世界文件失败！');
     }
   }
-
 
   // =转成-equal  +转成-plus  /转成-slash
   base32(text) {
@@ -122,8 +159,6 @@ class World extends Service {
       return nil;
     }
   }
-
 }
 
 module.exports = World;
-
