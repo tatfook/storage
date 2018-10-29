@@ -16,7 +16,7 @@ class World extends Service {
     let userInfo = this.ctx.state.user;
     let token = this.ctx.state.token;
     if (!userInfo || !userInfo.username) {
-		console.log("未认证");
+      console.log('未认证');
       return false;
     }
 
@@ -28,7 +28,7 @@ class World extends Service {
     } = await this.app.gitGateway.getUserGitlabTokenAndUsername(token);
 
     if (!gitlabToken) {
-		console.log("未找gitlab token");
+      console.log('未找gitlab token');
       return false;
     }
 
@@ -45,8 +45,8 @@ class World extends Service {
       );
 
       if (!result) {
-		  console.log("创建GIT项目失败", result);
-		  return false;
+        console.log('创建GIT项目失败', result);
+        return false;
       }
     }
 
@@ -115,8 +115,8 @@ class World extends Service {
       return { archiveUrl };
     } else {
       //return this.ctx.throw(400, '写入世界文件失败！');
-	  console.log("写世界文件失败");
-	  return false;
+      console.log('写世界文件失败');
+      return false;
     }
   }
 
