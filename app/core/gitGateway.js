@@ -46,6 +46,7 @@ class GitGateway {
 
   async getUserGitlabTokenAndUsername(token) {
     if (!this.isConfigRight || typeof(token) != "string") {
+		console.log("配置错误");
       return false;
     }
 
@@ -64,9 +65,11 @@ class GitGateway {
       if (response && response.data && response.data.token) {
         return { gitlabToken: response.data.token, gitlabUsername: response.data.git_username};
       } else {
+		  console.log(response);
         return false;
       }
     } catch (error) {
+		console.log(error);
       return false;
     }
   }

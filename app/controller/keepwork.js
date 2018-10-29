@@ -1,4 +1,5 @@
 
+const fs = require("fs");
 const _ = require("lodash");
 const Controller = require("../core/controller.js");
 
@@ -58,6 +59,32 @@ class Keepwork extends Controller {
 		await caches.destroy({where:{key:"key"}});
 		await caches.destroy({where:{key:"key1"}});
 		return this.success(cache);
+	}
+
+	async words() {
+		const self = this;
+
+		const wordstr = await new Promise((resolve, reject) => {
+			fs.readFile("./app/controller/sensitive_word.txt", function(err, data) {
+				if (err) {
+					console.log("加载铭感词文件失败");
+					return resolve("");
+				}
+
+				return resolve(data.toString());
+			});
+
+		});
+		
+		const words = wordstr.split(",");
+		for (let i = 0; i < words.length; i++) {
+			const word = words[i];
+			await this.model.sensitiveWords.upsert({word});
+		}
+
+		//_.each(words, async (word) => await this.model.sensitiveWords.upsert({word}));
+		
+		return this.success({words, size: words.length});
 	}
 }
 

@@ -11,6 +11,8 @@ const pingpp = require('./app/core/pingpp.js');
 const git = require('./app/core/git.js');
 const gitGateway = require('./app/core/gitGateway.js');
 const model = require('./app/core/model.js');
+const ahocorasick = require('./app/core/ahocorasick.js');
+
 module.exports = app => {
   app.cache = cache;
   app.consts = consts;
@@ -25,6 +27,7 @@ module.exports = app => {
   git(app);
   gitGateway(app);
   model(app);
+  ahocorasick(app);
 
   //console.log(app.config.env);
   //
@@ -54,4 +57,5 @@ module.exports = app => {
   //app.model.visitors.sync({force:true});
   //app.model.applies.sync({force:true});
   //app.model.caches.sync({force:true});
+  //app.model.sensitiveWords.sync({force:true});
 };

@@ -10,6 +10,7 @@ module.exports = app => {
 
 	const keepwork = controller.keepwork;
 	router.get(`${prefix}keepworks/test`, keepwork.test);
+	router.get(`${prefix}keepworks/words`, keepwork.words);
 	router.get(`${prefix}keepworks/statistics`, keepwork.statistics);
 
 	const user = controller.user;
@@ -130,4 +131,10 @@ module.exports = app => {
 	const world = controller.world;
 	router.get(`${prefix}worlds/test`, world.test);
 	router.resources(`${prefix}worlds`, world);
+
+	const sensitiveWord = controller.sensitiveWord;
+	router.get(`${prefix}sensitiveWords/check`, sensitiveWord.check);
+	router.get(`${prefix}sensitiveWords/import`, sensitiveWord.importWords);
+	router.resources(`${prefix}sensitiveWords`, sensitiveWord);
+
 }
