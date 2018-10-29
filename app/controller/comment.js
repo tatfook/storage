@@ -27,7 +27,10 @@ const Comment = class extends Controller {
 
 	async index() {
 		const params = this.validate();
+		
 		this.formatQuery(params);
+
+		console.log(params);
 
 		const list = await this.model.comments.findAll({...this.queryOptions, where:params});
 		return this.success(list);
