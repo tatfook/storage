@@ -123,7 +123,7 @@ class World extends Service {
   // =转成-equal  +转成-plus  /转成-slash
   base32(text) {
     if (text) {
-      let notLetter = text.match(/[^a-zA-Z]/g);
+      let notLetter = text.match(/[^a-zA-Z0-9]/g);
 
       if (notLetter) {
         text = base32.encode(text);
