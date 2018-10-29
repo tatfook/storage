@@ -32,7 +32,7 @@ const Comment = class extends Controller {
 
 		console.log(params);
 
-		const list = await this.model.comments.findAllAndCount({...this.queryOptions, where:params});
+		const list = await this.model.comments.findAndCount({...this.queryOptions, where:params});
 		return this.success(list);
 	}
 	
