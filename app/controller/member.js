@@ -50,6 +50,20 @@ const Member = class extends Controller {
 		return this.success(data);
 	}
 
+	async destroy() {
+		const {userId} = this.authenticated();
+		const {id} = this.validate({id:"int"});
+
+		const member = await this.model.members.findOne({where:{id, userId}});
+		if (!member) return this.throw(404);
+
+		await this.model.members.destroy({where:{id, userId}});
+
+		await this.model.applies.destroy({where:{objectId:member.objectId, objectType:member.objectType, userId: member.memberId}});
+
+		return this.success("OK");
+	}
+
 	async exist() {
 		const {userId} = this.authenticated();
 		const {objectId, objectType, memberId=userId} = this.validate({

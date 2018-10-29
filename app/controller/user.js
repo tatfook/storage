@@ -72,17 +72,20 @@ const User = class extends Controller {
 
 		//if (model.roles.isExceptionRole(user.roleId)) this.throw(403, "异常用户");
 
+		const tokenExpire = config.tokenExpire || 3600 * 24 * 2;
 		const token = util.jwt_encode({
 			userId: user.id, 
 			roleId: user.roleId,
 			username: user.username
-		}, config.secret, config.tokenExpire);
+		}, config.secret, tokenExpire);
+
+		//console.log(config.tokenExpire);
 
 		user.token = token;
 		//user.roleId = roleId;
 		ctx.cookies.set("token", token, {
 			httpOnly: false,
-			maxAge: config.tokenExpire * 1000,
+			maxAge: tokenExpire * 1000,
 			overwrite: true,
 			domain: "." + config.domain,
 		});
@@ -144,16 +147,17 @@ const User = class extends Controller {
 			await model.oauthUsers.update({userId:user.id}, {where:{token:params.oauthToken}});
 		}
 
+		const tokenExpire = config.tokenExpire || 3600 * 24 * 2;
 		const token = util.jwt_encode({
 			userId: user.id, 
 			username: user.username,
 			roleId: user.roleId,
-		}, config.secret, config.tokenExpire);
+		}, config.secret, tokenExpire);
 
 		user.token = token;
 		ctx.cookies.set("token", token, {
 			httpOnly: false,
-			maxAge: config.tokenExpire * 1000,
+			maxAge: tokenExpire * 1000,
 			overwrite: true,
 			domain: "." + config.domain,
 		});
