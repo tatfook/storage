@@ -19,7 +19,7 @@ class GitGateway {
       this.isConfigRight = false;
     }
 
-    this.gitGatewayApi = this.app.config.self.gitGatewayURL || '';
+    this.gitGatewayApi = this.app.config.self.gitBaseURL || '';
     this.paracraftDefaultProject =
       this.app.config.self.paracraftDefaultProject || '';
 
@@ -46,7 +46,7 @@ class GitGateway {
 
   async getUserGitlabTokenAndUsername(token) {
     if (!this.isConfigRight || typeof(token) != "string") {
-		console.log("配置错误");
+		console.log("配置错误", this.isConfigRight, token);
       return false;
     }
 
