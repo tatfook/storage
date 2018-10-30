@@ -90,6 +90,18 @@ module.exports = app => {
 		return data && data.get({plain:true});
 	}
 
+	model.getBaseInfoById = async function(userId) {
+		const attributes = [["id", "userId"], "username", "nickname", "portrait", "description"];
+
+		const data = await app.model.users.findOne({where:{id:userId}, attributes});
+		if (!data) return {};
+
+		const user =  data.get({plain:true});
+		user.id = user.userId;
+
+		return user;
+	}
+
 	model.getById = async function(userId) {
 		const data = await app.model.users.findOne({
 			where: {id:userId},
