@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require('axios');
 
 class GitGateway {
   constructor(config, app) {
@@ -38,15 +38,19 @@ class GitGateway {
     }
 
     if (!this.adminToken) {
-      this.adminToken = this.app.util.jwt_encode({userId:1, roleId: 10}, this.app.config.self.secret, 3600 * 24 * 365 * 10)
+      this.adminToken = this.app.util.jwt_encode(
+        { userId: 1, roleId: 10 },
+        this.app.config.self.secret,
+        3600 * 24 * 365 * 10
+      );
     }
 
-    return this.adminToken
+    return this.adminToken;
   }
 
   async getUserGitlabTokenAndUsername(token) {
-    if (!this.isConfigRight || typeof(token) != "string") {
-		console.log("配置错误", this.isConfigRight, token);
+    if (!this.isConfigRight || typeof token != 'string') {
+      console.log('配置错误', this.isConfigRight, token);
       return false;
     }
 
@@ -55,39 +59,46 @@ class GitGateway {
     let axiosInst = axios.create({
       headers: {
         Authorization: `Bearer ${token || ''}`,
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json'
       }
-    })
+    });
 
     try {
-      let response = await axiosInst.get(url)
+      let response = await axiosInst.get(url);
 
       if (response && response.data && response.data.token) {
-        return { gitlabToken: response.data.token, gitlabUsername: response.data.git_username};
+        return {
+          gitlabToken: response.data.token,
+          gitlabUsername: response.data.git_username
+        };
       } else {
-		  console.log(response);
+        console.log(response);
         return false;
       }
     } catch (error) {
-		console.log(error);
+      console.log(error);
       return false;
     }
   }
 
   async createProject(userName, worldName) {
-    if (!this.isConfigRight || typeof userName != 'string' || typeof worldName != 'string') {
+    if (
+      !this.isConfigRight ||
+      typeof userName != 'string' ||
+      typeof worldName != 'string'
+    ) {
       return false;
     }
 
     let url = `${this.gitGatewayApi}/projects/user/${userName}`;
-    let adminToken = await this.getAdminToken()
+    let adminToken = await this.getAdminToken();
 
     let axiosInst = axios.create({
       headers: {
         Authorization: `Bearer ${adminToken || ''}`,
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json'
       }
-    })
+    });
 
     try {
       let response = await axiosInst.post(url, {
@@ -105,12 +116,35 @@ class GitGateway {
     }
   }
 
-  async removeProject() {
-    if (!this.isConfigRight) {
+  async removeProject(projectPath) {
+    if (!this.isConfigRight || typeof projectPath != 'string') {
       return false;
     }
 
-    let adminToken = this.app.util.jwt_encode;
+    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(
+      projectPath || ''
+    )}`;
+    let adminToken = await this.getAdminToken();
+
+    let axiosInst = axios.create({
+      headers: {
+        Authorization: `Bearer ${adminToken || ''}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    try {
+      let response = await axiosInst.delete(url);
+      if (response && response.data && response.data.deleted) {
+        return true;
+      } else {
+        console.log('删除失败');
+        return false;
+      }
+    } catch (error) {
+      console.log('删除失败');
+      return false;
+    }
   }
 
   async getTree(projectPath) {
@@ -122,11 +156,13 @@ class GitGateway {
 
     if (projectPath == this.paracraftDefaultProject) {
       if (Array.isArray(this.cacheTree) && this.cacheTree.length > 0) {
-        return this.cacheTree
+        return this.cacheTree;
       }
     }
 
-    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath)}/tree/?recursive`;
+    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(
+      projectPath
+    )}/tree/?recursive`;
     let response;
 
     try {
@@ -149,11 +185,13 @@ class GitGateway {
 
     projectPath = projectPath || this.paracraftDefaultProject;
 
-    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath)}/files/${encodeURIComponent(path)}`;
+    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(
+      projectPath
+    )}/files/${encodeURIComponent(path)}`;
 
     if (projectPath == this.paracraftDefaultProject) {
       if (this.cacheContent[url]) {
-        return this.cacheContent[url]
+        return this.cacheContent[url];
       }
     }
 
@@ -181,59 +219,48 @@ class GitGateway {
       return false;
     }
 
-    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath)}/files/${encodeURIComponent(path)}`;
+    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(
+      projectPath
+    )}/files/${encodeURIComponent(path)}`;
 
     let axiosInst = axios.create({
       headers: {
         Authorization: `Bearer ${token || ''}`,
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json'
       }
-    })
+    });
 
     let result = await axiosInst.post(url, {
       content: content
-    })
+    });
 
     if (result && result.data && result.data.created) {
-      return true
+      return true;
     } else {
-      return false
+      return false;
     }
   }
-
-  // deleteFile(projectPath, path) {
-  //   if (!this.isConfigRight) {
-  //     return false;
-  //   }
-
-  //   let url =
-  //     this.gitGatewayApi +
-  //     '/projects/' +
-  //     encodeURIComponent(projectPath) +
-  //     '/files/' +
-  //     encodeURIComponent(path);
-  // }
 
   async isProjectExist(projectPath) {
     if (!this.isConfigRight) {
       return false;
     }
 
-    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath) || ''}/exist`
-    let adminToken = await this.getAdminToken()
+    let url = `${this.gitGatewayApi}/projects/${encodeURIComponent(projectPath) || ''}/exist`;
+    let adminToken = await this.getAdminToken();
 
     let axiosInst = axios.create({
       headers: {
         Authorization: `Bearer ${adminToken || ''}`
       }
-    })
+    });
 
-    let result = await axiosInst.get(url)
+    let result = await axiosInst.get(url);
 
     if (result && result.data) {
-      return true
+      return true;
     } else {
-      return false
+      return false;
     }
   }
 }
