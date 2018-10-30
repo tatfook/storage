@@ -16,12 +16,24 @@ const World = class extends Controller {
 
   async test() {
     const params = this.validate({
-			worldName: "string"
-		});
+      worldName: 'string'
+    });
 
-    const ok = await this.ctx.service.world.generateDefaultWorld(params.worldName);
-    console.log(params.worldName)
-	return this.success(ok);
+    const ok = await this.ctx.service.world.generateDefaultWorld(
+      params.worldName
+    );
+    console.log(params.worldName);
+    return this.success(ok);
+  }
+
+  async testDelete() {
+    const params = this.validate({
+      worldName: 'string'
+    });
+
+    const ok = await this.ctx.service.world.removeProject(params.worldName);
+    console.log(params.worldName);
+    return this.success(ok);
   }
 };
 

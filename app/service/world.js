@@ -120,6 +120,24 @@ class World extends Service {
     }
   }
 
+  async removeProject(worldName) {
+    let userInfo = this.ctx.state.user;
+    let token = this.ctx.state.token;
+    if (!userInfo || !userInfo.username) {
+      console.log('未认证');
+      return false;
+    }
+
+    let baseWorldName = this.base32(worldName);
+    let projectPath = `${userInfo.username || ''}/${baseWorldName}`
+
+    try {
+      let result = await this.app.gitGateway.removeProject(projectPath)
+    } catch (error) {
+      return false
+    }
+  }
+
   // =转成-equal  +转成-plus  /转成-slash
   base32(text) {
     if (text) {

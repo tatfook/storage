@@ -130,6 +130,7 @@ module.exports = app => {
 
 	const world = controller.world;
 	router.get(`${prefix}worlds/test`, world.test);
+	router.get(`${prefix}worlds/testDelete`, world.testDelete);
 	router.resources(`${prefix}worlds`, world);
 
 	const sensitiveWord = controller.sensitiveWord;
