@@ -67,6 +67,7 @@ const Issue = class extends Controller {
 		const issue = await this.model.issues.getById(id, userId);
 		if (!issue) this.throw(400);
 		issue.assigns = await this.model.issues.getIssueAssigns(issue.assigns);
+		issue.user = await this.model.users.getById(issue.userId);
 
 		return this.success(issue);
 	}
