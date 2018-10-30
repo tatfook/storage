@@ -140,9 +140,8 @@ module.exports = app => {
 	}
 
 	model.getIssueAssigns = async function(assigns) {
-		const ids = assigns.split("|");
+		const ids = assigns.split("|").filter(o => o);
 		const userIds = [];
-		val.assigns = [];
 		_.each(ids, id => {
 			id = id ? _.toNumber(id) : NaN;
 			if (_.isNaN(id)) return;
