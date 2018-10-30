@@ -78,7 +78,7 @@ class World extends Service {
       let self = this;
 
       async function upload() {
-        if (index + 1 == tree.length) {
+        if (index == tree.length) {
           resolve(true);
           return true;
         }
