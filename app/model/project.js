@@ -115,7 +115,7 @@ module.exports = app => {
 		},
 
 		description: {               // 项目描述
-			type: STRING(255),
+			type: TEXT,
 			defaultValue:"",
 		},
 
