@@ -35,6 +35,18 @@ const Project = class extends Controller {
 		return true;
 	}
 
+	async destroyWorld(project) {
+		const worldName = project.name;  // 世界名
+		const projectId = project.id;    // 项目ID
+		const userId = project.userId;   // 用户ID
+		
+		await this.model.worlds.destroy({where:{projectId, userId}});
+
+		await this.ctx.service.world.removeProject(worldName);
+
+		return true;
+	}
+
 	async setProjectUser(list) {
 		const userIds = [];
 
@@ -114,6 +126,23 @@ const Project = class extends Controller {
 		}
 
 		return this.success(project);
+	}
+
+	async destroy() {
+		const {userId} = this.authenticated();
+		const {id} = this.validate({id:"int"});
+
+		const project = await this.model.projects.getById(id, userId);
+		if (!project) return this.success("OK");
+
+		if (project.type == PROJECT_TYPE_PARACRAFT) {
+			const ok = await this.destroyWorld(project);
+			//if (!ok) return this.throw(500, "删除世界失败");
+		}
+
+		const data = await this.model.projects.destroy({where:{id, userId}});
+
+		return this.success(data);
 	}
 
 	async update() {

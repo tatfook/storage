@@ -133,6 +133,7 @@ class World extends Service {
 
     try {
       let result = await this.app.gitGateway.removeProject(projectPath)
+	  return true;
     } catch (error) {
       return false
     }
