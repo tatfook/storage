@@ -23,9 +23,13 @@ const Issue = class extends Controller {
 		const query = this.validate({
 			objectId: 'int',
 			objectType: joi.number().valid(ENTITYS).required(),
+			state: "int_optional",
+			title: "string_optional",
 		});
 
-		const list = await this.model.issues.getObjectIssues(query);
+		this.formatQuery(query);
+
+		const list = await this.model.issues.getObjectIssues(query, this.queryOptions);
 
 		return this.success(list);
 	}
@@ -65,6 +69,17 @@ const Issue = class extends Controller {
 		issue.assigns = await this.model.issues.getIssueAssigns(issue.assigns);
 
 		return this.success(issue);
+	}
+
+	async statistics() {
+		const {objectId, objectType} = this.validate({
+			objectId: 'int',
+			objectType: joi.number().valid(ENTITYS).required(),
+		});
+
+		const list = await this.model.issues.getObjectStatistics(objectId, objectType);
+
+		return this.success(list);
 	}
 }
 
