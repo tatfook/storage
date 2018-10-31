@@ -35,7 +35,9 @@ module.exports = app => {
   //app.model.files.sync({force:true});
   //app.model.storages.sync({force:true});
   //app.model.siteFiles.sync({force:true});
-  //app.model.users.sync({force:true});
+
+  //app.model.applies.sync({force:true});
+  //app.model.caches.sync({force:true});
   //app.model.comments.sync({force:true});
   //app.model.contributions.sync({force:true});
   //app.model.datas.sync({force:true});
@@ -50,12 +52,12 @@ module.exports = app => {
   //app.model.pages.sync({force:true});
   //app.model.projects.sync({force:true});
   //app.model.roles.sync({force:true});
+  //app.model.sensitiveWords.sync({force:true});
   //app.model.sites.sync({force:true});
   //app.model.siteGroups.sync({force:true});
   //app.model.tags.sync({force:true});
   //app.model.trades.sync({force:true});
+  //app.model.users.sync({force:true});
   //app.model.visitors.sync({force:true});
-  //app.model.applies.sync({force:true});
-  //app.model.caches.sync({force:true});
-  //app.model.sensitiveWords.sync({force:true});
+  //app.model.worlds.sync({force:true});
 };
