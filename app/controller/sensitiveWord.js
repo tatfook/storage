@@ -11,7 +11,9 @@ const SensitiveWord = class extends Controller {
 	}
 
 	async index() {
-		const list = await this.model.sensitiveWords.findAll({limit:100000});
+		const query = this.validate();
+
+		const list = await this.model.sensitiveWords.findAll({...this.queryOptions, where: query});
 
 		return this.success(list);
 	}
