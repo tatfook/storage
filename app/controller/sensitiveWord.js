@@ -10,6 +10,12 @@ const SensitiveWord = class extends Controller {
 		return "sensitiveWords";
 	}
 
+	async index() {
+		const list = await this.model.sensitiveWords.findAll({limit:100000});
+
+		return this.success(list);
+	}
+
 	async importWords() {
 		const wordstr = await new Promise((resolve, reject) => {
 			fs.readFile("./app/public/sensitive_word.txt", function(err, data) {
