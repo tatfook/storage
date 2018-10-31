@@ -102,6 +102,7 @@ module.exports = app => {
 	router.resources(`${prefix}projects`, project);
 
 	const issue = controller.issue;
+	router.post(`${prefix}issues/search`, issue.search);
 	router.resources(`${prefix}issues`, issue);
 
 	const member = controller.member;
