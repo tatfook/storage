@@ -19,6 +19,8 @@ module.exports = app => {
   app.util = util;
   app.unittest = app.config.env == 'unittest';
 
+  console.log(app.config.self);
+
   sms(app);
   email(app);
   axios(app);

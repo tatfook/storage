@@ -44,8 +44,12 @@ const Convert = class extends Controller {
 			description: data.introduce,
 			portrait: data.portrait,
 			cellphone: data.cellphone || (data.realNameInfo && data.realNameInfo.cellphone),
+			extra: {
+				address: data.location,
+			}
 		};
 
+		console.log("导入用户:", user);
 		return await usersModel.upsert(user);
 	}
 
@@ -77,6 +81,8 @@ const Convert = class extends Controller {
 				displayName: data.displayName,
 			}
 		};
+
+		console.log("导入站点", site);
 		return await sitesModel.upsert(site);
 	}
 
@@ -101,6 +107,7 @@ const Convert = class extends Controller {
 			groupname: data.groupname,
 		};
 
+		console.log("导入组", group);
 		return await groupsModel.upsert(group);
 	}
 
@@ -135,6 +142,7 @@ const Convert = class extends Controller {
 			groupId: group.id,
 		};
 
+		console.log("导入组成员", groupMember);
 		return await groupMembersModel.upsert(groupMember);
 	}
 
@@ -171,6 +179,7 @@ const Convert = class extends Controller {
 			level: data.level > 20 ? USER_ACCESS_LEVEL_WRITE : (data.level > 10 ? USER_ACCESS_LEVEL_READ : USER_ACCESS_LEVEL_NONE),
 		};
 
+		console.log("导入站点组", siteGroup);
 		await siteGroupsModel.upsert(siteGroup);
 	}
 
