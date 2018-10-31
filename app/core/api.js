@@ -28,10 +28,12 @@ class Api  {
 			config.data = data;
 		}
 
+		this.app.logger.debug(`发送请求: ${url}`);
 		return axios.request(config)
 			.then(res => {
 				//console.log(res);
 				this.app.logger.debug(`请求:${url}成功`, res.config);
+				return res.data;
 			})
 			.catch(res => {
 				console.log(res.response.status, res.response.data);
