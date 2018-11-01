@@ -92,6 +92,7 @@ module.exports = app => {
 	router.resources(`${prefix}tags`, tag);
 
 	const project = controller.project;
+	router.get(`${prefix}projects/:id/status`, project.status);
 	router.get(`${prefix}projects/join`, project.join);
 	router.post(`${prefix}projects/search`, project.search);
 	router.get(`${prefix}projects/:id/detail`, project.detail);

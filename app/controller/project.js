@@ -25,12 +25,13 @@ const Project = class extends Controller {
 		const userId = project.userId;   // 用户ID
 
 		const data = await this.ctx.service.world.generateDefaultWorld(worldName);
-		
 		console.log(data ? `创建世界成功:${worldName}` : `创建世界失败:${worldName}`);
-
-		if (!data) return false;
-
+		if (!data) {
+			await this.model.projects.destroy({where:{id:projectId}});
+			return false;
+		};
 		await this.model.worlds.upsert({worldName, projectId, userId, archiveUrl:data.archiveUrl});
+		await this.model.projects.update({extend:{status:2}}, {where:{id:projectId}});
 
 		return true;
 	}
@@ -45,6 +46,16 @@ const Project = class extends Controller {
 		await this.ctx.service.world.removeProject(worldName);
 
 		return true;
+	}
+
+	async status() {
+		const {id} = this.validate({id:"int"});
+
+		let project = await this.model.projects.findOne({where:{id}});
+		if (!project) return this.success(0);
+		project = project.get({plain:true});
+
+		return this.success(project.extend.status || 2);
 	}
 
 	async setProjectUser(list) {
@@ -112,17 +123,21 @@ const Project = class extends Controller {
 		delete params.visit;
 		delete params.hotNo;
 		delete params.choicenessNo;
+		params.extend = {
+			status:1, // 创建中
+		};
 
 		const data = await this.model.projects.create(params);
 		if (!data) return this.throw(500, "记录创建失败");
 		const project = data.get({plain:true});
 
 		if (params.type == PROJECT_TYPE_PARACRAFT) {
-			const ok = await this.createWorld(project);
-			if (!ok) {
-				await this.model.projects.destroy({where:{id:project.id}});
-				return this.throw(500, "创建世界失败");
-			}
+			this.createWorld(project);
+			//const ok = await this.createWorld(project);
+			//if (!ok) {
+				//await this.model.projects.destroy({where:{id:project.id}});
+				//return this.throw(500, "创建世界失败");
+			//}
 		}
 
 		return this.success(project);
