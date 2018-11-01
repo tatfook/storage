@@ -136,7 +136,7 @@ module.exports = app => {
 			_.each(assigns, id => val.assigns.push(usermap[id]));
 		});
 
-		return issues;
+		return {issues, total};
 	}
 
 	model.getIssueAssigns = async function(assigns) {

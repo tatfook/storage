@@ -19,6 +19,19 @@ const Issue = class extends Controller {
 		return "issues";
 	}
 
+	async search() {
+		const query = this.validate({
+			objectId: 'int',
+			objectType: joi.number().valid(ENTITYS).required(),
+		});
+
+		this.formatQuery(query);
+
+		const data = await this.model.issues.getObjectIssues(query, this.queryOptions);
+
+		return this.success(data);
+	}
+
 	async index() {
 		const query = this.validate({
 			objectId: 'int',
@@ -29,9 +42,9 @@ const Issue = class extends Controller {
 
 		this.formatQuery(query);
 
-		const list = await this.model.issues.getObjectIssues(query, this.queryOptions);
+		const data = await this.model.issues.getObjectIssues(query, this.queryOptions);
 
-		return this.success(list);
+		return this.success(data.issues);
 	}
 
 	async create() {
