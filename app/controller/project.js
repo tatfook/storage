@@ -124,7 +124,7 @@ const Project = class extends Controller {
 		delete params.hotNo;
 		delete params.choicenessNo;
 		params.extend = {
-			status:1, // 创建中
+			status:params.type == PROJECT_TYPE_PARACRAFT ? 1 : 2, // 1 - 创建中  2 - 创建完成
 		};
 
 		const data = await this.model.projects.create(params);
