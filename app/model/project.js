@@ -43,7 +43,12 @@ module.exports = app => {
 			type: BIGINT,
 		},
 
-		visibility: {                // 可见性 0 - 公开 1 - 私有
+		status: {                    // 项目状态  0 -- 创建失败  1  -- 创建中   2 --  创建成功
+			type: INTEGER,
+			defaultValue: 0,
+		},
+
+		visibility: {		         // 可见性 0 - 公开 1 - 私有
 			type: INTEGER, 
 			defaultValue: 0,
 		},

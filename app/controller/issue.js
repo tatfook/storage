@@ -29,7 +29,7 @@ const Issue = class extends Controller {
 
 		const data = await this.model.issues.getObjectIssues(query, this.queryOptions);
 
-		return this.success(data);
+		return this.success({count: data.total, rows: data.issues});
 	}
 
 	async index() {
