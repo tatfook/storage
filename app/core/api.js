@@ -75,7 +75,12 @@ class Api  {
 		//return await this.curl('post', `/users/${inst.id}/upsert`, {
 			id: inst.id,
 			username: inst.username,
-			user_portrait: inst.portrait,
+			portrait: inst.portrait,
+			total_fans: 0,
+			total_projects: 0,
+			total_follow:0,
+			created_time: inst.createdAt,
+			updated_time: inst.updatedAt, 
 		}, this.esConfig);
 	}
 
