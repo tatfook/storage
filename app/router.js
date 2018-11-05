@@ -55,6 +55,7 @@ module.exports = app => {
 	router.resources(`${prefix}domains`, domain);
 
 	const favorite = controller.favorite;
+	router.post(`${prefix}favorites/search`, favorite.search);
 	router.delete(`${prefix}favorites`, favorite.destroy);
 	router.get(`${prefix}favorites/follows`, favorite.follows);
 	router.get(`${prefix}favorites/exist`, favorite.exist);

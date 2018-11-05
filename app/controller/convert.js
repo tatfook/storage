@@ -21,10 +21,10 @@ const Convert = class extends Controller {
 
 	async convert() {
 		await this.users();
-		await this.sites();
-		await this.groups();
-		await this.groupMembers();
-		await this.siteGroups();
+		//await this.sites();
+		//await this.groups();
+		//await this.groupMembers();
+		//await this.siteGroups();
 
 		return this.success("OK");
 	}
@@ -49,8 +49,14 @@ const Convert = class extends Controller {
 			}
 		};
 
-		console.log("导入用户:", user);
-		return await usersModel.upsert(user);
+		//console.log("导入用户:", user);
+		try {
+			await usersModel.upsert(user);
+			if (user.username == "dukes") console.log("-----------------------------------------------");
+			//console.log("导入用户成功:", user.username);
+		} catch(e) {
+			//console.log("导入用户失败:", user.username);
+		}
 	}
 
 	async users() {
@@ -61,6 +67,7 @@ const Convert = class extends Controller {
 			await this.convertUser(data);
 		}
 
+		console.log(datas.length);
 		return this.success(datas);
 	}
 
