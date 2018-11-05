@@ -13,7 +13,7 @@ module.exports = app => {
 		id: {
 			type: BIGINT,
 			autoIncrement: true,
-			//primaryKey: true,
+			primaryKey: true,
 		},
 		
 		userId: {                    // 所属者 记录创建者
