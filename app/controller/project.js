@@ -130,6 +130,9 @@ const Project = class extends Controller {
 		if (!data) return this.throw(500, "记录创建失败");
 		const project = data.get({plain:true});
 
+		// 将创建者加到自己项目的成员列表中
+		await this.model.members.create({userId, memberId: userId, objectType: ENTITY_TYPE_PROJECT, objectId: project.id});
+
 		if (params.type == PROJECT_TYPE_PARACRAFT) {
 			this.createWorld(project);
 			//const ok = await this.createWorld(project);
