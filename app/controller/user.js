@@ -247,7 +247,7 @@ const User = class extends Controller {
 
 		if (!params.isBind) cellphone = "";
 
-		const await this.model.users.update({cellphone}, {where:{id:userId}});
+		return await this.model.users.update({cellphone}, {where:{id:userId}});
 	}
 
 	// 邮箱验证第一步
