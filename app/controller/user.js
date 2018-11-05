@@ -132,6 +132,7 @@ const User = class extends Controller {
 			nickname: params.nickname || params.username,
 			username: params.username,
 			password: util.md5(params.password),
+			realname: cellphone,
 		});
 
 		if (!user) return ctx.throw(500);
@@ -219,9 +220,6 @@ const User = class extends Controller {
 	
 	// 手机验证第二步  ==> 手机绑定
 	async cellphoneVerifyTwo() {
-		const {ctx, app} = this;
-		const {model} = this.app;
-
 		const userId = this.authenticated().userId;
 		const params = this.validate({
 			cellphone:"string",
@@ -236,18 +234,20 @@ const User = class extends Controller {
 		}
 		
 		const captcha = params.captcha;
-		const cache = await app.model.caches.get(cellphone);
+		const cache = await this.model.caches.get(cellphone);
 		//console.log(cache, cellphone, captcha, userId);
 		if (!captcha || !cache || cache.captcha != captcha) {
-			if (!cache) ctx.throw(400, "验证码过期");
-			if (!captcha || cache.captcha != captcha) return ctx.throw(400, "验证码错误" + cache.captcha + "-" + captcha);
+			if (!cache) this.throw(400, "验证码过期");
+			if (!captcha || cache.captcha != captcha) return this.throw(400, "验证码错误" + cache.captcha + "-" + captcha);
 		}
 		
+		if (params.realname) {
+			return await this.model.users.update({realname: cellphone}, {where:{id:userId}});
+		}
+
 		if (!params.isBind) cellphone = "";
 
-		const result = await model.users.update({cellphone}, {where:{id:userId}});
-
-		return this.success(result && result[0] == 1);
+		const await this.model.users.update({cellphone}, {where:{id:userId}});
 	}
 
 	// 邮箱验证第一步

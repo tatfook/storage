@@ -44,6 +44,10 @@ module.exports = app => {
 			unique: true,
 		},
 
+		realname: {
+			type: STRING(24),
+		},
+
 		nickname: {
 			type: STRING(48),
 		},
