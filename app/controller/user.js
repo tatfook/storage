@@ -242,12 +242,14 @@ const User = class extends Controller {
 		}
 		
 		if (params.realname) {
-			return await this.model.users.update({realname: cellphone}, {where:{id:userId}});
+			await this.model.users.update({realname: cellphone}, {where:{id:userId}});
+			return this.success("OK");
 		}
 
 		if (!params.isBind) cellphone = "";
 
-		return await this.model.users.update({cellphone}, {where:{id:userId}});
+		await this.model.users.update({cellphone}, {where:{id:userId}});
+		return this.success("OK");
 	}
 
 	// 邮箱验证第一步
