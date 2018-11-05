@@ -38,12 +38,12 @@ module.exports = app => {
 		collate: 'utf8mb4_bin',
 		//engine: "myisam",
 
-		indexes: [
-		{
-			unique: true,
-			fields: ["userId", "id"],
-		},
-		],
+		//indexes: [
+		//{
+			//unique: true,
+			//fields: ["userId", "id"],
+		//},
+		//],
 	});
 
 	//model.sync({force:true}).then(() => {
