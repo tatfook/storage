@@ -53,7 +53,7 @@ module.exports = app => {
 		},
 
 		portrait: {
-			type: STRING(128),
+			type: STRING(1024),
 		},
 
 		sex: {
