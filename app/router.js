@@ -71,6 +71,9 @@ module.exports = app => {
 	const comment = controller.comment;
 	router.resources(`${prefix}comments`, comment);
 
+	const qiniu = controller.qiniu;
+	router.get(`${prefix}qinius/token`, qiniu.token);
+
 	const file = controller.file;
 	router.get(`${prefix}files/:id/rawurl`, file.rawurl);
 	router.get(`${prefix}files/:id/token`, file.token);
