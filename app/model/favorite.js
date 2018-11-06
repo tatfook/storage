@@ -149,25 +149,25 @@ module.exports = app => {
 
 	model.getStatistics = async function(userId) {
 		// 粉丝
-		const followsCount = await this.model.count({where:{
+		const followsCount = await this.model.favorites.count({where:{
 			objectId:userId,
 			objectType:ENTITY_TYPE_USER,
 		}});
 
 		// 关注
-		const followingCount = await this.model.count({where:{
+		const followingCount = await this.model.favorites.count({where:{
 			userId,
 			objectType:ENTITY_TYPE_USER,
 		}});
 
 		// 站点
-		const siteFavoriteCount = await this.model.count({where:{
+		const siteFavoriteCount = await this.model.favorites.count({where:{
 			userId,
 			objectType:ENTITY_TYPE_SITE,
 		}});
 		
 		// 页面
-		const pageFavoriteCount = await this.model.count({where:{
+		const pageFavoriteCount = await this.model.favorites.count({where:{
 			userId,
 			objectType:ENTITY_TYPE_PAGE,
 		}});

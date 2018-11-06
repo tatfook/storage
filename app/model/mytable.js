@@ -21,11 +21,10 @@ module.exports = app => {
 			allowNull: false,
 		},
 
-		//No: {
-			//type: BIGINT,
-			//allowNull: false,
-			//autoIncrement: true,
-		//},
+		No: {
+			type: BIGINT,
+			allowNull: false,
+		},
 
 		extra: {
 			type: JSON,
@@ -36,14 +35,13 @@ module.exports = app => {
 		underscored: false,
 		charset: "utf8mb4",
 		collate: 'utf8mb4_bin',
-		//engine: "myisam",
 
-		//indexes: [
-		//{
-			//unique: true,
-			//fields: ["userId", "id"],
-		//},
-		//],
+		indexes: [
+		{
+			unique: true,
+			fields: ["userId", "No"],
+		},
+		],
 	});
 
 	//model.sync({force:true}).then(() => {

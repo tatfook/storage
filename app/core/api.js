@@ -3,6 +3,12 @@ const _ = require("lodash");
 const axios = require("axios");
 const pathToRegexp = require('path-to-regexp');
 
+const {
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+} = require("../core/consts.js");
+
 class Api  {
 	constructor(config, app) {
 		this.config = config;
@@ -69,16 +75,40 @@ class Api  {
 		return await this.curl('put', url, data, this.gitConfig);
 	}
 
+	async favorites(favorite) {
+		if (favorite.objectType == ENTITY_TYPE_USER) {
+			const fansUser = await this.app.model.users.getById(favorite.objectId);
+			const followUser = await this.app.model.users.getById(favorite.userId);
+
+			await usersUpsert(fansUser);
+			await usersUpsert(followUser);
+		}
+	}
+
+	async favoritesUpsert(favorite) {
+		await favorites(favorite);
+	}
+
+	async favoritesDestroy(favorite) {
+		await favorites(favorite);
+	}
 
 	async usersUpsert(inst) {
+		if (!inst) return console.log("参数为空");
+		inst = inst.get ? inst.get({plain:true}) : inst;
+
+		const userId = inst.id;
+		inst.projectCount = await this.app.model.projects.count({where:{userId}});
+		inst.fansCount = await this.app.model.favorites.count({where:{objectId:userId, objectType: ENTITY_TYPE_USER}});
+		inst.followsCount = await this.app.model.favorites.count({where:{userId, objectType: ENTITY_TYPE_USER}});
 		return this.curl('post', `/users/${inst.id}/upsert`, {
 		//return await this.curl('post', `/users/${inst.id}/upsert`, {
 			id: inst.id,
 			username: inst.username,
 			portrait: inst.portrait,
-			total_fans: 0,
-			total_projects: 0,
-			total_follow:0,
+			total_fans: inst.fansCount,
+			total_projects: inst.projectCount,
+			total_follow: inst.followCount,
 			created_time: inst.createdAt,
 			updated_time: inst.updatedAt, 
 		}, this.esConfig);
@@ -99,6 +129,8 @@ class Api  {
 	async projectsUpsert(inst) {
 		const tags = (inst.tags || "").split("|").filter(o => o);
 		const user = await this.app.model.users.findOne({where:{id:inst.userId}});
+		if (inst.createdAt == inst.updatedAt) await usersUpsert(user);
+
 		if (!user) return;
 
 		return this.curl('post', `/projects/${inst.id}/upsert`, {
@@ -142,7 +174,10 @@ class Api  {
 		return await this.curl('delete', `/sites/${id}`, {}, this.esConfig);
 	}
 
-	async projectsDestroy({id}) {
+	async projectsDestroy({id, userId}) {
+		const user = await this.app.model.users.findOne({where:{id:userId}});
+		await usersUpsert(user);
+
 		return await this.curl('delete', `/projects/${id}`, {}, this.esConfig);
 	}
 

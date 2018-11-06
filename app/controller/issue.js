@@ -57,6 +57,9 @@ const Issue = class extends Controller {
 		});
 		params.userId = userId;
 
+		const issue = await this.model.issues.findOne({order:[["No", "desc"]], where:{objectId:params.objectId, objectType:params.objectType}});
+		params.no = issue ? issue.no + 1 : 1;
+
 		let data = await this.model.issues.create(params);
 		if (!data) return this.throw(500);
 		data = data.get({plain:true});
