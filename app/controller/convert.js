@@ -21,10 +21,10 @@ const Convert = class extends Controller {
 
 	async convert() {
 		await this.users();
-		//await this.sites();
-		//await this.groups();
-		//await this.groupMembers();
-		//await this.siteGroups();
+		await this.sites();
+		await this.groups();
+		await this.groupMembers();
+		await this.siteGroups();
 
 		return this.success("OK");
 	}
@@ -33,8 +33,7 @@ const Convert = class extends Controller {
 		return this.app.config.self.keepworkBaseURL;
 	}
 
-	async convertUser(data) {
-		const usersModel = this.ctx.model.users;
+	convertUser(data) {
 		let user = {
 			id: data._id,
 			username: data.username,
@@ -43,28 +42,35 @@ const Convert = class extends Controller {
 			sex: data.sex,
 			description: data.introduce,
 			portrait: data.portrait,
-			cellphone: data.cellphone || (data.realNameInfo && data.realNameInfo.cellphone),
+			cellphone: data.cellphone ? data.cellphone : null,
+			realname: (data.realNameInfo && data.realNameInfo.cellphone) ? data.realNameInfo.cellphone : null,
 			extra: {
 				address: data.location,
 			}
 		};
 
-		//console.log("导入用户:", user);
-		try {
-			await usersModel.upsert(user);
-			if (user.username == "dukes") console.log("-----------------------------------------------");
-			//console.log("导入用户成功:", user.username);
-		} catch(e) {
-			//console.log("导入用户失败:", user.username);
-		}
+		return user;
 	}
 
 	async users() {
-		const datas = await axios.get(this.keepworkApiUrlPrefix() + "user/export").then(res => res.data);
+		const usersModel = this.ctx.model.users;
 
+		let datas = await axios.get(this.keepworkApiUrlPrefix() + "user/export").then(res => res.data);
+		datas = _.uniqBy(datas, 'username');
+		datas = _.uniqBy(datas, '_id');
+
+		let list = [];
 		for (let i = 0; i < datas.length; i++) {
 			let data = datas[i];
-			await this.convertUser(data);
+			list.push(this.convertUser(data));
+
+			if (list.length == 300) {
+				await usersModel.bulkCreate(list);
+				list = [];
+			}
+		}
+		if (list.length > 0) {
+			await usersModel.bulkCreate(list);
 		}
 
 		console.log(datas.length);
@@ -73,7 +79,6 @@ const Convert = class extends Controller {
 
 	async convertSite(data) {
 		const usersModel = this.ctx.model.users;
-		const sitesModel = this.ctx.model.sites;
 		let user = await usersModel.findOne({where:{username:data.username}});
 		if (!user) return;
 		let site = {
@@ -89,15 +94,28 @@ const Convert = class extends Controller {
 			}
 		};
 
-		console.log("导入站点", site);
-		return await sitesModel.upsert(site);
+		return site;
 	}
 
 	async sites() {
+		const sitesModel = this.ctx.model.sites;
 		const datas = await axios.get(this.keepworkApiUrlPrefix() + "website/export").then(res => res.data);
+		const compare = (s1, s2) => s1.userId == s2.userId && s1.sitename == s2.sitename;
+		let list = [];
 		for (let i = 0; i < datas.length; i++) {
 			let data = datas[i];
-			await this.convertSite(data);
+			const site = await this.convertSite(data);
+			if (site) list.push(site);
+			if (list.length == 300) {
+				list = _.uniqWith(list, compare);
+				await sitesModel.bulkCreate(list);
+				list = [];
+			}
+		}
+
+		if (list.length > 0) {
+			list = _.uniqWith(list, compare);
+			await sitesModel.bulkCreate(list);
 		}
 
 		return this.success(datas);
@@ -105,7 +123,6 @@ const Convert = class extends Controller {
 
 	async convertGroup(data) {
 		const usersModel = this.ctx.model.users;
-		const groupsModel = this.ctx.model.groups;
 		let user = await usersModel.findOne({where:{username:data.username}});
 		if (!user) return;
 		let group = {
@@ -114,15 +131,31 @@ const Convert = class extends Controller {
 			groupname: data.groupname,
 		};
 
-		console.log("导入组", group);
-		return await groupsModel.upsert(group);
+		return group;
+		//console.log("导入组", group);
+		//return await groupsModel.create(group);
+		//return await groupsModel.upsert(group);
 	}
 
 	async groups() {
+		const groupsModel = this.ctx.model.groups;
+		const compare = (s1, s2) => s1.userId == s2.userId && s1.groupname == s2.groupname;
 		const datas = await axios.get(this.keepworkApiUrlPrefix() + "group/export").then(res => res.data);
+		let list = [];
 		for (let i = 0; i < datas.length; i++) {
 			let data = datas[i];
-			await this.convertGroup(data);
+			const group = await this.convertGroup(data);
+			if (group) list.push(group);
+			if (list.length == 300) {
+				list = _.uniqWith(list, compare);
+				await groupsModel.bulkCreate(list);
+				list = [];
+			}
+		}
+
+		if (list.length > 0) {
+			list = _.uniqWith(list, compare);
+			await groupsModel.bulkCreate(list);
 		}
 
 		return this.success(datas);
@@ -140,24 +173,43 @@ const Convert = class extends Controller {
 			userId: user.id,
 			groupname: data.groupname,
 		}});
-		if (!group) return console.log("组不存在", data);
+		if (!group) {
+			console.log("组不存在", data);
+			return;
+		}
 		let groupMember = {
 			id: data._id,
 			userId: user.id,
-			objectId: member.id,
+			objectId: group.id,
 			objectType: ENTITY_TYPE_GROUP,
-			groupId: group.id,
+			memberId: member.id,
 		};
 
-		console.log("导入组成员", groupMember);
-		return await groupMembersModel.upsert(groupMember);
+		return groupMember;
+		//console.log("导入组成员", groupMember);
+		//return await membersModel.create(groupMember);
+		//return await membersModel.upsert(groupMember);
 	}
 
 	async groupMembers() {
+		const membersModel = this.ctx.model.members;
+		const compare = (s1, s2) => s1.objectId == s2.objectId && s1.objectType == s2.objectType && s1.memberId == s2.memberId;
 		const datas = await axios.get(this.keepworkApiUrlPrefix() + "group_user/export").then(res => res.data);
+		let list = [];
 		for (let i = 0; i < datas.length; i++) {
 			let data = datas[i];
-			await this.convertGroupMember(data)
+			const member = await this.convertGroupMember(data);
+			if (member) list.push(member);
+			if (list.length == 300) {
+				list = _.uniqWith(list, compare);
+				await membersModel.bulkCreate(list);
+				list = [];
+			}
+		}
+
+		if (list.length > 0) {
+			list = _.uniqWith(list, compare);
+			await membersModel.bulkCreate(list);
 		}
 
 		return this.success(datas);
@@ -167,7 +219,6 @@ const Convert = class extends Controller {
 		const usersModel = this.ctx.model.users;
 		const sitesModel = this.ctx.model.sites;
 		const groupsModel = this.ctx.model.groups;
-		const siteGroupsModel = this.ctx.model.siteGroups;
 
 		let user = await usersModel.findOne({where:{username:data.username}});
 		let groupUser = await usersModel.findOne({where:{username: data.groupUsername}});
@@ -186,15 +237,31 @@ const Convert = class extends Controller {
 			level: data.level > 20 ? USER_ACCESS_LEVEL_WRITE : (data.level > 10 ? USER_ACCESS_LEVEL_READ : USER_ACCESS_LEVEL_NONE),
 		};
 
-		console.log("导入站点组", siteGroup);
-		await siteGroupsModel.upsert(siteGroup);
+		//console.log("导入站点组", siteGroup);
+		return siteGroup;
+		//await siteGroupsModel.create(siteGroup);
+		//await siteGroupsModel.upsert(siteGroup);
 	}
 
 	async siteGroups() {
+		const siteGroupsModel = this.ctx.model.siteGroups;
+		const compare = (s1, s2) => s1.siteId == s2.siteId && s1.groupId == s2.groupId;
 		const datas = await axios.get(this.keepworkApiUrlPrefix() + "site_group/export").then(res => res.data);
+		let list = [];
 		for (let i = 0; i < datas.length; i++) {
 			let data = datas[i];
-			await this.convertSiteGroup(data);
+			const siteGroup = await this.convertSiteGroup(data);
+			if (siteGroup) list.push(siteGroup);
+			if (list.length == 300) {
+				list = _.uniqWith(list, compare);
+				await siteGroupsModel.bulkCreate(list);
+				list = [];
+			}
+		}
+
+		if(list.length > 0) {
+			list = _.uniqWith(list, compare);
+			await siteGroupsModel.bulkCreate(list);
 		}
 
 		return this.success(datas);
