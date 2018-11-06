@@ -86,11 +86,11 @@ class Api  {
 	}
 
 	async favoritesUpsert(favorite) {
-		await favorites(favorite);
+		await this.favorites(favorite);
 	}
 
 	async favoritesDestroy(favorite) {
-		await favorites(favorite);
+		await this.favorites(favorite);
 	}
 
 	async usersUpsert(inst) {
@@ -129,7 +129,7 @@ class Api  {
 	async projectsUpsert(inst) {
 		const tags = (inst.tags || "").split("|").filter(o => o);
 		const user = await this.app.model.users.findOne({where:{id:inst.userId}});
-		if (inst.createdAt == inst.updatedAt) await usersUpsert(user);
+		if (inst.createdAt == inst.updatedAt) await this.usersUpsert(user);
 
 		if (!user) return;
 
@@ -177,7 +177,7 @@ class Api  {
 
 	async projectsDestroy({id, userId}) {
 		const user = await this.app.model.users.findOne({where:{id:userId}});
-		await usersUpsert(user);
+		await this.usersUpsert(user);
 
 		return await this.curl('delete', `/projects/${id}`, {}, this.esConfig);
 	}
