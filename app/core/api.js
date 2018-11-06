@@ -147,6 +147,7 @@ class Api  {
 			total_like: inst.star,
 			total_view: inst.visit,
 			total_mark: inst.favorite,
+			total_comment: inst.commet,
 			recent_like: inst.lastStar,
 			recent_view: inst.lastVisit,
 			updated_time: inst.updatedAt,
