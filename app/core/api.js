@@ -38,7 +38,7 @@ class Api  {
 		return axios.request(config)
 			.then(res => {
 				//console.log(res);
-				this.app.logger.debug(`请求:${url}成功`, res.config);
+				this.app.logger.debug(`请求:${url}成功`, JSON.stringify(res.config));
 				return res.data;
 			})
 			.catch(res => {
@@ -147,7 +147,7 @@ class Api  {
 			total_like: inst.star,
 			total_view: inst.visit,
 			total_mark: inst.favorite,
-			total_comment: inst.commet,
+			total_comment: inst.comment,
 			recent_like: inst.lastStar,
 			recent_view: inst.lastVisit,
 			updated_time: inst.updatedAt,
