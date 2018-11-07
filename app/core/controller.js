@@ -138,6 +138,17 @@ class BaseController extends Controller {
 		replaceOp(query);
 	}
 
+	async count() {
+		const model = this.model[this.modelName];
+		const query = this.validate();
+
+		this.formatQuery(query);
+
+		const result = await model.count({...this.queryOptions, where:query});
+
+		this.success(result);
+	}
+	
 	async search() {
 		const model = this.model[this.modelName];
 		const query = this.validate();

@@ -51,19 +51,17 @@ const User = class extends Controller {
 	}
 
 	async login() {
-		const {ctx} = this;
-		const {model, util} = this.app;
 		const config = this.app.config.self;
-
+		const util = this.app.util;
 		const params = this.validate({
 			"username":"string",
 			"password":"string",
 		});
 
-		let user = await model.users.findOne({
+		let user = await this.model.users.findOne({
 			where: {
 				username: params.username,
-				password: util.md5(params.password),
+				password: this.app.util.md5(params.password),
 			},
 		});
 		
@@ -83,7 +81,7 @@ const User = class extends Controller {
 
 		user.token = token;
 		//user.roleId = roleId;
-		ctx.cookies.set("token", token, {
+		this.ctx.cookies.set("token", token, {
 			httpOnly: false,
 			maxAge: tokenExpire * 1000,
 			overwrite: true,

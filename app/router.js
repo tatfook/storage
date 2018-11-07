@@ -107,7 +107,9 @@ module.exports = app => {
 	router.resources(`${prefix}projects`, project);
 
 	const issue = controller.issue;
+	router.post(`${prefix}issues/count`, issue.count);
 	router.post(`${prefix}issues/search`, issue.search);
+	router.get(`${prefix}issues/statistics`, issue.statistics);
 	router.resources(`${prefix}issues`, issue);
 
 	const member = controller.member;
@@ -144,4 +146,6 @@ module.exports = app => {
 	router.get(`${prefix}sensitiveWords/import`, sensitiveWord.importWords);
 	router.resources(`${prefix}sensitiveWords`, sensitiveWord);
 
+	// wikicraft proxy
+	router.all("/api/wiki/models/user/login", controller.proxyUser.login);
 }
