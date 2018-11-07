@@ -50,6 +50,9 @@ class World extends Service {
       }
     }
 
+	// 直接返回不创建文件
+	return {};
+
     let tree = await this.app.gitGateway.getTree();
 
     await new Promise((resolve, reject) => {
