@@ -67,7 +67,7 @@ const User = class extends Controller {
 			},
 		});
 		
-		if (!user) ctx.throw(400, "用户名或密码错误");
+		if (!user) return this.fail(1);
 		user = user.get({plain:true});
 
 		//if (model.roles.isExceptionRole(user.roleId)) this.throw(403, "异常用户");
@@ -111,17 +111,16 @@ const User = class extends Controller {
 			"password":"string",
 		});
 
-		if (!usernameReg.test(params.username)) ctx.throw(400);
-
+		if (!usernameReg.test(params.username)) return this.fail(2);
 		let user = await model.users.getByName(params.username);
-		if (user) return ctx.throw(400, "用户已存在");
+		if (user) return this.fail(3);
 
 		const cellphone = params.cellphone;
 		if (cellphone) {
 			const cache = await this.app.model.caches.get(cellphone) || {};
 			if (!params.captcha || !cache.captcha || cache.captcha != params.captcha){
-				if (!cache.captcha) return this.throw(400, "验证码过期");
-				if (cache.captcha != params.captcha) return this.throw(400, "验证码失效");
+				if (!cache.captcha) return this.fail(4);
+				if (cache.captcha != params.captcha) return this.fail(5);
 			} 
 			const isBindCellphone = await model.users.findOne({where:{cellphone}});
 			if (isBindCellphone) delete params.cellphone;
@@ -135,13 +134,13 @@ const User = class extends Controller {
 			realname: cellphone,
 		});
 
-		if (!user) return ctx.throw(500);
+		if (!user) return this.fail(0);
 		user = user.get({plain:true});
 
 		const ok = await this.app.api.createGitUser(user);
 		if (!ok) {
 			await this.model.users.destroy({where:{id:user.id}});
-			return this.throw(500, "创建git用户失败");
+			return this.fail(6);
 		}
 
 		if (params.oauthToken) {

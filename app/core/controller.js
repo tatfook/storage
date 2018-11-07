@@ -2,6 +2,8 @@ const joi = require("joi");
 const _ = require("lodash");
 const Controller = require("egg").Controller;
 
+const Err = require("./err.js");
+
 const rules = {
 	"int": joi.number().required(),
 	"int_optional": joi.number(),
@@ -83,6 +85,12 @@ class BaseController extends Controller {
 
 	success(body = "OK", status=200) {
 		this.ctx.status = status;
+		this.ctx.body = body;
+	}
+
+	fail(body, status = 400) {
+		this.ctx.status = status;
+		if (_.isNumber(body)) body = Err.getByCode(body) || body;
 		this.ctx.body = body;
 	}
 
