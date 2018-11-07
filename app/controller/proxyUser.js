@@ -36,6 +36,18 @@ const ProxyUser = class extends Controller {
 
 		return this.success({message:"OK", id:0}, {userinfo:user, token});
 	}
+
+
+	async register() {
+		const {username, password} = this.validate({
+			username: "string",
+			password: "string",
+		});
+		const usernameReg = /^[\w\d]{4,30}$/;
+		if (!usernameReg.test(username)) return this.success({error:{id:-1, message:"用户名不合法"}});
+		let user = await this.model.users.getByName(username);
+		if (user) return this.success({error:{id:-1, message:"用户已存在"}});
+	}
 }
 
 module.exports = ProxyUser;

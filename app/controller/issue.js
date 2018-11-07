@@ -51,7 +51,9 @@ const Issue = class extends Controller {
 
 		const data = await this.model.issues.getObjectIssues(query, this.queryOptions);
 
-		return this.success({count: data.total, rows: data.issues});
+		const openCount = await this.model.issues.count({...query, state:0});
+		const closeCount = await this.model.issues.count({...query, state:1});
+		return this.success({count: data.total, rows: data.issues, openCount, closeCount});
 	}
 
 	async index() {
