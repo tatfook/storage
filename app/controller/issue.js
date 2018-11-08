@@ -136,7 +136,7 @@ const Issue = class extends Controller {
 	}
 
 	async show() {
-		const {userId} = this.authenticated();
+		const {userId} = this.getUser();
 		const {id} = this.validate({id:"int"});
 		const issue = await this.model.issues.getById(id);
 		if (!issue) this.throw(400);

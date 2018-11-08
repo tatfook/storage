@@ -70,6 +70,7 @@ const ProxyUser = class extends Controller {
 
 		user.token = token;
 		user.displayName = user.nickname;
+		delete user.password;
 
 		return this.success({
 			error:{id:0, message:"OK"},
@@ -79,7 +80,15 @@ const ProxyUser = class extends Controller {
 
 	// profile
 	async profile() {
-		const {userId} = this.getUser();	
+		const {userId} = this.authenticated();	
+
+		const user = await this.model.users.findOne({where:{id: userId}});
+
+		if (!user) return this.success({error:{id:-1, message:"用户不存在"}});
+
+		delete user.password;
+
+		return this.success({error:{id:0, message:"OK"}, data:user});
 	}
 }
 
