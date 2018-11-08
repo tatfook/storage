@@ -79,7 +79,7 @@ const ProxyUser = class extends Controller {
 
 	// profile
 	async profile() {
-			
+		const {userId} = this.getUser();	
 	}
 }
 

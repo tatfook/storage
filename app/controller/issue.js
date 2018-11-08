@@ -90,7 +90,8 @@ const Issue = class extends Controller {
 
 		const issue = await this.model.issues.findOne({order:[["No", "desc"]], where:{objectId:params.objectId, objectType:params.objectType}});
 		params.no = issue ? issue.no + 1 : 1;
-
+		params.text = params.no + " " + params.title;
+		
 		let data = await this.model.issues.create(params);
 		if (!data) return this.throw(500);
 		data = data.get({plain:true});
@@ -109,9 +110,12 @@ const Issue = class extends Controller {
 		const isCanOper = await this.isPrivilege(issue.objectId, issue.objectType, userId, true);
 		if (!isCanOper) return this.fail(7);
 
+		delete params.id;
 		delete params.userId;
+		_.merge(issue, params);
+		issue.text = issue.no + " " + issue.title;
 
-		const ok = await this.model.issues.update(params, {where:{id:id}});
+		const ok = await this.model.issues.update(issue, {where:{id:id}});
 
 		return this.success(ok);
 	}
