@@ -150,4 +150,6 @@ module.exports = app => {
 	router.all("/api/wiki/models/user/login", controller.proxyUser.login);
 	router.all("/api/wiki/models/user/register", controller.proxyUser.register);
 	router.all("/api/wiki/models/user/getProfile", controller.proxyUser.profile);
+	router.all("/api/wiki/models/oauth_app/agreeOauth", controller.proxyOauthApp.agreeOauth);
+	router.all("/api/wiki/models/oauth_app/getTokenByCode", controller.proxyOauthApp.getTokenByCode);
 }
