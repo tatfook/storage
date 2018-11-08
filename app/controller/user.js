@@ -148,7 +148,7 @@ const User = class extends Controller {
 			username: user.username,
 			sitename: '__keepwork__',
 			visibility: 'public',
-		})
+		});
 
 		if (params.oauthToken) {
 			await model.oauthUsers.update({userId:user.id}, {where:{token:params.oauthToken}});

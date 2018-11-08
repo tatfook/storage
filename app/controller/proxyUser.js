@@ -67,6 +67,11 @@ const ProxyUser = class extends Controller {
 			await this.model.users.destroy({where:{id:user.id}});
 			return this.success({error:{id:-1, message:"创建git用户失败"}});
 		}
+		await this.app.api.createGitProject({
+			username: user.username,
+			sitename: '__keepwork__',
+			visibility: 'public',
+		});
 
 		user.token = token;
 		user.displayName = user.nickname;
