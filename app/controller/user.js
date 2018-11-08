@@ -135,11 +135,20 @@ const User = class extends Controller {
 		if (!user) return this.fail(0);
 		user = user.get({plain:true});
 
-		const ok = await this.app.api.createGitUser(user);
+		const ok = await this.app.api.createGitUser({
+			id: user.id,
+			username: user.username,
+			password: params.password,
+		});
 		if (!ok) {
 			await this.model.users.destroy({where:{id:user.id}});
 			return this.fail(6);
 		}
+		await this.app.api.createGitProject({
+			username: user.username,
+			sitename: '__keepwork__',
+			visibility: 'public',
+		})
 
 		if (params.oauthToken) {
 			await model.oauthUsers.update({userId:user.id}, {where:{token:params.oauthToken}});

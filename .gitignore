@@ -17,3 +17,5 @@ build
 logs/
 run/
 config/config.*.js
+
+yarn.lock
