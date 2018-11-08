@@ -62,6 +62,10 @@ module.exports = app => {
 			defaultValue: 1,
 		},
 
+		text: {
+			type: TEXT,             // issue 搜索文本
+		},
+
 		extra: {
 			type: JSON,
 			defaultValue: {},

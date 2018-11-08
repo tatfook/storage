@@ -148,4 +148,5 @@ module.exports = app => {
 
 	// wikicraft proxy
 	router.all("/api/wiki/models/user/login", controller.proxyUser.login);
+	router.all("/api/wiki/models/user/register", controller.proxyUser.register);
 }
