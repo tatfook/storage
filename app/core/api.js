@@ -108,7 +108,7 @@ class Api  {
 			portrait: inst.portrait,
 			total_fans: inst.fansCount,
 			total_projects: inst.projectCount,
-			total_follow: inst.followCount,
+			total_follows: inst.followCount,
 			created_time: inst.createdAt,
 			updated_time: inst.updatedAt, 
 		}, this.esConfig);
