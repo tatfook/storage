@@ -54,8 +54,10 @@ module.exports = app => {
 		const {model} = options;
 		const tableName = model.getTableName();
 		const list = await getList(options);
-		for (let i = 0; i < list.length; i++) {
-			await app.api[tableName + "Destroy"](list[i]);
-		}
+		setTimeout(() => {
+			for (let i = 0; i < list.length; i++) {
+				await app.api[tableName + "Destroy"](list[i]);
+			}
+		}, 2000);
 	});
 }

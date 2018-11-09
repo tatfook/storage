@@ -39,8 +39,8 @@ module.exports = app => {
 		},
 
 		content: {                   // 评论内容
-			type: STRING(1024),
-			defaultValue:"",
+			type: TEXT,
+			//defaultValue:"",
 		},
 
 		extra: {
