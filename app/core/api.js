@@ -37,7 +37,7 @@ class Api  {
 		this.app.logger.debug(`发送请求: ${url}`);
 		return axios.request(config)
 			.then(res => {
-				//console.log(res);
+				console.log(`请求:${url}成功`, JSON.stringify(res.config));
 				this.app.logger.debug(`请求:${url}成功`, JSON.stringify(res.config));
 				return res.data;
 			})
@@ -80,8 +80,8 @@ class Api  {
 			const fansUser = await this.app.model.users.getById(favorite.objectId);
 			const followUser = await this.app.model.users.getById(favorite.userId);
 
-			await usersUpsert(fansUser);
-			await usersUpsert(followUser);
+			await this.usersUpsert(fansUser);
+			await this.usersUpsert(followUser);
 		}
 	}
 
