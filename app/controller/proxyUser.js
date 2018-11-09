@@ -96,6 +96,16 @@ const ProxyUser = class extends Controller {
 
 		return this.success({error:{id:0, message:"OK"}, data:user});
 	}
+
+	// getBaseInfoByName
+	async getBaseInfoByName() {
+		const {username} = this.validate({username:"string"});
+		const user = await this.model.users.getByName(username);
+
+		if (!user) return this.success({error:{id:-1, message:"用户不存在"}});
+
+		return this.success({error:{id:0, message:"OK"}, data:user});
+	}
 }
 
 module.exports = ProxyUser;
