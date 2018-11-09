@@ -100,7 +100,7 @@ class Api  {
 		const userId = inst.id;
 		inst.projectCount = await this.app.model.projects.count({where:{userId}});
 		inst.fansCount = await this.app.model.favorites.count({where:{objectId:userId, objectType: ENTITY_TYPE_USER}});
-		inst.followsCount = await this.app.model.favorites.count({where:{userId, objectType: ENTITY_TYPE_USER}});
+		inst.followCount = await this.app.model.favorites.count({where:{userId, objectType: ENTITY_TYPE_USER}});
 		return this.curl('post', `/users/${inst.id}/upsert`, {
 		//return await this.curl('post', `/users/${inst.id}/upsert`, {
 			id: inst.id,
