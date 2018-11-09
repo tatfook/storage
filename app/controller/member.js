@@ -17,6 +17,16 @@ const Member = class extends Controller {
 		return "members";
 	}
 
+	getModel(objectType) {
+		const models = {
+			[ENTITY_TYPE_PROJECT]: this.model.projects,
+			[ENTITY_TYPE_SITE]: this.model.sites,
+			[ENTITY_TYPE_GROUP]: this.model.groups,
+		};
+
+		return models[objectType];
+	}
+
 	async index() {
 		const params = this.validate({
 			objectId: 'int',
@@ -28,13 +38,31 @@ const Member = class extends Controller {
 		return this.success(list);
 	}
 
+	// 块创建
+	async bulkCreate() {
+		const {userId} = this.authenticated();
+		const {objectId, objectType, memberIds=[]} = this.validate({
+			objectId: 'int',
+			objectType: joi.number().valid(ENTITYS).required(),
+		});
+		if (memberIds.length == 0) return this.success("OK");
+		const list = [];
+
+		const model = this.getModel(objectType);
+		const data = await model.getById(objectId, userId);
+		if (!data) return this.throw(400);
+
+		for (let i = 0; i < memberIds.length; i++) {
+			list.push({userId, objectId, objectType, memberId: memberIds[i]});
+		}
+
+		const result = await this.model.members.bulkCreate(list);
+
+		return this.success(result);
+	}
+
 	async create() {
 		const {userId} = this.authenticated();
-		const models = {
-			[ENTITY_TYPE_PROJECT]: this.model.projects,
-			[ENTITY_TYPE_SITE]: this.model.sites,
-			[ENTITY_TYPE_GROUP]: this.model.groups,
-		};
 		const params = this.validate({
 			objectId: 'int',
 			objectType: joi.number().valid(ENTITYS).required(),
@@ -42,7 +70,8 @@ const Member = class extends Controller {
 		});
 		params.userId = userId;
 
-		let data = await models[params.objectType].getById(params.objectId, userId);
+		const model = this.getModel(params.objectType);
+		let data = await model.getById(params.objectId, userId);
 		if (!data) return this.throw(400);
 
 		data = await this.model.members.create(params);
