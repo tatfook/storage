@@ -14,7 +14,7 @@ module.exports = app => {
 	router.get(`${prefix}keepworks/statistics`, keepwork.statistics);
 
 	const user = controller.user;
-	router.post(`${prefix}users/search`, user.index);
+	router.post(`${prefix}users/search`, user.search);
 	router.get(`${prefix}users/:id/detail`, user.detail);
 	router.get(`${prefix}users/:id/sites`, user.sites);
 	router.get(`${prefix}users/tokeninfo`, user.tokeninfo);

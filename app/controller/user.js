@@ -12,6 +12,17 @@ const User = class extends Controller {
 		return this.success(this.authenticated());
 	}
 
+	async search() {
+		const query = this.validate();
+
+		this.formatQuery(query);
+
+		const attributes = ["id", "username", "nickname", "portrait", "email"];
+		const data = await this.model.users.findAndCount({...this.queryOptions, attributes, where:query});
+
+		return this.success(data);
+	}
+
 	async index() {
 		const query = this.validate();
 
