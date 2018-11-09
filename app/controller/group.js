@@ -16,6 +16,20 @@ const Group = class extends Controller {
 		return "groups";
 	}
 
+	async index() {
+		const {userId} = this.authenticated();
+
+		const groups = await this.model.groups.findAll({where:{userId}});
+		_.each(groups, (o, i) => groups[i] = o.get({plain:true}));
+
+		for (let i = 0; i < groups.length; i++) {
+			const group = groups[i];
+			group.members = await this.model.members.getObjectMembers(group.id, ENTITY_TYPE_GROUP);
+		}
+
+		return this.success(groups);
+	}
+
 	async destroy() {
 		const {ctx, model, config, util} = this;
 		const userId = this.authenticated().userId;

@@ -53,12 +53,12 @@ const Member = class extends Controller {
 		if (!data) return this.throw(400);
 
 		for (let i = 0; i < memberIds.length; i++) {
-			list.push({userId, objectId, objectType, memberId: memberIds[i]});
+			await this.model.members.upsert({userId, objectId, objectType, memberId: memberIds[i]});
 		}
 
-		const result = await this.model.members.bulkCreate(list);
+		//const result = await this.model.members.bulkCreate(list);
 
-		return this.success(result);
+		return this.success("OK");
 	}
 
 	async create() {

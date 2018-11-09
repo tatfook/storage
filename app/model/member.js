@@ -83,7 +83,7 @@ module.exports = app => {
 		await app.model.members.destroy({where:{objectId, objectType}});
 
 		for (let i = 0; i < members.length; i++) {
-			await app.model.members.create({
+			await app.model.members.upsert({
 				objectId, objectType, userId,
 				memberId: members[i],
 			});

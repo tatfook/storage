@@ -40,7 +40,7 @@ const Comment = class extends Controller {
 		const userId = this.authenticated().userId;
 		const {objectType, objectId, content} = this.validate({
 			objectType: joi.number().valid(ENTITYS),
-			objectId: "int",
+			objectId: "string",
 			content: "string",
 		});
 
