@@ -88,9 +88,10 @@ class BaseController extends Controller {
 		this.ctx.body = body;
 	}
 
-	fail(body, status = 400) {
-		this.ctx.status = status;
+	fail(body, status, data) {
+		this.ctx.status = status || 400;
 		if (_.isNumber(body)) body = Err.getByCode(body) || body;
+		if (_.isObject(body)) body.data = data;
 		this.ctx.body = body;
 	}
 

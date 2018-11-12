@@ -1,4 +1,5 @@
 const joi = require("joi");
+const axios = require("axios");
 const _ = require("lodash");
 
 const Controller = require("../core/controller.js");
@@ -133,7 +134,7 @@ const User = class extends Controller {
 		});
 		if (!data || data.error.id != 0) {
 			console.log("创建wikicraft用户失败", data);
-			return this.fail(-1);
+			return this.fail(-1, 400, data);
 		} 
 
 		const cellphone = params.cellphone;
