@@ -38,7 +38,7 @@ module.exports = app => {
 		},
 
 		content: {                   // 内容
-			type: STRING(512),
+			type: TEXT,
 			defaultValue:"",
 		},
 
