@@ -40,9 +40,10 @@ const Comment = class extends Controller {
 		const userId = this.authenticated().userId;
 		const {objectType, objectId, content} = this.validate({
 			objectType: joi.number().valid(ENTITYS),
-			objectId: "string",
 			content: "string",
 		});
+		if (!params.objectId) return this.throw(400, "参数错误");
+		params.objectId = _.toString(params.objectId);
 
 		const data = await this.model.comments.createComment(userId, objectId, objectType, content);
 		if (!data) this.throw(400);
