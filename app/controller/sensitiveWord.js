@@ -39,6 +39,22 @@ const SensitiveWord = class extends Controller {
 		return this.success({words, size: words.length});
 	}
 
+	async trim() {
+		const list = await this.model.sensitiveWords.findAll({limit:100000});
+		console.log(list.length);
+		for (let i = 0; i < list.length; i++) {
+			const o = list[i].get({plain:true});
+			o.word = o.word.trim();
+			try {
+				await this.model.sensitiveWords.update(o, {where:{id:o.id}});
+			} catch(e) {
+
+			}
+		}
+
+		return this.success("OK");
+	}
+
 	async check() {
 		const {word} = this.validate();
 
