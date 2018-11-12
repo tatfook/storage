@@ -119,8 +119,9 @@ const User = class extends Controller {
 			"username":"string",
 			"password":"string",
 		});
+		const {username, password} = params;
 
-		const words = await this.app.ahocorasick.check(username);
+		const words = await this.app.ahocorasick.check(params.username);
 		if (words.length) return this.fail(8);
 		if (!usernameReg.test(params.username)) return this.fail(2);
 		let user = await model.users.getByName(params.username);
