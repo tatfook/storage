@@ -23,5 +23,6 @@ new Err(4, "验证码过期");
 new Err(5, "验证码错误");
 new Err(6, "创建git用户失败");
 new Err(7, "无权限操作");
+new Err(8, "内容不合法,包含铭感词");
 
 module.exports = Err;

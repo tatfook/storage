@@ -1,5 +1,5 @@
 
-
+const axios = require("axios");
 const _ = require("lodash");
 
 const Controller = require("../core/controller.js");
@@ -49,6 +49,8 @@ const ProxyUser = class extends Controller {
 			password: "string",
 		});
 		const usernameReg = /^[\w\d]{4,30}$/;
+		const words = await this.app.ahocorasick.check(username);
+		if (words.length) return this.success({error:{id:-1, message:"包含铭感词", data:words}});
 		if (!usernameReg.test(username)) return this.success({error:{id:-1, message:"用户名不合法"}});
 		let user = await this.model.users.getByName(username);
 		if (user) return this.success({error:{id:-1, message:"用户已存在"}});
@@ -72,6 +74,11 @@ const ProxyUser = class extends Controller {
 			sitename: '__keepwork__',
 			visibility: 'public',
 		});
+
+		const data = await axios.post(config.keepworkBaseURL + "user/register", {username, password}).then(res => res.data).catch(e => {
+			console.log("创建wikicraft用户失败", e);
+		});
+		console.log(data);
 
 		user.token = token;
 		user.displayName = user.nickname;
