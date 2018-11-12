@@ -55,6 +55,11 @@ const ProxyUser = class extends Controller {
 		let user = await this.model.users.getByName(username);
 		if (user) return this.success({error:{id:-1, message:"用户已存在"}});
 
+		const data = await axios.post(config.keepworkBaseURL + "user/register", {username, password}).then(res => res.data).catch(e => {
+			console.log("创建wikicraft用户失败", e);
+		});
+		if (!data || data.error.id != 0) return this.success(data);
+		
 		user = await this.model.users.create({username, password:this.app.util.md5(password)});
 		if (!user) return this.success({error:{id:-1, message:"服务器内部错误"}});
 
@@ -74,11 +79,6 @@ const ProxyUser = class extends Controller {
 			sitename: '__keepwork__',
 			visibility: 'public',
 		});
-
-		const data = await axios.post(config.keepworkBaseURL + "user/register", {username, password}).then(res => res.data).catch(e => {
-			console.log("创建wikicraft用户失败", e);
-		});
-		console.log(data);
 
 		user.token = token;
 		user.displayName = user.nickname;
