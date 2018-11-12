@@ -126,6 +126,15 @@ const User = class extends Controller {
 		let user = await model.users.getByName(params.username);
 		if (user) return this.fail(3);
 
+		// 同步用户到wikicraft
+		const data = await axios.post(config.keepworkBaseURL + "user/register", {username, password}).then(res => res.data).catch(e => {
+			console.log("创建wikicraft用户失败", e);
+		});
+		if (!data || data.error.id != 0) {
+			console.log("创建wikicraft用户失败", data);
+			return this.fail(-1);
+		} 
+
 		const cellphone = params.cellphone;
 		if (cellphone) {
 			const cache = await this.app.model.caches.get(cellphone) || {};
