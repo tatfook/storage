@@ -11,7 +11,7 @@ module.exports = app => {
 		JSON,
 	} = app.Sequelize;
 
-	const model = app.model.define("datas", {
+	const model = app.model.define("profiles", {
 		id: {
 			type: BIGINT,
 			autoIncrement: true,
@@ -29,7 +29,7 @@ module.exports = app => {
 			defaultValue: {},
 		},
 
-		data: {                     // 前端使用
+		extra: {                     // 前端使用
 			type: JSON,
 			defaultValue: {},
 		},
@@ -44,6 +44,10 @@ module.exports = app => {
 		//console.log("create table successfully");
 	//});
 	
+	model.associate = function() {
+		app.model.profiles.belongsTo(app.model.users);
+	}
+
 	model.put = async function(userId, data) {
 		const olddata = await this.get(userId);
 		_.merge(olddata, data);
@@ -60,6 +64,6 @@ module.exports = app => {
 		return data ? data.get({plain:true}).data : {};
 	}
 
-	app.model.datas = model;
+	app.model.profiles = model;
 	return model;
 };

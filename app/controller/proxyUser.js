@@ -99,6 +99,7 @@ const ProxyUser = class extends Controller {
 		if (!user) return this.success({error:{id:-1, message:"用户不存在"}});
 
 		user.displayName = user.nickname;
+		if (user.realname) user.realNameInfo = {cellphone: user.realname, verified: user.realname ? true : false};
 		delete user.password;
 
 		return this.success({error:{id:0, message:"OK"}, data:user});

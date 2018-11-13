@@ -22,6 +22,7 @@ module.exports = app => {
 	router.post(`${prefix}users/login`, user.login);
 	router.post(`${prefix}users/logout`, user.logout);
 	router.get(`${prefix}users/profile`, user.profile);
+	router.post(`${prefix}users/profile`, user.setProfile);
 	router.put(`${prefix}users/pwd`, user.changepwd);
 	router.get(`${prefix}users/email_captcha`, user.emailVerifyOne);
 	router.post(`${prefix}users/email_captcha`, user.emailVerifyTwo);
