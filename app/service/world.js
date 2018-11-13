@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const base32 = require('base32');
+const base32 = require('hi-base32');
 const Service = require('egg').Service;
 
 class World extends Service {
@@ -39,87 +39,17 @@ class World extends Service {
     );
 
     if (!result) {
-      let result = await this.app.gitGateway.createProject(
-        userInfo.username,
+      let result = await this.app.git.createProject(
+        gitlabToken,
         baseWorldName
       );
 
-      if (!result) {
+      if (result) {
+        return true
+      } else {
         console.log('创建GIT项目失败', result);
         return false;
       }
-    }
-
-	// 直接返回不创建文件
-	return {};
-
-    let tree = await this.app.gitGateway.getTree();
-
-    await new Promise((resolve, reject) => {
-      let index = 0;
-
-      if (!tree || tree.length == 0) {
-        resolve();
-      }
-
-      _.forEach(tree, async (item, key) => {
-        if (item && item.path) {
-          let content = await this.app.gitGateway.getContent(null, item.path);
-
-          item.content = content;
-          index++;
-
-          if (index == tree.length) {
-            resolve();
-          }
-        }
-      });
-    });
-
-    let success = await new Promise((resolve, reject) => {
-      let index = 0;
-      let self = this;
-
-      async function upload() {
-        if (index == tree.length) {
-          resolve(true);
-          return true;
-        }
-
-        let item = tree[index];
-        if (item && item.path && item.content) {
-          if (item.path == 'tag.xml') {
-            item.content = item.content.replace(
-              'name="DefaultName"',
-              `name="${worldName || ''}"`
-            );
-          }
-
-          await self.app.git.writeFile(
-            gitlabToken,
-            gitlabUsername,
-            baseWorldName,
-            item.path,
-            item.content
-          );
-
-          index++;
-          upload();
-        } else {
-          reject(false);
-        }
-      }
-
-      upload();
-    });
-
-    if (success) {
-      const archiveUrl = this.getArchiveUrl(userInfo.username, worldName);
-      return { archiveUrl };
-    } else {
-      //return this.ctx.throw(400, '写入世界文件失败！');
-      console.log('写世界文件失败');
-      return false;
     }
   }
 
@@ -142,7 +72,6 @@ class World extends Service {
     }
   }
 
-  // =转成-equal  +转成-plus  /转成-slash
   base32(text) {
     if (text) {
       let notLetter = text.match(/[^a-zA-Z0-9]/g);
@@ -150,9 +79,8 @@ class World extends Service {
       if (notLetter) {
         text = base32.encode(text);
 
-        text = text.replace(/[=]/g, '-equal');
-        text = text.replace(/[+]/g, '-plus');
-        text = text.replace(/[/]/g, '-slash');
+        text = text.replace(/[=]/g, '');
+        text = text.toLocaleLowerCase();
 
         text = 'world_base32_' + text;
       } else {
@@ -172,11 +100,7 @@ class World extends Service {
       if (notLetter) {
         text = text.replace('world_base32_', '');
 
-        text = text.replace(/-equal/g, '=');
-        text = text.replace(/-plus/g, '+');
-        text = text.replace(/-slash/g, '/');
-
-        return Encoding.from_base32(text);
+        return Encoding.decode(text);
       } else {
         text = text.replace('world_', '');
 

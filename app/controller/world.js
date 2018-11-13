@@ -1,6 +1,6 @@
 const joi = require('joi');
 const _ = require('lodash');
-const base32 = require('base32');
+const base32 = require('hi-base32');
 
 const Controller = require('../core/controller.js');
 const {
