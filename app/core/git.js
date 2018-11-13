@@ -95,6 +95,25 @@ class Git {
     });
   }
 
+  async createProject(token, projectName) {
+    let url = `${this.gitlabApi}/projects`;
+    let params = {
+      name: projectName
+    }
+
+    try {
+      let response = await this.axios(token).post(url, params);
+      console.log(response)
+      if (response && response.data) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      return false;
+    }
+  }
+
   async isProjectExist(token, username, projectName) {
     let url = `${this.gitlabApi}/projects/${this.getProjectPath(
       username,
