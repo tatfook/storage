@@ -31,7 +31,7 @@ const Project = class extends Controller {
 			//await this.model.projects.update({where:{id:projectId}});
 			return false;
 		};
-		await this.model.worlds.upsert({worldName, projectId, userId, archiveUrl:data.archiveUrl});
+		await this.model.worlds.upsert({worldName, projectId, userId});
 		await this.model.projects.update({status:2}, {where:{id:projectId}});
 
 		return true;
