@@ -33,10 +33,8 @@ module.exports = app => {
   ahocorasick(app);
   log(app);
 
-  //app.logger.set("DB", new RemoteErrorTransport({level:"DEBUG", app}));
-
   //console.log(app.config.env);
-  //
+
   //console.log("----------构建表-----------");
   //app.model.files.sync({force:true});
   //app.model.storages.sync({force:true});
