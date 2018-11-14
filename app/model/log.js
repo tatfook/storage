@@ -16,10 +16,21 @@ module.exports = app => {
 			primaryKey: true,
 		},
 
+		level: {
+			type: STRING(12),
+			defaultValue: "DEBUG",
+		},
+
 		text: {
 			type: TEXT,
 			defaultValue: "",
-		}
+		},
+
+		date: {
+			type: STRING(24),
+			defaultValue: "",
+		},
+
 	}, {
 		underscored: false,
 		charset: "utf8mb4",

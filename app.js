@@ -12,6 +12,7 @@ const git = require('./app/core/git.js');
 const gitGateway = require('./app/core/gitGateway.js');
 const model = require('./app/core/model.js');
 const ahocorasick = require('./app/core/ahocorasick.js');
+const log = require("./app/core/log.js");
 
 module.exports = app => {
   app.cache = cache;
@@ -30,6 +31,7 @@ module.exports = app => {
   gitGateway(app);
   model(app);
   ahocorasick(app);
+  log(app);
 
   //app.logger.set("DB", new RemoteErrorTransport({level:"DEBUG", app}));
 

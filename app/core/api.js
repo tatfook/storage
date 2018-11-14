@@ -39,6 +39,7 @@ class Api  {
 			.then(res => {
 				console.log(`请求:${url}成功`, JSON.stringify(res.config));
 				this.app.logger.debug(`请求:${url}成功`, JSON.stringify(res.config));
+				this.app.log.debug(`请求:${method} ${url}成功`, res.config);
 				return res.data;
 			})
 			.catch(res => {
