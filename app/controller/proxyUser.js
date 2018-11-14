@@ -34,6 +34,7 @@ const ProxyUser = class extends Controller {
 
 		user.token = token;
 		user.displayName = user.nickname;
+		if (user.realname) user.realNameInfo = {cellphone: user.realname, verified: user.realname ? true : false};
 
 		return this.success({
 			error:{id:0, message:"OK"},

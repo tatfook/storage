@@ -337,21 +337,21 @@ const User = class extends Controller {
 	async profile() {
 		const {userId} = this.authenticated();
 
-		//const user = await this.model.users.getById(userId);
-		//return this.success(user);
+		const user = await this.model.users.getById(userId);
+		return this.success(user);
 
-		const data = await this.model.users.findOne({
-			where:{id:userId},
-			exclude: ["password"],
-			include:[
-			{
-				model:this.model.profiles,
-				as:"profile",
-			}
-			],
-		});
+		//const data = await this.model.users.findOne({
+			//where:{id:userId},
+			//exclude: ["password"],
+			//include:[
+			//{
+				//model:this.model.profiles,
+				//as:"profile",
+			//}
+			//],
+		//});
 
-		return this.success(data);
+		//return this.success(data);
 	}
 
 	async setProfile() {

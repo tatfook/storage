@@ -13,6 +13,14 @@ const gitGateway = require('./app/core/gitGateway.js');
 const model = require('./app/core/model.js');
 const ahocorasick = require('./app/core/ahocorasick.js');
 
+const Transport = require("egg-logger").Transport;
+
+//class RemoteErrorTransport extends Transport {
+	//log(level, args) {
+		//console.log(level, args);
+	//}
+//}
+
 module.exports = app => {
   app.cache = cache;
   app.consts = consts;
@@ -30,6 +38,8 @@ module.exports = app => {
   gitGateway(app);
   model(app);
   ahocorasick(app);
+
+  //app.logger.set("DB", new RemoteErrorTransport({level:"DEBUG", app}));
 
   //console.log(app.config.env);
   //
