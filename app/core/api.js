@@ -106,6 +106,7 @@ class Api  {
 			id: inst.id,
 			username: inst.username,
 			portrait: inst.portrait,
+			description: inst.description,
 			total_fans: inst.fansCount,
 			total_projects: inst.projectCount,
 			total_follows: inst.followCount,
@@ -122,7 +123,7 @@ class Api  {
 			sitename: inst.sitename,
 			display_name: inst.displayName,
 			cover: inst.extra.imageUrl,
-			desc: inst.description,
+			description: inst.description,
 		}, this.esConfig);
 	}
 

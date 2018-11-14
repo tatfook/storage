@@ -6,6 +6,11 @@ const Controller = require("../core/controller.js");
 
 const ProxyUser = class extends Controller {
 	
+	formatUserInfo(olduser, newuser) {
+		const realname = newuser.realname;
+		if (realname) olduser.realNameInfo = {cellphone: realname, verified: true};
+	}
+
 	// 登录
 	async login() {
 		const config = this.config.self;
@@ -24,24 +29,13 @@ const ProxyUser = class extends Controller {
 		if (!user) return this.success({error:{id:-1, message:"用户名密码错误"}});
 		user = user.get({plain:true});
 
-		//if (model.roles.isExceptionRole(user.roleId)) this.throw(403, "异常用户");
-
-		const tokenExpire = config.tokenExpire || 3600 * 24 * 2;
-		const token = this.app.util.jwt_encode({
-			userId: user.id, 
-			username: user.username
-		}, config.secret, tokenExpire);
-
-		user.token = token;
-		user.displayName = user.nickname;
-		user._id = user.id;
-		user.defaultDataSource = {username:user.username};
-		if (user.realname) user.realNameInfo = {cellphone: user.realname, verified: user.realname ? true : false};
-
-		return this.success({
-			error:{id:0, message:"OK"},
-			data: {token: token, userinfo: user},
+		const data = await axios.post(config.keepworkBaseURL + "user/login", {username, password}).then(res => res.data).catch(e => {
+			console.log("登录wikicraft失败", e);
 		});
+		if (!data || data.error.id != 0) return this.success(data);
+
+		this.formatUserInfo(data.data.userinfo, user);
+		return this.success(data);
 	}
 
 	// 注册
@@ -66,12 +60,6 @@ const ProxyUser = class extends Controller {
 		user = await this.model.users.create({username, password:this.app.util.md5(password)});
 		if (!user) return this.success({error:{id:-1, message:"服务器内部错误"}});
 
-		const tokenExpire = config.tokenExpire || 3600 * 24 * 2;
-		const token = this.app.util.jwt_encode({
-			userId: user.id, 
-			username: user.username,
-		}, config.secret, tokenExpire);
-
 		const ok = await this.app.api.createGitUser(user);
 		if (!ok) {
 			await this.model.users.destroy({where:{id:user.id}});
@@ -83,33 +71,29 @@ const ProxyUser = class extends Controller {
 			visibility: 'public',
 		});
 
-		user.token = token;
-		user.displayName = user.nickname;
-		user._id = user.id;
-		user.defaultDataSource = {username:user.username};
-		delete user.password;
-
-		return this.success({
-			error:{id:0, message:"OK"},
-			data: {token: token, userinfo: user},
-		});
+		this.formatUserInfo(data.data.userinfo, user);
+		return this.success(data);
 	}
 
 	// profile
 	async profile() {
 		const {userId} = this.authenticated();	
+		const config = this.app.config.self;
 
 		const user = await this.model.users.findOne({where:{id: userId}});
 
 		if (!user) return this.success({error:{id:-1, message:"用户不存在"}});
 
-		user.displayName = user.nickname;
-		user._id = user.id;
-		user.defaultDataSource = {username:user.username};
-		if (user.realname) user.realNameInfo = {cellphone: user.realname, verified: user.realname ? true : false};
-		delete user.password;
+		const data = await axios.get(config.keepworkBaseURL + "user/getProfile", {headers:{
+			"Authorization":"Bearer " + this.ctx.state.token,
+		}}).then(res => res.data).catch(e => {
+			console.log("获取wikicraft用户失败", e);
+		});
+		if (!data || data.error.id != 0) return this.success(data);
 
-		return this.success({error:{id:0, message:"OK"}, data:user});
+		this.formatUserInfo(data.data, user);
+
+		return this.success(data);
 	}
 
 	// getBaseInfoByName
