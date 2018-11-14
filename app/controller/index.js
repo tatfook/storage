@@ -5,7 +5,7 @@ const Controller = require("../core/controller.js");
 
 class Index extends Controller {
 	async index() {
-		console.log(this.validate({"test":"string_optional"}));
+		this.app.runSchedule("log");
 		this.ctx.status = 200;
 		this.ctx.body = "hello world";
 	}

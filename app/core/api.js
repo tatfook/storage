@@ -159,6 +159,7 @@ class Api  {
 			type: inst.type == 1 ? "paracraft" : "site",
 			created_time: inst.createdAt,
 			cover: inst.extra.imageUrl,
+			description: inst.description,
 			total_like: inst.star,
 			total_view: inst.visit,
 			total_mark: inst.favorite,
