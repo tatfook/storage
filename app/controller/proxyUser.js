@@ -34,6 +34,7 @@ const ProxyUser = class extends Controller {
 
 		user.token = token;
 		user.displayName = user.nickname;
+		user._id = user.id;
 		if (user.realname) user.realNameInfo = {cellphone: user.realname, verified: user.realname ? true : false};
 
 		return this.success({
@@ -83,6 +84,7 @@ const ProxyUser = class extends Controller {
 
 		user.token = token;
 		user.displayName = user.nickname;
+		user._id = user.id;
 		delete user.password;
 
 		return this.success({
@@ -100,6 +102,7 @@ const ProxyUser = class extends Controller {
 		if (!user) return this.success({error:{id:-1, message:"用户不存在"}});
 
 		user.displayName = user.nickname;
+		user._id = user.id;
 		if (user.realname) user.realNameInfo = {cellphone: user.realname, verified: user.realname ? true : false};
 		delete user.password;
 
@@ -112,6 +115,8 @@ const ProxyUser = class extends Controller {
 		const user = await this.model.users.getByName(username);
 
 		if (!user) return this.success({error:{id:-1, message:"用户不存在"}});
+		user.displayName = user.nickname;
+		user._id = user.id;
 
 		return this.success({error:{id:0, message:"OK"}, data:user});
 	}

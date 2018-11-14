@@ -5,6 +5,7 @@ class Test extends Subscription {
 		return {
 			interval:"3s",
 			type:"worker",
+			disable:true,
 		}
 	}
 
