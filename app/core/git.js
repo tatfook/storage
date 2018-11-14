@@ -98,7 +98,8 @@ class Git {
   async createProject(token, projectName) {
     let url = `${this.gitlabApi}/projects`;
     let params = {
-      name: projectName
+      name: projectName,
+	  visibility: "public",
     }
 
     try {

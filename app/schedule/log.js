@@ -16,7 +16,7 @@ class Log extends Subscription {
 		// 保留3天的日志量
 		const date = (new Date()).getTime() - 3 * 24 * 3600 * 1000;
 		const datestr = moment(date).format("YYYY-MM-DD HH:mm:ss");
-		//console.log("清除日志:", datestr);
+		console.log("清除日志:", datestr);
 		const model = this.app.model;
 		await model.logs.destroy({
 			where: {
