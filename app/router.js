@@ -6,7 +6,7 @@ module.exports = app => {
 	const prefix = selfConfig.apiUrlPrefix;
 
 	const index = controller.index;
-	router.resources(`${prefix}indexs`, index);
+	router.all(`${prefix}indexs`, index.index);
 
 	const keepwork = controller.keepwork;
 	router.get(`${prefix}keepworks/test`, keepwork.test);

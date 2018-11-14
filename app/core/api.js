@@ -44,6 +44,7 @@ class Api  {
 			})
 			.catch(res => {
 				console.log(res.response.status, res.response.data);
+				this.app.log.debug(`请求:${method} ${url}失败`, res.response.status, res.response.data);
 				this.app.logger.debug(`请求:${url}失败`, res.responsestatus, res.response.data);
 			});
 
@@ -98,6 +99,10 @@ class Api  {
 		if (!inst) return console.log("参数为空");
 		inst = inst.get ? inst.get({plain:true}) : inst;
 
+		_.each(inst, (val, key) => {
+			if (val == null) delete inst[key];
+		});
+
 		const userId = inst.id;
 		inst.projectCount = await this.app.model.projects.count({where:{userId}});
 		inst.fansCount = await this.app.model.favorites.count({where:{objectId:userId, objectType: ENTITY_TYPE_USER}});
@@ -117,6 +122,10 @@ class Api  {
 	}
 
 	async sitesUpsert(inst) {
+		_.each(inst, (val, key) => {
+			if (val == null) delete inst[key];
+		});
+
 		return this.curl('post', `/sites/${inst.id}/upsert`, {
 		//return await this.curl('post', `/sites/${inst.id}/upsert`, {
 			id: inst.id,
@@ -129,6 +138,10 @@ class Api  {
 	}
 
 	async projectsUpsert(inst) {
+		_.each(inst, (val, key) => {
+			if (val == null) delete inst[key];
+		});
+
 		const tags = (inst.tags || "").split("|").filter(o => o);
 		const user = await this.app.model.users.findOne({where:{id:inst.userId}});
 		if (inst.createdAt == inst.updatedAt) await this.usersUpsert(user);
