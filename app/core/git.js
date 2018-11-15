@@ -99,11 +99,27 @@ class Git {
     let url = `${this.gitlabApi}/projects`;
     let params = {
       name: projectName,
-	  visibility: "public",
+	    visibility: "public",
     }
 
     try {
       let response = await this.axios(token).post(url, params);
+      console.log(response)
+      if (response && response.data) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async removeProject(token, username, projectName) {
+    let url = `${this.gitlabApi}/projects/${this.getProjectPath(username, projectName)}`;
+
+    try {
+      let response = await this.axios(token).delete(url);
       console.log(response)
       if (response && response.data) {
         return true;

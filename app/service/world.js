@@ -61,11 +61,20 @@ class World extends Service {
       return false;
     }
 
+    let {
+      gitlabToken,
+      gitlabUsername
+    } = await this.app.gitGateway.getUserGitlabTokenAndUsername(token);
+
+    if (!gitlabToken) {
+      console.log('未找gitlab token');
+      return false;
+    }
+
     let baseWorldName = this.base32(worldName);
-    let projectPath = `${userInfo.username || ''}/${baseWorldName}`
 
     try {
-      let result = await this.app.gitGateway.removeProject(projectPath)
+      let result = await this.app.git.removeProject(gitlabToken, gitlabUsername, baseWorldName)
 	  return true;
     } catch (error) {
       return false
