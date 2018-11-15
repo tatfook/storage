@@ -181,7 +181,7 @@ module.exports = app => {
 		const sql = `select sites.*, users.username
 			from sites, siteGroups, members, users 
 			where sites.id = siteGroups.siteId and siteGroups.groupId = members.objectId and members.objectType = :objectType and sites.userId = users.id
-			and members.memberId = :memberId and siteGroups.level == :level`;
+			and members.memberId = :memberId and siteGroups.level = :level`;
 
 		const list = await app.model.query(sql, {
 			type: app.model.QueryTypes.SELECT,
