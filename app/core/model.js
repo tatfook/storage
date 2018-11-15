@@ -12,7 +12,8 @@ module.exports = app => {
 		users:"users", 
 		sites:"sites", 
 		packages:"packages", 
-		projects:"projects"
+		projects:"projects",
+		favorites: "favorites",
 	};
 
 	async function getList(options) {
@@ -53,8 +54,10 @@ module.exports = app => {
 		const {model} = options;
 		const tableName = model.getTableName();
 		const list = await getList(options);
-		for (let i = 0; i < list.length; i++) {
-			await app.api[tableName + "Destroy"](list[i]);
-		}
+		setTimeout(async() => {
+			for (let i = 0; i < list.length; i++) {
+				await app.api[tableName + "Destroy"](list[i]);
+			}
+		}, 2000);
 	});
 }

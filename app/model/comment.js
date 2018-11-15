@@ -34,13 +34,13 @@ module.exports = app => {
 		},
 
 		objectId: {                  // 评论对象id
-			type: BIGINT,
+			type: STRING,
 			allowNull: false,
 		},
 
 		content: {                   // 评论内容
-			type: STRING(255),
-			defaultValue:"",
+			type: TEXT,
+			//defaultValue:"",
 		},
 
 		extra: {
@@ -61,6 +61,7 @@ module.exports = app => {
 		const user = await app.model.users.getById(userId);
 		if (!user) return ;
 
+		objectId = _.toString(objectId);
 		let data = await app.model.comments.create({
 			userId,
 			objectType,
@@ -97,6 +98,7 @@ module.exports = app => {
 	}
 
 	model.getObjectsCount = async function(objectIds, objectType) {
+		_.each(objectIds, (val, i) => objectIds[i] = _.toString(val));
 		const sql = `select objectId, count(*) count from comments where objectType = :objectType and objectId in (:objectIds) group by objectId`;
 		const list = await app.model.query(sql, {
 			type: app.Sequelize.QueryTypes.Sequelize,

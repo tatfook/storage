@@ -38,11 +38,11 @@ module.exports = app => {
 		},
 
 		content: {                   // 内容
-			type: STRING(512),
+			type: TEXT,
 			defaultValue:"",
 		},
 
-		state: {
+		state: {                     // 0 -- 进行中  1 -- 已完成
 			type: INTEGER,
 			defaultValue:0,
 		},
@@ -57,6 +57,15 @@ module.exports = app => {
 			defaultValue: "|",
 		},
 
+		no: {                       // issue 序号
+			type: INTEGER,
+			defaultValue: 1,
+		},
+
+		text: {
+			type: TEXT,             // issue 搜索文本
+		},
+
 		extra: {
 			type: JSON,
 			defaultValue: {},
@@ -65,6 +74,13 @@ module.exports = app => {
 		underscored: false,
 		charset: "utf8mb4",
 		collate: 'utf8mb4_bin',
+
+		indexes: [
+		{
+			unique: true,
+			fields: ["objectId", "objectType", "no"],
+		},
+		],
 	});
 
 	//model.sync({force:true}).then(() => {
@@ -136,13 +152,12 @@ module.exports = app => {
 			_.each(assigns, id => val.assigns.push(usermap[id]));
 		});
 
-		return issues;
+		return {issues, total};
 	}
 
 	model.getIssueAssigns = async function(assigns) {
-		const ids = assigns.split("|");
+		const ids = assigns.split("|").filter(o => o);
 		const userIds = [];
-		val.assigns = [];
 		_.each(ids, id => {
 			id = id ? _.toNumber(id) : NaN;
 			if (_.isNaN(id)) return;

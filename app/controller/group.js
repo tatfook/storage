@@ -16,6 +16,54 @@ const Group = class extends Controller {
 		return "groups";
 	}
 
+	async index() {
+		const {userId} = this.authenticated();
+
+		const groups = await this.model.groups.findAll({where:{userId}});
+		_.each(groups, (o, i) => groups[i] = o.get({plain:true}));
+
+		for (let i = 0; i < groups.length; i++) {
+			const group = groups[i];
+			group.members = await this.model.members.getObjectMembers(group.id, ENTITY_TYPE_GROUP);
+		}
+
+		return this.success(groups);
+	}
+
+	// 创建组
+	async create() {
+		const {userId} = this.authenticated();
+		const params = this.validate({groupname:"string"});
+		const members = params.members || [];
+
+		params.userId = userId;
+		delete params.members;
+
+		const group = await this.model.groups.create(params);
+
+		await this.model.members.setObjectMembers(group.id, ENTITY_TYPE_GROUP, members, userId);
+		
+		return this.success(group);
+	}
+
+	// update 
+	async update() {
+		const {userId} = this.authenticated();
+		const params = this.validate({id: "int"});
+		const members = params.members || [];
+		const {id} = params;
+
+		params.userId = userId;
+		delete params.members;
+
+		const result = await this.model.groups.update(params, {where:{id, userId}});
+
+		if (result[0]) await this.model.members.setObjectMembers(id, ENTITY_TYPE_GROUP, members, userId);
+		
+		return this.success("ok");
+
+	}
+
 	async destroy() {
 		const {ctx, model, config, util} = this;
 		const userId = this.authenticated().userId;

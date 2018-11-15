@@ -1,4 +1,5 @@
 const joi = require("joi");
+const axios = require("axios");
 const _ = require("lodash");
 
 const Controller = require("../core/controller.js");
@@ -10,6 +11,17 @@ const User = class extends Controller {
 
 	tokeninfo() {
 		return this.success(this.authenticated());
+	}
+
+	async search() {
+		const query = this.validate();
+
+		this.formatQuery(query);
+
+		const attributes = ["id", "username", "nickname", "portrait", "email"];
+		const data = await this.model.users.findAndCount({...this.queryOptions, attributes, where:query});
+
+		return this.success(data);
 	}
 
 	async index() {
@@ -51,38 +63,39 @@ const User = class extends Controller {
 	}
 
 	async login() {
-		const {ctx} = this;
-		const {model, util} = this.app;
 		const config = this.app.config.self;
-
+		const util = this.app.util;
 		const params = this.validate({
 			"username":"string",
 			"password":"string",
 		});
 
-		let user = await model.users.findOne({
+		let user = await this.model.users.findOne({
 			where: {
 				username: params.username,
-				password: util.md5(params.password),
+				password: this.app.util.md5(params.password),
 			},
 		});
 		
-		if (!user) ctx.throw(400, "用户名或密码错误");
+		if (!user) return this.fail(1);
 		user = user.get({plain:true});
 
 		//if (model.roles.isExceptionRole(user.roleId)) this.throw(403, "异常用户");
 
+		const tokenExpire = config.tokenExpire || 3600 * 24 * 2;
 		const token = util.jwt_encode({
 			userId: user.id, 
 			roleId: user.roleId,
 			username: user.username
-		}, config.secret, config.tokenExpire);
+		}, config.secret, tokenExpire);
+
+		//console.log(config.tokenExpire);
 
 		user.token = token;
 		//user.roleId = roleId;
-		ctx.cookies.set("token", token, {
+		this.ctx.cookies.set("token", token, {
 			httpOnly: false,
-			maxAge: config.tokenExpire * 1000,
+			maxAge: tokenExpire * 1000,
 			overwrite: true,
 			domain: "." + config.domain,
 		});
@@ -100,25 +113,36 @@ const User = class extends Controller {
 		const {ctx} = this;
 		const {model, util} = this.app;
 		const config = this.app.config.self;
-		const usernameReg = /^[\w\d]+$/;
+		const usernameReg = /^[\w\d]{4,30}$/;
 		const params = this.validate({
 			//"cellphone":"string",
 			//"captcha":"string",
 			"username":"string",
 			"password":"string",
 		});
+		const {username, password} = params;
 
-		if (!usernameReg.test(params.username)) ctx.throw(400);
-
+		const words = await this.app.ahocorasick.check(params.username);
+		if (words.length) return this.fail(8);
+		if (!usernameReg.test(params.username)) return this.fail(2);
 		let user = await model.users.getByName(params.username);
-		if (user) return ctx.throw(400, "用户已存在");
+		if (user) return this.fail(3);
+
+		// 同步用户到wikicraft
+		const data = await axios.post(config.keepworkBaseURL + "user/register", {username, password}).then(res => res.data).catch(e => {
+			console.log("创建wikicraft用户失败", e);
+		});
+		if (!data || data.error.id != 0) {
+			console.log("创建wikicraft用户失败", data);
+			return this.fail(-1, 400, data);
+		} 
 
 		const cellphone = params.cellphone;
 		if (cellphone) {
 			const cache = await this.app.model.caches.get(cellphone) || {};
 			if (!params.captcha || !cache.captcha || cache.captcha != params.captcha){
-				if (!cache.captcha) return this.throw(400, "验证码过期");
-				if (cache.captcha != params.captcha) return this.throw(400, "验证码失效");
+				if (!cache.captcha) return this.fail(4);
+				if (cache.captcha != params.captcha) return this.fail(5);
 			} 
 			const isBindCellphone = await model.users.findOne({where:{cellphone}});
 			if (isBindCellphone) delete params.cellphone;
@@ -129,31 +153,42 @@ const User = class extends Controller {
 			nickname: params.nickname || params.username,
 			username: params.username,
 			password: util.md5(params.password),
+			realname: cellphone,
 		});
 
-		if (!user) return ctx.throw(500);
+		if (!user) return this.fail(0);
 		user = user.get({plain:true});
 
-		const ok = await this.app.api.createGitUser(user);
+		const ok = await this.app.api.createGitUser({
+			id: user.id,
+			username: user.username,
+			password: params.password,
+		});
 		if (!ok) {
 			await this.model.users.destroy({where:{id:user.id}});
-			return this.throw(500, "创建git用户失败");
+			return this.fail(6);
 		}
+		await this.app.api.createGitProject({
+			username: user.username,
+			sitename: '__keepwork__',
+			visibility: 'public',
+		});
 
 		if (params.oauthToken) {
 			await model.oauthUsers.update({userId:user.id}, {where:{token:params.oauthToken}});
 		}
 
+		const tokenExpire = config.tokenExpire || 3600 * 24 * 2;
 		const token = util.jwt_encode({
 			userId: user.id, 
 			username: user.username,
 			roleId: user.roleId,
-		}, config.secret, config.tokenExpire);
+		}, config.secret, tokenExpire);
 
 		user.token = token;
 		ctx.cookies.set("token", token, {
 			httpOnly: false,
-			maxAge: config.tokenExpire * 1000,
+			maxAge: tokenExpire * 1000,
 			overwrite: true,
 			domain: "." + config.domain,
 		});
@@ -215,9 +250,6 @@ const User = class extends Controller {
 	
 	// 手机验证第二步  ==> 手机绑定
 	async cellphoneVerifyTwo() {
-		const {ctx, app} = this;
-		const {model} = this.app;
-
 		const userId = this.authenticated().userId;
 		const params = this.validate({
 			cellphone:"string",
@@ -232,18 +264,22 @@ const User = class extends Controller {
 		}
 		
 		const captcha = params.captcha;
-		const cache = await app.model.caches.get(cellphone);
+		const cache = await this.model.caches.get(cellphone);
 		//console.log(cache, cellphone, captcha, userId);
 		if (!captcha || !cache || cache.captcha != captcha) {
-			if (!cache) ctx.throw(400, "验证码过期");
-			if (!captcha || cache.captcha != captcha) return ctx.throw(400, "验证码错误" + cache.captcha + "-" + captcha);
+			if (!cache) this.throw(400, "验证码过期");
+			if (!captcha || cache.captcha != captcha) return this.throw(400, "验证码错误" + cache.captcha + "-" + captcha);
 		}
 		
+		if (params.realname) {
+			await this.model.users.update({realname: cellphone}, {where:{id:userId}});
+			return this.success("OK");
+		}
+
 		if (!params.isBind) cellphone = "";
 
-		const result = await model.users.update({cellphone}, {where:{id:userId}});
-
-		return this.success(result && result[0] == 1);
+		await this.model.users.update({cellphone}, {where:{id:userId}});
+		return this.success("OK");
 	}
 
 	// 邮箱验证第一步
@@ -302,9 +338,31 @@ const User = class extends Controller {
 		const {userId} = this.authenticated();
 
 		const user = await this.model.users.getById(userId);
-		
 		return this.success(user);
+
+		//const data = await this.model.users.findOne({
+			//where:{id:userId},
+			//exclude: ["password"],
+			//include:[
+			//{
+				//model:this.model.profiles,
+				//as:"profile",
+			//}
+			//],
+		//});
+
+		//return this.success(data);
 	}
+
+	async setProfile() {
+		const {userId} = this.authenticated();
+		const params = this.validate();
+		params.userId = userId;
+
+		await this.model.profiles.upsert(params);
+
+		return this.success("OK");
+	};
 
 	async detail() {
 		const {id} = this.validate({id:'int'});

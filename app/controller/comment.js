@@ -6,6 +6,8 @@ const {
 	ENTITY_TYPE_USER,
 	ENTITY_TYPE_SITE,
 	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_GROUP,
+	ENTITY_TYPE_ISSUE,
 	ENTITY_TYPE_PROJECT,
 } = require("../core/consts.js");
 
@@ -13,6 +15,8 @@ const ENTITYS = [
 	ENTITY_TYPE_USER,
 	ENTITY_TYPE_SITE,
 	ENTITY_TYPE_PAGE,
+	ENTITY_TYPE_GROUP,
+	ENTITY_TYPE_ISSUE,
 	ENTITY_TYPE_PROJECT,
 ];
 
@@ -23,19 +27,23 @@ const Comment = class extends Controller {
 
 	async index() {
 		const params = this.validate();
+		
 		this.formatQuery(params);
 
-		const list = await this.model.comments.findAll({...this.queryOptions, where:params});
+		console.log(params);
+
+		const list = await this.model.comments.findAndCount({...this.queryOptions, where:params});
 		return this.success(list);
 	}
 	
 	async create() {
 		const userId = this.authenticated().userId;
-		const {objectType, objectId, content} = this.validate({
+		let {objectType, objectId, content} = this.validate({
 			objectType: joi.number().valid(ENTITYS),
-			objectId: "int",
 			content: "string",
 		});
+		if (!objectId) return this.throw(400, "参数错误");
+		objectId = _.toString(objectId);
 
 		const data = await this.model.comments.createComment(userId, objectId, objectType, content);
 		if (!data) this.throw(400);

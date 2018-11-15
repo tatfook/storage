@@ -43,7 +43,12 @@ module.exports = app => {
 			type: BIGINT,
 		},
 
-		visibility: {                // 可见性 0 - 公开 1 - 私有
+		status: {                    // 项目状态  0 -- 创建失败  1  -- 创建中   2 --  创建成功
+			type: INTEGER,
+			defaultValue: 0,
+		},
+
+		visibility: {		         // 可见性 0 - 公开 1 - 私有
 			type: INTEGER, 
 			defaultValue: 0,
 		},
@@ -115,7 +120,7 @@ module.exports = app => {
 		},
 
 		description: {               // 项目描述
-			type: STRING(255),
+			type: TEXT,
 			defaultValue:"",
 		},
 
@@ -181,7 +186,7 @@ module.exports = app => {
 		const curTime = (new Date(year, month, day)).getTime();
 		const dayTime = 1000 * 3600 * 24;
 		const newStatistics = {};
-		for (let i = 0; i < 3; i++) newStatistics[curTime - i * dayTime] = statistics[curTime - i * dayTime] || {visit:0, star:0, comment:0};
+		for (let i = 0; i < 7; i++) newStatistics[curTime - i * dayTime] = statistics[curTime - i * dayTime] || {visit:0, star:0, comment:0};
 		newStatistics[curTime].visit += visit;
 		newStatistics[curTime].star += star;
 		newStatistics[curTime].comment += comment;

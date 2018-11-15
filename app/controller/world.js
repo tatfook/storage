@@ -1,6 +1,6 @@
 const joi = require('joi');
 const _ = require('lodash');
-const base32 = require('base32');
+const base32 = require('hi-base32');
 
 const Controller = require('../core/controller.js');
 const {
@@ -15,8 +15,25 @@ const World = class extends Controller {
   }
 
   async test() {
-    const ok = await this.ctx.service.world.generateDefaultWorld('你好啊6');
-	return this.success(ok);
+    const params = this.validate({
+      worldName: 'string'
+    });
+
+    const ok = await this.ctx.service.world.generateDefaultWorld(
+      params.worldName
+    );
+    console.log(params.worldName);
+    return this.success(ok);
+  }
+
+  async testDelete() {
+    const params = this.validate({
+      worldName: 'string'
+    });
+
+    const ok = await this.ctx.service.world.removeProject(params.worldName);
+    console.log(params.worldName);
+    return this.success(ok);
   }
 };
 

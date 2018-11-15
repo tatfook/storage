@@ -5,11 +5,12 @@ const Controller = require("../core/controller.js");
 
 class Index extends Controller {
 	async index() {
-		const {ctx} = this;
-		const model = ctx.model.files;
+		this.ctx.status = 200;
+		this.ctx.body = "hello world";
+	}
 
-		ctx.status = 200;
-		ctx.body = "hello world";
+	async test() {
+
 	}
 }
 

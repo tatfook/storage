@@ -44,12 +44,16 @@ module.exports = app => {
 			unique: true,
 		},
 
+		realname: {
+			type: STRING(24),
+		},
+
 		nickname: {
 			type: STRING(48),
 		},
 
 		portrait: {
-			type: STRING(128),
+			type: STRING(1024),
 		},
 
 		sex: {
@@ -73,6 +77,10 @@ module.exports = app => {
 
 	//model.sync({force:true});
 
+	model.associate = function() {
+		app.model.users.hasOne(app.model.profiles);
+	}
+
 	model.get = async function(id) {
 		if (_.toNumber(id)) {
 			return await this.getById(_.toNumber(id));
@@ -88,6 +96,18 @@ module.exports = app => {
 		});
 
 		return data && data.get({plain:true});
+	}
+
+	model.getBaseInfoById = async function(userId) {
+		const attributes = [["id", "userId"], "username", "nickname", "portrait", "description"];
+
+		const data = await app.model.users.findOne({where:{id:userId}, attributes});
+		if (!data) return {};
+
+		const user =  data.get({plain:true});
+		user.id = user.userId;
+
+		return user;
 	}
 
 	model.getById = async function(userId) {

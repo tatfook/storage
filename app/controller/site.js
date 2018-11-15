@@ -39,6 +39,14 @@ const Site = class extends Controller {
 		return this.success(list);
 	}
 
+	async show() {
+		const {id} = this.validate({id:"int"});
+
+		const site = await this.model.sites.getById(id);
+
+		return this.success(site);
+	}
+
 	async create() {
 		const {ctx, model, config, util} = this;
 		const {userId, username} = this.authenticated();

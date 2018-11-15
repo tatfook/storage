@@ -155,7 +155,7 @@ module.exports = app => {
 		
 		await app.model.applies.update({
 			state:APPLY_STATE_AGREE,
-		}, {where:{id, userId: data.userId}});
+		}, {where:{id}});
 
 		if (data.applyType == APPLY_TYPE_MEMBER) {
 			await app.model.members.upsert({
@@ -178,7 +178,7 @@ module.exports = app => {
 	
 		await app.model.applies.update({
 			state:APPLY_STATE_REFUSE,
-		}, {where:{id, userId:data.userId}});
+		}, {where:{id}});
 
 		return 0;
 	}

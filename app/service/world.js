@@ -1,94 +1,95 @@
 const _ = require('lodash');
-const base32 = require('base32');
+const base32 = require('hi-base32');
 const Service = require('egg').Service;
 
 class World extends Service {
-	getArchiveUrl(username, worldName) {
-		const config = this.app.config.self.gitlab;
-		const host = config.host;
-		const baseWorldName = this.base32(worldName);
-		const gitUsername = config.usernamePrefix + username;
-		
-		return `${host}/${gitUsername}/${baseWorldName}/repository/archive.zip`;
-	}
+  getArchiveUrl(username, worldName) {
+    const config = this.app.config.self.gitlab;
+    const host = config.host;
+    const baseWorldName = this.base32(worldName);
+    const gitUsername = config.usernamePrefix + username;
+
+    return `${host}/${gitUsername}/${baseWorldName}/repository/archive.zip`;
+  }
 
   async generateDefaultWorld(worldName) {
     let userInfo = this.ctx.state.user;
+    let token = this.ctx.state.token;
     if (!userInfo || !userInfo.username) {
-      return false
+      console.log('未认证');
+      return false;
     }
 
-    let tree = await this.app.git.getTree()
-    let baseWorldName = this.base32(worldName)
-    let worldProject = (userInfo.username || '') + '/' + (baseWorldName || '')
+    let baseWorldName = this.base32(worldName);
 
-    let result = await this.app.git.isProjectExist(worldProject)
+    let {
+      gitlabToken,
+      gitlabUsername
+    } = await this.app.gitGateway.getUserGitlabTokenAndUsername(token);
+
+    if (!gitlabToken) {
+      console.log('未找gitlab token');
+      return false;
+    }
+
+    let result = await this.app.git.isProjectExist(
+      gitlabToken,
+      gitlabUsername,
+      baseWorldName
+    );
 
     if (!result) {
-      let result = await this.app.git.createProject(userInfo.username, baseWorldName)
+      let result = await this.app.git.createProject(
+        gitlabToken,
+        baseWorldName
+      );
 
-      if (!result) {
-        return this.ctx.throw(500, "创建GIT项目失败");
+      if (result) {
+        return true
+      } else {
+        console.log('创建GIT项目失败', result);
+        return false;
       }
-    }
-
-    await new Promise((resolve, reject) => {
-      let index = 0;
-
-      if (!tree || tree.length == 0) {
-        resolve()
-      }
-
-      _.forEach(tree, async (item, key) => {
-        if (item && item.path) {
-
-          let content = await this.app.git.getContent(null, item.path);
-
-          item.content = content;
-          index++
-
-          if (index == tree.length) {
-            resolve()
-          }
-        }
-      })
-    })
-
-    let token = this.ctx.state.token
-    let writeList = []
-
-    _.forEach(tree, (item, key) => {
-      if (item && item.path && item.content) {
-        if (item.path == 'tag.xml') {
-          item.content = item.content.replace('name="DefaultName"', `name="${worldName || ''}"`)
-        }
-
-        writeList[writeList.length] = this.app.git.writeFile(token, worldProject, item.path, item.content)
-      }
-    })
-
-    try {
-      const ok = await Promise.all(writeList)
-      const archiveUrl = this.getArchiveUrl(userInfo.username, worldName);
-	  return {archiveUrl};
-    } catch (error) {
-		console.log(error);
-      return this.ctx.throw(409)
     }
   }
 
+  async removeProject(worldName) {
+    let userInfo = this.ctx.state.user;
+    let token = this.ctx.state.token;
+    if (!userInfo || !userInfo.username) {
+      console.log('未认证');
+      return false;
+    }
 
-  // =转成-equal  +转成-plus  /转成-slash
+    let {
+      gitlabToken,
+      gitlabUsername
+    } = await this.app.gitGateway.getUserGitlabTokenAndUsername(token);
+
+    if (!gitlabToken) {
+      console.log('未找gitlab token');
+      return false;
+    }
+
+    let baseWorldName = this.base32(worldName);
+
+    try {
+      let result = await this.app.git.removeProject(gitlabToken, gitlabUsername, baseWorldName)
+	  return true;
+    } catch (error) {
+      return false
+    }
+  }
+
   base32(text) {
     if (text) {
-      let notLetter = text.match(/[^a-zA-Z]/g);
+      let notLetter = text.match(/[^a-zA-Z0-9]/g);
 
       if (notLetter) {
         text = base32.encode(text);
 
-        text = text.replace(/[=]/g, '-equal');
-        text = text.replace(/[+]/g, '-plus');
-        text = text.replace(/[/]/g, '-slash');
+        text = text.replace(/[=]/g, '');
+        text = text.toLocaleLowerCase();
 
         text = 'world_base32_' + text;
       } else {
@@ -108,11 +109,7 @@ class World extends Service {
       if (notLetter) {
         text = text.replace('world_base32_', '');
 
-        text = text.replace(/-equal/g, '=');
-        text = text.replace(/-plus/g, '+');
-        text = text.replace(/-slash/g, '/');
-
-        return Encoding.from_base32(text);
+        return Encoding.decode(text);
       } else {
         text = text.replace('world_', '');
 
@@ -122,8 +119,6 @@ class World extends Service {
       return nil;
     }
   }
-
 }
 
 module.exports = World;
-

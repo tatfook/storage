@@ -10,6 +10,7 @@ const {
 	ENTITY_TYPE_GROUP,
 	ENTITY_TYPE_PROJECT,
 
+	APPLY_STATE_DEFAULT,
 	APPLY_STATE_AGREE,
 	APPLY_STATE_REFUSE,
 	APPLY_TYPE_MEMBER,
@@ -41,11 +42,12 @@ const Apply = class extends Controller {
 			applyType: joi.number().valid(APPLY_TYPE_MEMBER),
 			applyId: 'int',
 		});
-		params.userId = userId;
-		delete params.state;
 
-		const data = await this.model.applies.create(params);
-		if (!data) this.throw(400);
+		params.userId = userId;
+		params.state = APPLY_STATE_DEFAULT;
+		//delete params.state;
+		await this.model.applies.upsert(params);
+		const data = await this.model.applies.findOne({where:{objectId:params.objectId, objectType:params.objectType, applyType: params.applyType, applyId: params.applyId}});
 
 		return this.success(data);
 	}

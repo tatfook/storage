@@ -2,6 +2,8 @@ const joi = require("joi");
 const _ = require("lodash");
 const Controller = require("egg").Controller;
 
+const Err = require("./err.js");
+
 const rules = {
 	"int": joi.number().required(),
 	"int_optional": joi.number(),
@@ -50,6 +52,10 @@ class BaseController extends Controller {
 		return _.merge({}, this.ctx.request.body, this.ctx.query, this.ctx.params);
 	}
 
+	get log() {
+		return this.app.log;
+	}
+
 	validate(schema = {}, options = {allowUnknown:true}) {
 		const params = this.getParams();
 
@@ -86,6 +92,13 @@ class BaseController extends Controller {
 		this.ctx.body = body;
 	}
 
+	fail(body, status, data) {
+		this.ctx.status = status || 400;
+		if (_.isNumber(body)) body = Err.getByCode(body) || body;
+		if (_.isObject(body)) body.data = data;
+		this.ctx.body = body;
+	}
+
 	throw(...args) {
 		return this.ctx.throw(...args);
 	}
@@ -112,8 +125,35 @@ class BaseController extends Controller {
 			console.log(op, Op[op]);
 			query[newkey][Op[op]] = val;
 		}
+
+		const replaceOp = function(data) {
+			if (!_.isObject(data)) return ;
+			_.each(data, (val, key) => {
+				if (_.isString(key)) {
+					const op = key.substring(1);
+					if (_.startsWith(key, "$") && Op[op]) {
+						data[Op[op]] = val;
+						delete data[key];
+					}
+				}
+				replaceOp(val);
+			});
+		}
+
+		replaceOp(query);
 	}
 
+	async count() {
+		const model = this.model[this.modelName];
+		const query = this.validate();
+
+		this.formatQuery(query);
+
+		const result = await model.count({...this.queryOptions, where:query});
+
+		this.success(result);
+	}
+	
 	async search() {
 		const model = this.model[this.modelName];
 		const query = this.validate();

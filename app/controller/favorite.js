@@ -16,6 +16,16 @@ const Favorite = class extends Controller {
 	get modelName() {
 		return "favorites";
 	}
+
+	async search() {
+		const query = this.validate();
+
+		this.formatQuery(query);
+
+		const result = await this.model.favorites.findAndCount({...this.queryOptions, where:query});
+
+		return this.success(result);
+	}
 	
 	async index() {
 		const {model, ctx} = this;

@@ -21,7 +21,7 @@ module.exports = (options, app) => {
 	const config = app.config.self;
 	return async function(ctx, next) {
 		if (config.debug) {
-			ctx.state.user = {userId:1, username:"xiaoyao", roleId:10};
+			ctx.state.user = {userId:137, username:"xiaoyao", roleId:10};
 			ctx.state.token = app.util.jwt_encode(ctx.state.user, config.secret);
 			await next();
 			return ;

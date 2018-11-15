@@ -3,6 +3,12 @@ const _ = require("lodash");
 const axios = require("axios");
 const pathToRegexp = require('path-to-regexp');
 
+const {
+	ENTITY_TYPE_USER,
+	ENTITY_TYPE_SITE,
+	ENTITY_TYPE_PAGE,
+} = require("../core/consts.js");
+
 class Api  {
 	constructor(config, app) {
 		this.config = config;
@@ -28,10 +34,18 @@ class Api  {
 			config.data = data;
 		}
 
+		this.app.logger.debug(`发送请求: ${url}`);
 		return axios.request(config)
-			.then(res => res.data)
+			.then(res => {
+				console.log(`请求:${url}成功`, JSON.stringify(res.config));
+				this.app.logger.debug(`请求:${url}成功`, JSON.stringify(res.config));
+				this.app.log.debug(`请求:${method} ${url}成功`, res.config);
+				return res.data;
+			})
 			.catch(res => {
-				console.log(res);
+				console.log(res.response.status, res.response.data);
+				this.app.log.debug(`请求:${method} ${url}失败`, res.response.status, res.response.data);
+				this.app.logger.debug(`请求:${url}失败`, res.responsestatus, res.response.data);
 			});
 
 	}
@@ -63,17 +77,55 @@ class Api  {
 		return await this.curl('put', url, data, this.gitConfig);
 	}
 
+	async favorites(favorite) {
+		if (favorite.objectType == ENTITY_TYPE_USER) {
+			const fansUser = await this.app.model.users.getById(favorite.objectId);
+			const followUser = await this.app.model.users.getById(favorite.userId);
+
+			await this.usersUpsert(fansUser);
+			await this.usersUpsert(followUser);
+		}
+	}
+
+	async favoritesUpsert(favorite) {
+		await this.favorites(favorite);
+	}
+
+	async favoritesDestroy(favorite) {
+		await this.favorites(favorite);
+	}
 
 	async usersUpsert(inst) {
+		if (!inst) return console.log("参数为空");
+		inst = inst.get ? inst.get({plain:true}) : inst;
+
+		_.each(inst, (val, key) => {
+			if (val == null) delete inst[key];
+		});
+
+		const userId = inst.id;
+		inst.projectCount = await this.app.model.projects.count({where:{userId}});
+		inst.fansCount = await this.app.model.favorites.count({where:{objectId:userId, objectType: ENTITY_TYPE_USER}});
+		inst.followCount = await this.app.model.favorites.count({where:{userId, objectType: ENTITY_TYPE_USER}});
 		return this.curl('post', `/users/${inst.id}/upsert`, {
 		//return await this.curl('post', `/users/${inst.id}/upsert`, {
 			id: inst.id,
 			username: inst.username,
-			user_portrait: inst.portrait,
+			portrait: inst.portrait,
+			description: inst.description,
+			total_fans: inst.fansCount,
+			total_projects: inst.projectCount,
+			total_follows: inst.followCount,
+			created_time: inst.createdAt,
+			updated_time: inst.updatedAt, 
 		}, this.esConfig);
 	}
 
 	async sitesUpsert(inst) {
+		_.each(inst, (val, key) => {
+			if (val == null) delete inst[key];
+		});
+
 		return this.curl('post', `/sites/${inst.id}/upsert`, {
 		//return await this.curl('post', `/sites/${inst.id}/upsert`, {
 			id: inst.id,
@@ -81,13 +133,19 @@ class Api  {
 			sitename: inst.sitename,
 			display_name: inst.displayName,
 			cover: inst.extra.imageUrl,
-			desc: inst.description,
+			description: inst.description,
 		}, this.esConfig);
 	}
 
 	async projectsUpsert(inst) {
+		_.each(inst, (val, key) => {
+			if (val == null) delete inst[key];
+		});
+
 		const tags = (inst.tags || "").split("|").filter(o => o);
 		const user = await this.app.model.users.findOne({where:{id:inst.userId}});
+		if (inst.createdAt == inst.updatedAt) await this.usersUpsert(user);
+
 		if (!user) return;
 
 		return this.curl('post', `/projects/${inst.id}/upsert`, {
@@ -98,12 +156,14 @@ class Api  {
 			user_portrait: user.portrait,
 			visibility: inst.visibility == 0 ? "public" : "private",
 			recruiting: (inst.privilege & 1) ? true : false,
-			type: inst.type == 0 ? "paracraft" : "site",
+			type: inst.type == 1 ? "paracraft" : "site",
 			created_time: inst.createdAt,
 			cover: inst.extra.imageUrl,
+			description: inst.description,
 			total_like: inst.star,
 			total_view: inst.visit,
 			total_mark: inst.favorite,
+			total_comment: inst.comment,
 			recent_like: inst.lastStar,
 			recent_view: inst.lastVisit,
 			updated_time: inst.updatedAt,
@@ -131,7 +191,10 @@ class Api  {
 		return await this.curl('delete', `/sites/${id}`, {}, this.esConfig);
 	}
 
-	async projectsDestroy({id}) {
+	async projectsDestroy({id, userId}) {
+		const user = await this.app.model.users.findOne({where:{id:userId}});
+		await this.usersUpsert(user);
+
 		return await this.curl('delete', `/projects/${id}`, {}, this.esConfig);
 	}
 

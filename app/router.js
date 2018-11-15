@@ -6,13 +6,16 @@ module.exports = app => {
 	const prefix = selfConfig.apiUrlPrefix;
 
 	const index = controller.index;
+	router.all(`${prefix}indexs/test`, index.test);
 	router.resources(`${prefix}indexs`, index);
 
 	const keepwork = controller.keepwork;
 	router.get(`${prefix}keepworks/test`, keepwork.test);
+	router.get(`${prefix}keepworks/words`, keepwork.words);
 	router.get(`${prefix}keepworks/statistics`, keepwork.statistics);
 
 	const user = controller.user;
+	router.post(`${prefix}users/search`, user.search);
 	router.get(`${prefix}users/:id/detail`, user.detail);
 	router.get(`${prefix}users/:id/sites`, user.sites);
 	router.get(`${prefix}users/tokeninfo`, user.tokeninfo);
@@ -20,6 +23,7 @@ module.exports = app => {
 	router.post(`${prefix}users/login`, user.login);
 	router.post(`${prefix}users/logout`, user.logout);
 	router.get(`${prefix}users/profile`, user.profile);
+	router.post(`${prefix}users/profile`, user.setProfile);
 	router.put(`${prefix}users/pwd`, user.changepwd);
 	router.get(`${prefix}users/email_captcha`, user.emailVerifyOne);
 	router.post(`${prefix}users/email_captcha`, user.emailVerifyTwo);
@@ -54,6 +58,7 @@ module.exports = app => {
 	router.resources(`${prefix}domains`, domain);
 
 	const favorite = controller.favorite;
+	router.post(`${prefix}favorites/search`, favorite.search);
 	router.delete(`${prefix}favorites`, favorite.destroy);
 	router.get(`${prefix}favorites/follows`, favorite.follows);
 	router.get(`${prefix}favorites/exist`, favorite.exist);
@@ -68,6 +73,9 @@ module.exports = app => {
 
 	const comment = controller.comment;
 	router.resources(`${prefix}comments`, comment);
+
+	const qiniu = controller.qiniu;
+	router.get(`${prefix}qinius/token`, qiniu.token);
 
 	const file = controller.file;
 	router.get(`${prefix}files/:id/rawurl`, file.rawurl);
@@ -91,6 +99,7 @@ module.exports = app => {
 	router.resources(`${prefix}tags`, tag);
 
 	const project = controller.project;
+	router.get(`${prefix}projects/:id/status`, project.status);
 	router.get(`${prefix}projects/join`, project.join);
 	router.post(`${prefix}projects/search`, project.search);
 	router.get(`${prefix}projects/:id/detail`, project.detail);
@@ -101,9 +110,13 @@ module.exports = app => {
 	router.resources(`${prefix}projects`, project);
 
 	const issue = controller.issue;
+	router.post(`${prefix}issues/count`, issue.count);
+	router.post(`${prefix}issues/search`, issue.search);
+	router.get(`${prefix}issues/statistics`, issue.statistics);
 	router.resources(`${prefix}issues`, issue);
 
 	const member = controller.member;
+	router.post(`${prefix}members/bulk`, member.bulkCreate);
 	router.get(`${prefix}members/exist`, member.exist);
 	router.resources(`${prefix}members`, member);
 
@@ -129,5 +142,20 @@ module.exports = app => {
 
 	const world = controller.world;
 	router.get(`${prefix}worlds/test`, world.test);
+	router.get(`${prefix}worlds/testDelete`, world.testDelete);
 	router.resources(`${prefix}worlds`, world);
+
+	const sensitiveWord = controller.sensitiveWord;
+	router.get(`${prefix}sensitiveWords/trim`, sensitiveWord.trim);
+	router.get(`${prefix}sensitiveWords/check`, sensitiveWord.check);
+	router.get(`${prefix}sensitiveWords/import`, sensitiveWord.importWords);
+	router.resources(`${prefix}sensitiveWords`, sensitiveWord);
+
+	// wikicraft proxy
+	router.all("/api/wiki/models/user/login", controller.proxyUser.login);
+	router.all("/api/wiki/models/user/register", controller.proxyUser.register);
+	router.all("/api/wiki/models/user/getProfile", controller.proxyUser.profile);
+	router.all("/api/wiki/models/user/getBaseInfoByName", controller.proxyUser.getBaseInfoByName);
+	router.all("/api/wiki/models/oauth_app/agreeOauth", controller.proxyOauthApp.agreeOauth);
+	router.all("/api/wiki/models/oauth_app/getTokenByCode", controller.proxyOauthApp.getTokenByCode);
 }
