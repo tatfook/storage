@@ -140,7 +140,7 @@ module.exports = app => {
 
 		if (site.userId == memberId) return USER_ACCESS_LEVEL_WRITE;
 
-		let level = site.visibility == ENTITY_VISIBILITY_PRIVATE ? USER_ACCESS_LEVEL_NONE : USER_ACCESS_LEVEL_READ;
+		let level = 0;
 
 		let sql = `select level 
 			from members
@@ -171,6 +171,8 @@ module.exports = app => {
 		});
 
 		_.each(list, val => level = level < val.level ? val.level : level);
+
+		level = level ? level : (site.visibility == ENTITY_VISIBILITY_PRIVATE ? USER_ACCESS_LEVEL_NONE : USER_ACCESS_LEVEL_READ);
 
 		return level;
 	}
