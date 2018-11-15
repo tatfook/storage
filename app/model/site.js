@@ -195,12 +195,10 @@ module.exports = app => {
 		});
 
 		const refuseSiteId = [];
-		_.each(list, site => {
-			if (site.level == USER_ACCESS_LEVEL_NONE) refuseSiteId.push(site.id);
-		});
-		const sites = _.remove(list, o => refuseSiteId.indexOf(o.id) >= 0);
+		_.each(list, site => {if (site.level == USER_ACCESS_LEVEL_NONE) refuseSiteId.push(site.id)});
+		_.remove(list, o => refuseSiteId.indexOf(o.id) >= 0);
 
-		return sites;
+		return _.uniqBy(list, "id");
 
 	}
 
