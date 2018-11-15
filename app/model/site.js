@@ -118,7 +118,7 @@ module.exports = app => {
 	model.isEditableByMemberId = async function(siteId, memberId) {
 		const level = await this.getMemberLevel(siteId, memberId);
 
-		if (level >= USER_ACCESS_LEVEL_WRITE) return true;
+		if (level >= USER_ACCESS_LEVEL_WRITE && level < USER_ACCESS_LEVEL_NONE) return true;
 
 		return false;
 	}
@@ -126,7 +126,7 @@ module.exports = app => {
 	model.isReadableByMemberId = async function(siteId, memberId) {
 		const level = await this.getMemberLevel(siteId, memberId);
 
-		if (level >= USER_ACCESS_LEVEL_READ) return true;
+		if (level >= USER_ACCESS_LEVEL_READ && level < USER_ACCESS_LEVEL_NONE) return true;
 
 		return false;
 	}
@@ -181,7 +181,7 @@ module.exports = app => {
 		const sql = `select sites.*, users.username
 			from sites, siteGroups, members, users 
 			where sites.id = siteGroups.siteId and siteGroups.groupId = members.objectId and members.objectType = :objectType and sites.userId = users.id
-			and members.memberId = :memberId and siteGroups.level >= :level`;
+			and members.memberId = :memberId and siteGroups.level == :level`;
 
 		const list = await app.model.query(sql, {
 			type: app.model.QueryTypes.SELECT,
