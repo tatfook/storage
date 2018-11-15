@@ -32,7 +32,7 @@ const SensitiveWord = class extends Controller {
 		
 		const words = wordstr.split(",");
 		for (let i = 0; i < words.length; i++) {
-			const word = words[i];
+			const word = words[i].trim();
 			await this.model.sensitiveWords.upsert({word});
 		}
 		

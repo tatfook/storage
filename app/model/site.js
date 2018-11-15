@@ -180,10 +180,10 @@ module.exports = app => {
 	model.getJoinSites = async function(userId, level) {
 		level = level || USER_ACCESS_LEVEL_WRITE;
 
-		const sql = `select sites.*, users.username
+		const sql = `select sites.*, users.username, siteGroups.level 
 			from sites, siteGroups, members, users 
 			where sites.id = siteGroups.siteId and siteGroups.groupId = members.objectId and members.objectType = :objectType and sites.userId = users.id
-			and members.memberId = :memberId and siteGroups.level = :level`;
+			and members.memberId = :memberId and siteGroups.level >= :level`;
 
 		const list = await app.model.query(sql, {
 			type: app.model.QueryTypes.SELECT,
@@ -194,7 +194,13 @@ module.exports = app => {
 			}
 		});
 
-		return list;
+		const refuseSiteId = [];
+		_.each(list, site => {
+			if (site.level == USER_ACCESS_LEVEL_NONE) refuseSiteId.push(site.id);
+		});
+		const sites = _.remove(list, o => refuseSiteId.indexOf(o.id) >= 0);
+
+		return sites;
 
 	}
 
