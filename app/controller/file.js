@@ -99,7 +99,12 @@ const File = class extends Controller {
 
 		const token =  this.storage.getUploadToken(key);
 
-		await this.model.files.upsert({userId, key});
+		const result = await this.model.files.create({userId, key}).catch(() => {
+			console.log("文件已存在");
+			return undefined;
+		});
+
+		if (!result) return this.ERR(-1);
 
 		return this.ERR(0, {token});
 	}

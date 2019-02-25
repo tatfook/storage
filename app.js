@@ -29,7 +29,7 @@ module.exports = app => {
   git(app);
   gitGateway(app);
   model(app);
-  ahocorasick(app);
+  //ahocorasick(app);
 
   //console.log(app.config.env);
   //
