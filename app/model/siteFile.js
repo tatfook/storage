@@ -44,6 +44,17 @@ module.exports = app => {
 		],
 	});
 
+	model.getRawUrl = async function(data) {
+		data.siteId = data.siteId || 0;
+
+		let siteFile = await app.model.siteFiles.findOne({where:data}).then(o => o && o.toJSON());
+		if (!siteFile) {
+			siteFile = await app.model.siteFiles.create(data).then(o => o.toJSON());
+		}
+		const config = app.config.self;
+		return config.origin + config.baseUrl + "siteFiles/" + siteFile.id + "/raw";
+	}
+
 	app.model.siteFiles = model;
 	return model;
 };

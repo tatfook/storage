@@ -78,7 +78,7 @@ module.exports = app => {
 	router.get(`${prefix}qinius/token`, qiniu.token);
 
 	const file = controller.file;
-	router.get(`${prefix}files/:id/raw`, file.raw);
+	//router.get(`${prefix}files/:id/raw`, file.raw);
 	router.get(`${prefix}files/:id/rawurl`, file.rawurl);
 	router.get(`${prefix}files/:id/token`, file.token);
 	router.get(`${prefix}files/statistics`, file.statistics);

@@ -94,8 +94,9 @@ const File = class extends Controller {
 		let data = await this.model.files.findOne({where});
 		if (!data) return this.ERR(-1);
 
-		data = data.get({plain:true});
-		const url = this.storage.getDownloadUrl(data.key, 3600 * 24 * 365 * 100);
+		const url = await this.model.siteFiles.getRawUrl({fileId:id, userId});
+		//data = data.get({plain:true});
+		//const url = this.storage.getDownloadUrl(data.key, 3600 * 24 * 365 * 100);
 
 		return this.ERR(0, url);
 	}
@@ -216,8 +217,8 @@ const File = class extends Controller {
 		const list = [];
 		for (let i = 0; i < result.length; i++) {
 			let item = result[i].get({plain:true});
-			//item.downloadUrl = this.storage.getDownloadUrl(item.key);
-			item.downloadUrl = config.origin + config.baseUrl + "files/" + item.id + "/raw?e" + new Date().getTime();
+			item.downloadUrl = this.storage.getDownloadUrl(item.key);
+			//item.downloadUrl = config.origin + config.baseUrl + "files/" + item.id + "/raw?e" + new Date().getTime();
 			if (siteId) {
 				let siteFile = await this.model.siteFiles.findOne({where: {fileId: item.id, siteId}});
 				if (siteFile) {
