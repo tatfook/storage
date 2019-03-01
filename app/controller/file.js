@@ -218,7 +218,7 @@ const File = class extends Controller {
 		for (let i = 0; i < result.length; i++) {
 			let item = result[i].get({plain:true});
 			//item.downloadUrl = this.storage.getDownloadUrl(item.key);
-			item.downloadUrl = config.baseUrl + "files/" + item.id + "/raw";
+			item.downloadUrl = config.origin + config.baseUrl + "files/" + item.id + "/raw?e" + new Date().getTime();
 			if (siteId) {
 				let siteFile = await this.model.siteFiles.findOne({where: {fileId: item.id, siteId}});
 				if (siteFile) {
