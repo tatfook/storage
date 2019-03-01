@@ -76,10 +76,9 @@ const File = class extends Controller {
 
 	async raw() {
 		const {id} = this.validate({id:"int"});
-		const {userId} = this.authenticated();
-		const where = {id, userId};
+		//const {userId} = this.authenticated();
 
-		let data = await this.model.files.findOne({where});
+		let data = await this.model.files.findOne({where:{id}});
 		if (!data) return this.ERR(-1);
 		data = data.get({plain:true});
 		const url = this.storage.getDownloadUrl(data.key, 3600 * 24 * 365 * 100);
