@@ -64,3 +64,4 @@ module.exports = app => {
   //app.model.visitors.sync({force:true});
   //app.model.worlds.sync({force:true});
 };
+
