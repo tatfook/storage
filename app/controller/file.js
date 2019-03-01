@@ -74,6 +74,19 @@ const File = class extends Controller {
 		return filetype[ext.toLowerCase()] || "files";
 	}
 
+	async raw() {
+		const {id} = this.validate({id:"int"});
+		const {userId} = this.authenticated();
+		const where = {id, userId};
+
+		let data = await this.model.files.findOne({where});
+		if (!data) return this.ERR(-1);
+		data = data.get({plain:true});
+		const url = this.storage.getDownloadUrl(data.key, 3600 * 24 * 365 * 100);
+
+		this.ctx.redirect(url);
+	}
+
 	async rawurl() {
 		const {id} = this.validate({id:"int"});
 		const {userId} = this.authenticated();
@@ -204,7 +217,8 @@ const File = class extends Controller {
 		const list = [];
 		for (let i = 0; i < result.length; i++) {
 			let item = result[i].get({plain:true});
-			item.downloadUrl = this.storage.getDownloadUrl(item.key);
+			//item.downloadUrl = this.storage.getDownloadUrl(item.key);
+			item.downloadUrl = config.baseUrl + "files/" + item.id + "/raw";
 			if (siteId) {
 				let siteFile = await this.model.siteFiles.findOne({where: {fileId: item.id, siteId}});
 				if (siteFile) {
