@@ -78,12 +78,13 @@ const SiteFile = class extends Controller {
 		if (!url) this.throw(404);
 
 		for (let key in query) {
-			const value = query[key] || "";
+			const value = query[key];
 			if (url.indexOf("?") >= 0) {
-				url = `${url}&${key}=${value}`;
+				url = `${url}&${key}`;
 			} else {
-				url = `${url}?${key}=${value}`;
+				url = `${url}?${key}`;
 			}
+			if (value) url += `=${value}`;
 		}
 
 		this.ctx.redirect(url);
