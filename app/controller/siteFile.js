@@ -72,9 +72,19 @@ const SiteFile = class extends Controller {
 	}
 
 	async raw() {
+		const query = this.ctx.query;
 		const {id} = this.validate({id:'int'});
-		const url = await this.getRawUrl(id);
+		let url = await this.getRawUrl(id);
 		if (!url) this.throw(404);
+
+		for (let key in query) {
+			const value = query[key] || "";
+			if (url.indexOf("?") >= 0) {
+				url = `${url}&${key}=${value}`;
+			} else {
+				url = `${url}?${key}=${value}`;
+			}
+		}
 
 		this.ctx.redirect(url);
 	}
