@@ -48,7 +48,7 @@ module.exports = app => {
 		return token;
 	}
 
-	storage.getDownloadUrl = function(key, expires = 3600 * 24) {
+	storage.getDownloadUrl = function(key, expires = 3600 * 24 * 365 * 100) {
 		const mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
 		const config = new qiniu.conf.Config();
 		const bucketManager = new qiniu.rs.BucketManager(mac, config);
