@@ -5,7 +5,7 @@
   "main": "backpack.config.js",
   "dependencies": {
     "aho-corasick.js": "0.0.1",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "blueimp-md5": "^2.10.0",
     "egg": "^2.10.0",
     "egg-cors": "^2.1.0",
