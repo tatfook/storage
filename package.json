@@ -31,7 +31,7 @@
     "wurl": "^2.5.3"
   },
   "devDependencies": {
-    "egg-bin": "^4.8.1",
+    "egg-bin": "^4.20.0",
     "egg-mock": "^3.17.3"
   },
   "scripts": {
